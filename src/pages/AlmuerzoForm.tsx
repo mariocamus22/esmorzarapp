@@ -38,7 +38,6 @@ function caMonthDeMonth(monthIndex: number): string {
   return `de ${m}`
 }
 
-/** Etiqueta tipus "Hui (26 d'octubre)" o "25 de novembre" */
 function mealDateChipLabel(iso: string): string {
   const parts = iso.split('-').map(Number)
   if (parts.length !== 3 || parts.some((n) => !Number.isFinite(n))) return iso
@@ -88,6 +87,19 @@ function buildInput(
   }
 }
 
+/** Ubicació placeholder (futur: BD del bar). */
+const PLACEHOLDER_BAR_UBICACIO = 'Valencia, Valencia'
+
+const GASTO_CHIPS = [
+  { id: 'cacau', emoji: '🥜', label: 'Cacau del Collaret' },
+  { id: 'olivas', emoji: '🫒', label: 'Olivas' },
+  { id: 'cremaet', emoji: '☕', label: 'Cremaet' },
+  { id: 'tramussos', emoji: '🫘', label: 'Tramussos' },
+  { id: 'ensalada', emoji: '🥗', label: 'Ensalada' },
+  { id: 'vi', emoji: '🍷', label: 'Vino con Gaseosa' },
+  { id: 'cervesa', emoji: '🍺', label: 'Cerveza' },
+] as const
+
 function IconSearch(props: { className?: string }) {
   return (
     <svg className={props.className} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -114,107 +126,147 @@ function IconChevronDown(props: { className?: string }) {
   )
 }
 
-function IconPinSmall(props: { className?: string }) {
+function IconBurger(props: { className?: string }) {
   return (
-    <svg className={props.className} width={14} height={14} viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg className={props.className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
-        d="M12 21s7-4.35 7-10a7 7 0 10-14 0c0 5.65 7 10 7 10z"
+        d="M5 7h14M5 12h14M5 17h10"
         stroke="currentColor"
         strokeWidth="2"
-        strokeLinejoin="round"
+        strokeLinecap="round"
       />
-      <circle cx="12" cy="11" r="2.5" fill="currentColor" />
     </svg>
   )
 }
 
-/** Futur: ciutat i província des de la BD del bar. */
-const PLACEHOLDER_BAR_UBICACIO = 'València, València'
+function IconDrinkTab(props: { className?: string }) {
+  return (
+    <svg className={props.className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M8 3h8l-1 14.5a2 2 0 01-2 1.5h-2a2 2 0 01-2-1.5L8 3zM6 8h12"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCoffeeTab(props: { className?: string }) {
+  return (
+    <svg className={props.className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M6 6h12v6a4 4 0 01-4 4H10a4 4 0 01-4-4V6zM18 9h1.5a2.5 2.5 0 010 5H18M8 20h8"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
 
 type MidStep = 2 | 3 | 4
 
-/**
- * Capçalera compartida pasos 2–4: nom del bar, ubicació (placeholder) i barra de progrés (3 trams).
- */
-function FormFlowMidChrome({
+function FormSteps234Shell({
   step,
   barName,
-  onBack,
-  title,
-  subtitle,
+  closeHref,
+  onTab,
+  onAtras,
+  onSiguiente,
   children,
-  footer,
 }: {
   step: MidStep
   barName: string
-  onBack: () => void
-  title: ReactNode
-  subtitle?: ReactNode
+  closeHref: string
+  onTab: (s: MidStep) => void
+  onAtras: () => void
+  onSiguiente: () => void
   children: ReactNode
-  footer: ReactNode
 }) {
-  const progressPct = ((step - 1) / 3) * 100
-
   return (
     <>
-      <div className="form-mid-top">
-        <button type="button" className="form-mid-back" onClick={onBack} aria-label="Enrere">
-          <span aria-hidden>←</span>
+      <header className="form-mid-shell-header">
+        <span className="form-mid-header-spacer" aria-hidden />
+        <div className="form-mid-head-center">
+          <h2 className="form-mid-bar-title">{barName.trim() || 'Bar'}</h2>
+          <p className="form-mid-bar-subtitle">{PLACEHOLDER_BAR_UBICACIO}</p>
+        </div>
+        <Link to={closeHref} className="form-mid-close-x" aria-label="Cerrar">
+          ×
+        </Link>
+      </header>
+
+      <nav className="form-mid-tabs" aria-label="Pasos del esmorzar">
+        <button
+          type="button"
+          className={`form-mid-tab ${step === 2 ? 'is-active' : ''}`}
+          onClick={() => onTab(2)}
+        >
+          <IconBurger className="form-mid-tab-icon" />
+          <span className="form-mid-tab-text form-mid-tab-text--stack">
+            <span>Bocadillo</span>
+            <span>y gasto</span>
+          </span>
         </button>
-        <div className="form-mid-context">
-          <h2 className="form-mid-bar-name">{barName.trim() || 'Bar'}</h2>
-          <p
-            className="form-mid-location"
-            title="En el futur, aquesta dada vindrà del bar triat a la base de dades."
-          >
-            <IconPinSmall className="form-mid-location-icon" />
-            <span>{PLACEHOLDER_BAR_UBICACIO}</span>
-          </p>
-        </div>
-      </div>
+        <button
+          type="button"
+          className={`form-mid-tab ${step === 3 ? 'is-active' : ''}`}
+          onClick={() => onTab(3)}
+        >
+          <IconDrinkTab className="form-mid-tab-icon" />
+          <span className="form-mid-tab-text">Bebida</span>
+        </button>
+        <button
+          type="button"
+          className={`form-mid-tab ${step === 4 ? 'is-active' : ''}`}
+          onClick={() => onTab(4)}
+        >
+          <IconCoffeeTab className="form-mid-tab-icon" />
+          <span className="form-mid-tab-text">Café</span>
+        </button>
+      </nav>
 
-      <div
-        className="form-mid-progress-wrap"
-        role="progressbar"
-        aria-valuemin={1}
-        aria-valuemax={3}
-        aria-valuenow={step - 1}
-        aria-label={`Pas ${step - 1} de 3: bocadillo, beguda i cafè`}
-      >
-        <div className="form-mid-progress-track">
-          <div className="form-mid-progress-fill" style={{ width: `${progressPct}%` }} />
-        </div>
-        <div className="form-mid-progress-steps" aria-hidden>
-          {[1, 2, 3].map((n) => {
-            const sub = step - 1
-            const cls = [sub >= n ? 'is-reached' : '', sub === n ? 'is-current' : '']
-              .filter(Boolean)
-              .join(' ')
-            return (
-              <span key={n} className={cls || undefined}>
-                {n}
-              </span>
-            )
-          })}
-        </div>
-      </div>
+      <div className="form-mid-content">{children}</div>
 
-      <div className="form-mid-body">
-        <div className="form-mid-step-head">
-          <h1 className="form-mid-title">{title}</h1>
-          {subtitle ? <p className="form-mid-subtitle">{subtitle}</p> : null}
-        </div>
-        {children}
-      </div>
-
-      <div className="form-mid-footer">{footer}</div>
+      <footer className="form-mid-footer-row">
+        <button type="button" className="form-mid-btn-atras" onClick={onAtras}>
+          Atrás
+        </button>
+        <button type="button" className="form-mid-btn-siguiente" onClick={onSiguiente}>
+          Siguiente
+          <span className="form-mid-btn-arrow" aria-hidden>
+            →
+          </span>
+        </button>
+      </footer>
     </>
   )
 }
 
-/**
- * Formulari multipas per crear o editar un almuerzo (pas 1 amb UX dissenyada).
- */
+function gastoParts(g: string): string[] {
+  return g
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
+function isGastoChipSelected(gasto: string, label: string): boolean {
+  return gastoParts(gasto).some((p) => p.toLowerCase() === label.toLowerCase())
+}
+
+function toggleGastoChipLabel(gasto: string, label: string): string {
+  const parts = gastoParts(gasto)
+  const i = parts.findIndex((p) => p.toLowerCase() === label.toLowerCase())
+  if (i >= 0) {
+    parts.splice(i, 1)
+  } else {
+    parts.push(label)
+  }
+  return parts.join(', ')
+}
+
 export function AlmuerzoForm({ mode }: Props) {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -329,6 +381,22 @@ export function AlmuerzoForm({ mode }: Props) {
       return
     }
     setStep(2)
+  }
+
+  function handleMidTab(s: MidStep) {
+    setStep(s)
+  }
+
+  function handleMidAtras() {
+    if (step === 2) setStep(1)
+    else if (step === 3) setStep(2)
+    else if (step === 4) setStep(3)
+  }
+
+  function handleMidSiguiente() {
+    if (step === 2) setStep(3)
+    else if (step === 3) setStep(4)
+    else if (step === 4) setStep(5)
   }
 
   async function onSubmit(e: FormEvent) {
@@ -466,101 +534,106 @@ export function AlmuerzoForm({ mode }: Props) {
       )}
 
       {step === 2 && (
-        <FormFlowMidChrome
+        <FormSteps234Shell
           step={2}
           barName={barName}
-          onBack={() => setStep(1)}
-          title="¿Què has menjat?"
-          subtitle="Bocadillo i aperitius del bar."
-          footer={
-            <button type="button" className="btn btn-primary form-mid-cta-primary" onClick={() => setStep(3)}>
-              Següent
-            </button>
-          }
+          closeHref={closeHref}
+          onTab={handleMidTab}
+          onAtras={handleMidAtras}
+          onSiguiente={handleMidSiguiente}
         >
-          <label className="form-step2-label" htmlFor="form-step2-boc">
-            Bocadillo
-          </label>
-          <input
-            id="form-step2-boc"
-            className="form-step2-pill"
-            type="text"
-            value={bocName}
-            onChange={(e) => setBocName(e.target.value)}
-            autoComplete="off"
-            placeholder="Ex.: bikini, esgarrat, pernil…"
-            enterKeyHint="next"
-          />
+          <section className="form-mid-section">
+            <h3 className="form-mid-section-title">Bocadillo</h3>
+            <div className="form-boc-pill-wrap">
+              <IconBurger className="form-boc-pill-icon" />
+              <input
+                id="form-step2-boc"
+                className="form-boc-pill-input"
+                type="text"
+                value={bocName}
+                onChange={(e) => setBocName(e.target.value)}
+                autoComplete="off"
+                placeholder="Joselito, Chipirones con cebolla…"
+              />
+            </div>
+          </section>
 
-          <label className="form-step2-label" htmlFor="form-step2-gasto">
-            Gasto
-          </label>
-          <textarea
-            id="form-step2-gasto"
-            className="form-step2-area"
-            value={gasto}
-            onChange={(e) => setGasto(e.target.value)}
-            rows={3}
-            placeholder="Olives, creïlles, ametles…"
-            enterKeyHint="next"
-          />
-        </FormFlowMidChrome>
+          <section className="form-mid-section">
+            <h3 className="form-mid-section-title">Gasto</h3>
+            <div className="form-gasto-grid" role="group" aria-label="Gasto en el bar">
+              {GASTO_CHIPS.map((chip) => {
+                const selected = isGastoChipSelected(gasto, chip.label)
+                return (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    className={`form-gasto-chip ${selected ? 'is-selected' : ''}`}
+                    onClick={() => setGasto((g) => toggleGastoChipLabel(g, chip.label))}
+                  >
+                    <span className="form-gasto-chip-emoji" aria-hidden>
+                      {chip.emoji}
+                    </span>
+                    <span className="form-gasto-chip-label">{chip.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+        </FormSteps234Shell>
       )}
 
       {step === 3 && (
-        <FormFlowMidChrome
+        <FormSteps234Shell
           step={3}
           barName={barName}
-          onBack={() => setStep(2)}
-          title="¿Què has begut?"
-          subtitle="Beguda de l’esmorzar."
-          footer={
-            <button type="button" className="btn btn-primary form-mid-cta-primary" onClick={() => setStep(4)}>
-              Següent
-            </button>
-          }
+          closeHref={closeHref}
+          onTab={handleMidTab}
+          onAtras={handleMidAtras}
+          onSiguiente={handleMidSiguiente}
         >
-          <label className="form-step2-label" htmlFor="form-step3-drink">
-            Beguda
-          </label>
-          <input
-            id="form-step3-drink"
-            className="form-step2-pill"
-            type="text"
-            value={drink}
-            onChange={(e) => setDrink(e.target.value)}
-            placeholder="Vi amb gas, cervesa, aigua…"
-            autoComplete="off"
-          />
-        </FormFlowMidChrome>
+          <section className="form-mid-section">
+            <h3 className="form-mid-section-title">Bebida</h3>
+            <div className="form-boc-pill-wrap">
+              <IconDrinkTab className="form-boc-pill-icon" />
+              <input
+                id="form-step3-drink"
+                className="form-boc-pill-input"
+                type="text"
+                value={drink}
+                onChange={(e) => setDrink(e.target.value)}
+                placeholder="Vino con gaseosa, cerveza…"
+                autoComplete="off"
+              />
+            </div>
+          </section>
+        </FormSteps234Shell>
       )}
 
       {step === 4 && (
-        <FormFlowMidChrome
+        <FormSteps234Shell
           step={4}
           barName={barName}
-          onBack={() => setStep(3)}
-          title="I el cafè?"
-          subtitle="Si n’has pres, digues quin."
-          footer={
-            <button type="button" className="btn btn-primary form-mid-cta-primary" onClick={() => setStep(5)}>
-              Següent
-            </button>
-          }
+          closeHref={closeHref}
+          onTab={handleMidTab}
+          onAtras={handleMidAtras}
+          onSiguiente={handleMidSiguiente}
         >
-          <label className="form-step2-label" htmlFor="form-step4-coffee">
-            Cafè
-          </label>
-          <input
-            id="form-step4-coffee"
-            className="form-step2-pill"
-            type="text"
-            value={coffee}
-            onChange={(e) => setCoffee(e.target.value)}
-            placeholder="Cremaet, tallat, sol…"
-            autoComplete="off"
-          />
-        </FormFlowMidChrome>
+          <section className="form-mid-section">
+            <h3 className="form-mid-section-title">Café</h3>
+            <div className="form-boc-pill-wrap">
+              <IconCoffeeTab className="form-boc-pill-icon" />
+              <input
+                id="form-step4-coffee"
+                className="form-boc-pill-input"
+                type="text"
+                value={coffee}
+                onChange={(e) => setCoffee(e.target.value)}
+                placeholder="Cremaet, cortado…"
+                autoComplete="off"
+              />
+            </div>
+          </section>
+        </FormSteps234Shell>
       )}
 
       {step === 5 && (
