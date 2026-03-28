@@ -731,3 +731,205 @@
   color: var(--color-muted);
   font-size: 0.95rem;
 }
+
+/* Form nou esmorzar — pas 1 (bar + data) */
+.form-flow--step1 {
+  min-height: calc(100dvh - 3.5rem);
+  display: flex;
+  flex-direction: column;
+  padding-top: 0.15rem;
+}
+
+.form-step1-header-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.form-step1-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -0.35rem -0.25rem 0 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 1.65rem;
+  font-weight: 400;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.form-step1-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.form-step1-close:focus-visible {
+  outline: 2px solid var(--home-orange, #f97316);
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .form-step1-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.form-step1-title {
+  margin: 0 0 1.35rem;
+  font-size: clamp(1.35rem, 4.2vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.form-step1-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.form-step1-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--home-label, #a16207);
+  margin-bottom: 0.45rem;
+  display: block;
+  letter-spacing: 0.03em;
+}
+
+.form-step1-search-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.form-step1-search-icon {
+  position: absolute;
+  left: 1.05rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-muted);
+  pointer-events: none;
+}
+
+.form-step1-search-input {
+  width: 100%;
+  padding: 0.95rem 1.1rem 0.95rem 2.85rem;
+  border-radius: 999px;
+  border: 1.5px solid #e8dcc8;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.form-step1-search-input::placeholder {
+  color: #bfa88a;
+}
+
+.form-step1-search-input:focus {
+  outline: none;
+  border-color: var(--home-orange, #f97316);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  .form-step1-search-input {
+    border-color: var(--color-border);
+  }
+  .form-step1-search-input::placeholder {
+    color: var(--color-muted);
+  }
+}
+
+.form-step1-date-row {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.form-step1-date-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem 0.5rem 0.55rem;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #57534e;
+  cursor: pointer;
+  border-radius: 0.85rem;
+  transition: background 0.15s ease;
+}
+
+.form-step1-date-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .form-step1-date-btn {
+    color: var(--color-muted);
+  }
+  .form-step1-date-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.form-step1-cta {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 1.75rem;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.form-step1-cta .btn-primary {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border-radius: 1.1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.35);
+}
+
+button.form-flow-back {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-link);
+  text-decoration: none;
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+button.form-flow-back:hover {
+  text-decoration: underline;
+}
+
+.form-flow-nav {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.form-flow-nav .btn {
+  flex: 1;
+  min-width: 7rem;
+}
