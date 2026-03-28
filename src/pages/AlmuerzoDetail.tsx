@@ -5,23 +5,160 @@ import { deleteAlmuerzo, getAlmuerzo, getFotoPublicUrl } from '../lib/almuerzosA
 import { hasSupabaseConfig } from '../lib/env'
 import type { Almuerzo } from '../types/almuerzo'
 
-function formatFecha(isoDate: string): string {
+const PLACEHOLDER_CIUTAT_PROVINCIA = 'València, València'
+
+function formatFechaLarga(isoDate: string): string {
   const d = new Date(`${isoDate}T12:00:00`)
-  return d.toLocaleDateString('es-ES', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
+  return d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function formatPrecio(n: number | null): string {
-  if (n == null || Number.isNaN(n)) return '—'
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n)
+function formatPrecioPill(n: number): string {
+  return new Intl.NumberFormat('ca-ES', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(n)
+}
+
+function IconBurgerSummary({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M5 7h14M5 12h14M5 17h10"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function IconSummaryGasto({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M9 5h11l-1 14H8L7 5zM7 5V4a2 2 0 012-2h2a2 2 0 012 2v1"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M5 9h18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconDrinkTab({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M8 3h8l-1 14.5a2 2 0 01-2 1.5h-2a2 2 0 01-2-1.5L8 3zM6 8h12"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCoffeeTab({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M6 6h12v6a4 4 0 01-4 4H10a4 4 0 01-4-4V6zM18 9h1.5a2.5 2.5 0 010 5H18M8 20h8"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconDetailCalendar({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={15} height={15} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconDetailCamera({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={48} height={48} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M4 10h3l1.5-2h7l1.5 2h3v9H4V10z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="14" r="3.2" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  )
+}
+
+function IconPencil({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function DetailHero({ paths }: { paths: string[] }) {
+  const [i, setI] = useState(0)
+  const n = paths.length
+
+  useEffect(() => {
+    setI((prev) => (n === 0 ? 0 : Math.min(prev, n - 1)))
+  }, [n])
+
+  if (n === 0) {
+    return (
+      <div className="detail-hero detail-hero--empty" aria-label="Sense fotos">
+        <IconDetailCamera className="detail-hero-empty-icon" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="detail-hero">
+      <div className="detail-hero-viewport">
+        <div className="detail-hero-track" style={{ transform: `translateX(-${i * 100}%)` }}>
+          {paths.map((p) => (
+            <div key={p} className="detail-hero-slide">
+              <img src={getFotoPublicUrl(p)} alt="" />
+            </div>
+          ))}
+        </div>
+        {n > 1 && (
+          <div className="detail-hero-dots" role="tablist" aria-label="Seleccionar foto">
+            {paths.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                role="tab"
+                aria-selected={idx === i}
+                className={`detail-hero-dot ${idx === i ? 'is-active' : ''}`}
+                onClick={() => setI(idx)}
+                aria-label={`Foto ${idx + 1} de ${n}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 /**
- * Detalle de un almuerzo: lectura, editar y eliminar (con confirmación).
+ * Detall d'un esmorzar: lectura, editar i eliminar (amb confirmació).
  */
 export function AlmuerzoDetail() {
   const { id } = useParams()
@@ -45,7 +182,7 @@ export function AlmuerzoDetail() {
         const data = await getAlmuerzo(id)
         if (!cancelled) {
           setRow(data)
-          setError(data ? null : 'No encontramos este almuerzo.')
+          setError(data ? null : 'No hem trobat aquest esmorzar.')
         }
       } catch (e) {
         if (!cancelled) {
@@ -64,7 +201,7 @@ export function AlmuerzoDetail() {
   async function handleDelete() {
     if (!id || !row) return
     const ok = window.confirm(
-      '¿Seguro que quieres eliminar este almuerzo? Esta acción no se puede deshacer.',
+      'Segur que vols eliminar aquest esmorzar? Aquesta acció no es pot desfer.',
     )
     if (!ok) return
 
@@ -82,18 +219,18 @@ export function AlmuerzoDetail() {
   if (!hasSupabaseConfig()) {
     return (
       <main className="page">
-        <p className="banner banner-warn">Falta configurar el archivo .env con Supabase.</p>
-        <Link to="/">← Volver</Link>
+        <p className="banner banner-warn">Falta configurar el fitxer .env amb Supabase.</p>
+        <Link to="/">← Tornar</Link>
       </main>
     )
   }
 
   if (loading) {
     return (
-      <main className="page">
+      <main className="page detail-page">
         <div className="loading-block" aria-busy="true">
           <span className="spinner" aria-hidden />
-          <span className="muted">Cargando almuerzo…</span>
+          <span className="muted">Carregant…</span>
         </div>
       </main>
     )
@@ -102,69 +239,110 @@ export function AlmuerzoDetail() {
   if (error || !row) {
     return (
       <main className="page">
-        <p className="banner banner-error">{error ?? 'No encontrado'}</p>
+        <p className="banner banner-error">{error ?? 'No trobat'}</p>
         <Link to="/" className="back-link">
-          ← Volver al listado
+          ← Tornar al llistat
         </Link>
       </main>
     )
   }
 
+  const bocText =
+    [row.bocadillo_name?.trim(), row.bocadillo_ingredients?.trim()].filter(Boolean).join('\n\n') || '—'
+  const gastoText = row.gasto?.trim() || '—'
+  const drinkText = row.drink?.trim() || '—'
+  const coffeeText = row.coffee?.trim() || '—'
+  const reviewTrim = row.review?.trim() ?? ''
+  const hasReview = reviewTrim.length > 0
+
   return (
-    <main className="page">
-      <header className="page-header">
-        <Link to="/" className="back-link">
-          ← Volver al listado
-        </Link>
-        <h1>{row.bar_name}</h1>
-        <p className="muted">{formatFecha(row.meal_date)}</p>
-      </header>
+    <main className="page detail-page">
+      <div className="detail-layout">
+        <div className="detail-scroll">
+          <div className="detail-pad">
+            <header className="detail-header-strip">
+              <div className="detail-header-text">
+                <h1 className="detail-bar-name">{row.bar_name}</h1>
+                <p className="detail-bar-loc">{PLACEHOLDER_CIUTAT_PROVINCIA}</p>
+              </div>
+              <Link to="/" className="detail-close" aria-label="Tancar">
+                ×
+              </Link>
+            </header>
+          </div>
 
-      <dl className="detail-grid">
-        <dt>Gasto</dt>
-        <dd>{row.gasto ?? '—'}</dd>
-        <dt>Bebida</dt>
-        <dd>{row.drink ?? '—'}</dd>
-        <dt>Bocadillo</dt>
-        <dd>
-          {row.bocadillo_name ?? '—'}
-          {row.bocadillo_ingredients ? (
-            <>
-              <br />
-              <span className="muted small">{row.bocadillo_ingredients}</span>
-            </>
-          ) : null}
-        </dd>
-        <dt>Café</dt>
-        <dd>{row.coffee ?? '—'}</dd>
-        <dt>Precio</dt>
-        <dd>{formatPrecio(row.price)}</dd>
-        <dt>Reseña</dt>
-        <dd className="detail-review">{row.review ?? '—'}</dd>
-      </dl>
+          <div className="detail-hero-wrap">
+            <DetailHero paths={row.photo_paths} />
+          </div>
 
-      {row.photo_paths.length > 0 && (
-        <section className="photo-grid" aria-label="Fotos del almuerzo">
-          {row.photo_paths.map((path) => (
-            <a key={path} href={getFotoPublicUrl(path)} target="_blank" rel="noreferrer">
-              <img src={getFotoPublicUrl(path)} alt="" className="photo-thumb" />
-            </a>
-          ))}
-        </section>
-      )}
+          <div className="detail-pad detail-stack">
+            <div className="form-summary-card detail-summary-card">
+              <div className="form-summary-rows">
+                <div className="form-summary-row">
+                  <IconBurgerSummary className="form-summary-icon" />
+                  <p className="form-summary-text">{bocText}</p>
+                </div>
+                <div className="form-summary-row">
+                  <IconSummaryGasto className="form-summary-icon" />
+                  <p className="form-summary-text">{gastoText}</p>
+                </div>
+                <div className="form-summary-row">
+                  <IconDrinkTab className="form-summary-icon" />
+                  <p className="form-summary-text">{drinkText}</p>
+                </div>
+                <div className="form-summary-row">
+                  <IconCoffeeTab className="form-summary-icon" />
+                  <p className="form-summary-text">{coffeeText}</p>
+                </div>
+              </div>
+            </div>
 
-      <div className="actions-row">
-        <Link to={`/almuerzo/${id}/editar`} className="btn btn-secondary">
-          Editar
-        </Link>
-        <button
-          type="button"
-          className="btn btn-danger"
-          onClick={handleDelete}
-          disabled={deleting}
-        >
-          {deleting ? 'Eliminando…' : 'Eliminar'}
-        </button>
+            <div className="detail-date-row">
+              <IconDetailCalendar className="detail-date-icon" />
+              <span className="detail-date-text">{formatFechaLarga(row.meal_date)}</span>
+            </div>
+
+            {hasReview && (
+              <div className="detail-review-block">
+                <span className="detail-review-label">La teua nota</span>
+                <p className="detail-review-sublabel">Este comentario es privado</p>
+                <textarea
+                  className="detail-review-readonly"
+                  readOnly
+                  tabIndex={-1}
+                  rows={4}
+                  value={reviewTrim}
+                  aria-label="La teua nota"
+                />
+              </div>
+            )}
+
+            {typeof row.price === 'number' && Number.isFinite(row.price) && (
+              <div className="detail-price-wrap">
+                <span className="detail-price-pill" aria-label="Preu">
+                  {formatPrecioPill(row.price)} €
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <footer className="detail-footer">
+          <div className="detail-footer-row">
+            <button
+              type="button"
+              className="detail-btn-delete"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? 'Eliminant…' : 'Eliminar'}
+            </button>
+            <Link to={`/almuerzo/${id}/editar`} className="detail-btn-edit">
+              <IconPencil className="detail-btn-edit-icon" aria-hidden />
+              Editar esmorzar
+            </Link>
+          </div>
+        </footer>
       </div>
     </main>
   )
