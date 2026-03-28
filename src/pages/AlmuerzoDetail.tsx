@@ -74,11 +74,16 @@ function IconCoffeeTab({ className }: { className?: string }) {
   )
 }
 
-function IconDetailCalendar({ className }: { className?: string }) {
+function IconLocationPin({ className }: { className?: string }) {
   return (
-    <svg className={className} width={15} height={15} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
-      <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg className={className} width={12} height={12} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 21c0 0 7-4.55 7-10a7 7 0 10-14 0c0 5.45 7 10 7 10z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="11" r="2.25" stroke="currentColor" strokeWidth="2" />
     </svg>
   )
 }
@@ -260,14 +265,22 @@ export function AlmuerzoDetail() {
       <div className="detail-layout">
         <div className="detail-scroll">
           <div className="detail-pad">
-            <header className="detail-header-strip">
-              <div className="detail-header-text">
-                <h1 className="detail-bar-name">{row.bar_name}</h1>
-                <p className="detail-bar-loc">{PLACEHOLDER_CIUTAT_PROVINCIA}</p>
+            <header className="detail-header-editorial">
+              <div className="detail-header-x-row">
+                <Link to="/" className="detail-close" aria-label="Tancar">
+                  ×
+                </Link>
               </div>
-              <Link to="/" className="detail-close" aria-label="Tancar">
-                ×
-              </Link>
+              <div className="detail-header-inner">
+                <time className="detail-header-date" dateTime={row.meal_date}>
+                  {formatFechaLarga(row.meal_date)}
+                </time>
+                <h1 className="detail-header-title">{row.bar_name}</h1>
+                <div className="detail-header-loc">
+                  <IconLocationPin className="detail-header-pin" aria-hidden />
+                  <span className="detail-header-loc-text">{PLACEHOLDER_CIUTAT_PROVINCIA}</span>
+                </div>
+              </div>
             </header>
           </div>
 
@@ -295,11 +308,6 @@ export function AlmuerzoDetail() {
                   <p className="form-summary-text">{coffeeText}</p>
                 </div>
               </div>
-            </div>
-
-            <div className="detail-date-row">
-              <IconDetailCalendar className="detail-date-icon" />
-              <span className="detail-date-text">{formatFechaLarga(row.meal_date)}</span>
             </div>
 
             {hasReview && (
