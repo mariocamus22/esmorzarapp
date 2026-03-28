@@ -166,6 +166,110 @@ function IconCoffeeTab(props: { className?: string }) {
   )
 }
 
+/** Iconos outline ~32px per a cards de beguda (pas 3) */
+function IconCardWine({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M9 2h6M9 2v6c0 2.8 1.4 4.2 3 4.5s3-1.2 3-4.5V2M9 12.5V20a1 1 0 001 1h4a1 1 0 001-1v-7.5"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCardBeer({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M7 5h8v9a3 3 0 01-3 3h-2a3 3 0 01-3-3V5zM15 7h2.2a2.3 2.3 0 011.3 4.2L17 12M6 20h10"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCardWater({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 3c-2 4-5 7.2-5 10.2a5 5 0 0010 0C17 10.2 14 7 12 3z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCardRefresco({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M9 6h6v11a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM9 6V4h6v2M10 4V3M14 4V3M11 9h2M11 12h2"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCardJuice({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M9 3h6l-1 14H10L9 3zM10 8h4M11 21h2"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCardHorchata({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M10 2h4v3h-4V2zM9 6h6v12a2.5 2.5 0 01-2.5 2.5h-1A2.5 2.5 0 019 18V6zM11 10h2"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCardOther({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+const DRINK_CARD_OPTIONS = [
+  { id: 'vino', label: 'Vino con gaseosa', Icon: IconCardWine },
+  { id: 'cerveza', label: 'Cerveza', Icon: IconCardBeer },
+  { id: 'agua', label: 'Agua', Icon: IconCardWater },
+  { id: 'refresco', label: 'Refresco', Icon: IconCardRefresco },
+  { id: 'zumo', label: 'Zumo', Icon: IconCardJuice },
+  { id: 'horchata', label: 'Horchata', Icon: IconCardHorchata },
+] as const
+
+const DRINK_PRESET_LABELS = new Set<string>(DRINK_CARD_OPTIONS.map((o) => o.label))
+
 type MidStep = 2 | 3 | 4
 
 function FormSteps234Shell({
@@ -278,6 +382,8 @@ export function AlmuerzoForm({ mode }: Props) {
   const [mealDate, setMealDate] = useState(todayISO())
   const [gasto, setGasto] = useState('')
   const [drink, setDrink] = useState('')
+  /** Pas 3: mode «Otra» (text lliure) */
+  const [drinkOtraMode, setDrinkOtraMode] = useState(false)
   const [bocName, setBocName] = useState('')
   const [bocIng, setBocIng] = useState('')
   const [coffee, setCoffee] = useState('')
@@ -322,7 +428,9 @@ export function AlmuerzoForm({ mode }: Props) {
         setBarName(row.bar_name)
         setMealDate(row.meal_date)
         setGasto(row.gasto ?? '')
-        setDrink(row.drink ?? '')
+        const dRow = row.drink ?? ''
+        setDrink(dRow)
+        setDrinkOtraMode(dRow !== '' && !DRINK_PRESET_LABELS.has(dRow))
         setBocName(row.bocadillo_name ?? '')
         setBocIng(row.bocadillo_ingredients ?? '')
         setCoffee(row.coffee ?? '')
@@ -593,18 +701,50 @@ export function AlmuerzoForm({ mode }: Props) {
         >
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">Bebida</h3>
-            <div className="form-boc-pill-wrap">
-              <IconDrinkTab className="form-boc-pill-icon" />
-              <input
-                id="form-step3-drink"
-                className="form-boc-pill-input"
-                type="text"
-                value={drink}
-                onChange={(e) => setDrink(e.target.value)}
-                placeholder="Vino con gaseosa, cerveza…"
-                autoComplete="off"
-              />
+            <div className="form-drink-card-grid" role="group" aria-label="Trie la beguda">
+              {DRINK_CARD_OPTIONS.map((opt) => {
+                const selected = !drinkOtraMode && drink === opt.label
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={`form-drink-card ${selected ? 'is-selected' : ''}`}
+                    onClick={() => {
+                      setDrinkOtraMode(false)
+                      setDrink((prev) => (prev === opt.label ? '' : opt.label))
+                    }}
+                  >
+                    <opt.Icon className="form-drink-card-icon" />
+                    <span className="form-drink-card-label">{opt.label}</span>
+                  </button>
+                )
+              })}
+              <button
+                type="button"
+                className={`form-drink-card ${drinkOtraMode ? 'is-selected' : ''}`}
+                onClick={() => {
+                  setDrinkOtraMode(true)
+                  if (DRINK_PRESET_LABELS.has(drink)) setDrink('')
+                }}
+              >
+                <IconCardOther className="form-drink-card-icon" />
+                <span className="form-drink-card-label">Otra</span>
+              </button>
             </div>
+            {drinkOtraMode && (
+              <label className="form-drink-other-wrap" htmlFor="form-step3-drink-other">
+                <span className="visually-hidden">Altra beguda</span>
+                <input
+                  id="form-step3-drink-other"
+                  className="form-drink-other-input"
+                  type="text"
+                  value={drink}
+                  onChange={(e) => setDrink(e.target.value)}
+                  placeholder="Escribe la bebida…"
+                  autoComplete="off"
+                />
+              </label>
+            )}
           </section>
         </FormSteps234Shell>
       )}
