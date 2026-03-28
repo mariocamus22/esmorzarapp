@@ -270,6 +270,103 @@ const DRINK_CARD_OPTIONS = [
 
 const DRINK_PRESET_LABELS = new Set<string>(DRINK_CARD_OPTIONS.map((o) => o.label))
 
+/** Icones outline 24px — color via CSS (--app-accent) */
+function IconCafeSolo({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M8 20h8M9 20V12a1 1 0 011-1h4a1 1 0 011 1v8M10 10V9a2 2 0 114 0v1M7 14H6a2 2 0 000 4h1"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCafeCortado({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M8 19h8M9 19l-1.2-9h8.4L15 19M9.5 10V8h5v2M8 8H7a2 2 0 000 4h1M12 5V3"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCafeBombon({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M10 3h4l-1.2 18h-1.6L10 3zM11 9h2M11 13h2M11 17h2"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCafeDelTemps({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function IconCafeCremaet({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 22c-2.5-3.5-1-6.5 0-10 1.2 2.8 3.5 5.5 0 10zM9.5 8.5c.5-1.5 1.5-2.5 2.5-3 1 .5 2 1.5 2.5 3"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function IconCafeNada({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M8 18h8M9 18V10a1 1 0 011-1h4a1 1 0 011 1v8M10 8V7a2 2 0 114 0v1M5 5l14 14"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+const COFFEE_ROW_OPTIONS = [
+  { id: 'solo', label: 'Café Solo', Icon: IconCafeSolo },
+  { id: 'cortado', label: 'Cortado', Icon: IconCafeCortado },
+  { id: 'bombon', label: 'Bombón', Icon: IconCafeBombon },
+  { id: 'del-temps', label: 'Del Temps', Icon: IconCafeDelTemps },
+  { id: 'cremaet', label: 'Cremaet', Icon: IconCafeCremaet },
+  { id: 'nada', label: 'Nada', Icon: IconCafeNada },
+] as const
+
+function coffeeRowMatches(coffeeVal: string, label: string): boolean {
+  return coffeeVal.trim().toLowerCase() === label.toLowerCase()
+}
+
 type MidStep = 2 | 3 | 4
 
 function FormSteps234Shell({
@@ -279,6 +376,7 @@ function FormSteps234Shell({
   onTab,
   onAtras,
   onSiguiente,
+  accionPrincipalLabel = 'Siguiente',
   children,
 }: {
   step: MidStep
@@ -287,6 +385,7 @@ function FormSteps234Shell({
   onTab: (s: MidStep) => void
   onAtras: () => void
   onSiguiente: () => void
+  accionPrincipalLabel?: string
   children: ReactNode
 }) {
   return (
@@ -339,7 +438,7 @@ function FormSteps234Shell({
           Atrás
         </button>
         <button type="button" className="form-mid-btn-siguiente" onClick={onSiguiente}>
-          Siguiente
+          {accionPrincipalLabel}
           <span className="form-mid-btn-arrow" aria-hidden>
             →
           </span>
@@ -757,20 +856,29 @@ export function AlmuerzoForm({ mode }: Props) {
           onTab={handleMidTab}
           onAtras={handleMidAtras}
           onSiguiente={handleMidSiguiente}
+          accionPrincipalLabel="Finalizar"
         >
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">Café</h3>
-            <div className="form-boc-pill-wrap">
-              <IconCoffeeTab className="form-boc-pill-icon" />
-              <input
-                id="form-step4-coffee"
-                className="form-boc-pill-input"
-                type="text"
-                value={coffee}
-                onChange={(e) => setCoffee(e.target.value)}
-                placeholder="Cremaet, cortado…"
-                autoComplete="off"
-              />
+            <div className="form-cafe-row-list" role="listbox" aria-label="Trie el cafè">
+              {COFFEE_ROW_OPTIONS.map((opt) => {
+                const selected = coffeeRowMatches(coffee, opt.label)
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    role="option"
+                    aria-selected={selected}
+                    className={`form-cafe-row ${selected ? 'is-selected' : ''}`}
+                    onClick={() => {
+                      setCoffee((prev) => (coffeeRowMatches(prev, opt.label) ? '' : opt.label))
+                    }}
+                  >
+                    <opt.Icon className="form-cafe-row-icon" aria-hidden />
+                    <span className="form-cafe-row-label">{opt.label}</span>
+                  </button>
+                )
+              })}
             </div>
           </section>
         </FormSteps234Shell>

@@ -1348,3 +1348,67 @@ button.form-flow-back:hover {
   border-color: var(--app-accent, #f5a623);
   box-shadow: 0 0 0 2px var(--app-accent-soft, rgba(245, 166, 35, 0.2));
 }
+
+/* Pas 4 — llista de files tipus selector (cafè), icones naranja */
+.form-cafe-row-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-cafe-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid #e8e5df;
+  background: #ffffff;
+  color: var(--app-text, #1a1a1a);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.form-cafe-row-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: var(--app-accent, #f5a623);
+}
+
+.form-cafe-row-label {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--app-text, #1a1a1a);
+}
+
+.form-cafe-row.is-selected {
+  border-color: var(--app-accent, #f5a623);
+  background: var(--app-accent-soft, rgba(245, 166, 35, 0.18));
+  box-shadow: 0 0 0 1px var(--app-accent, #f5a623);
+}
+
+.form-cafe-row:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .form-cafe-row {
+    background: var(--app-surface, #2a2926);
+    border-color: var(--app-border, #4a4843);
+  }
+
+  .form-cafe-row-label {
+    color: var(--app-text, #f5f3ee);
+  }
+}
