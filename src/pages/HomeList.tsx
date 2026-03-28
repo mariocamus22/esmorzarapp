@@ -3,24 +3,53 @@ import { Link } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
-import { listAlmuerzos } from '../lib/almuerzosApi'
+import { getFotoPublicUrl, listAlmuerzos } from '../lib/almuerzosApi'
 import { hasSupabaseConfig } from '../lib/env'
 import type { Almuerzo } from '../types/almuerzo'
 
 const RECENT_PREVIEW = 5
 const FEEDBACK_MAIL = 'mailto:?subject=' + encodeURIComponent('Esmorzapp — comentari')
 
-function formatFecha(isoDate: string): string {
+/** Ciutat i província (placeholder fins que vinga de la BD del bar). */
+const PLACEHOLDER_CIUTAT_PROVINCIA_DISPLAY = 'VALÈNCIA, VALÈNCIA'
+
+function formatFechaLarga(isoDate: string): string {
   const d = new Date(`${isoDate}T12:00:00`)
-  return d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+  return d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function resumen(a: Almuerzo): string {
-  const b = a.bocadillo_name?.trim()
-  if (b) return b
+function joinAmbI(parts: string[]): string {
+  const p = parts.map((s) => s.trim()).filter(Boolean)
+  if (p.length === 0) return ''
+  if (p.length === 1) return p[0]
+  if (p.length === 2) return `${p[0]} i ${p[1]}`
+  return `${p.slice(0, -1).join(', ')} i ${p[p.length - 1]}`
+}
+
+/** Resum del pedido per a la zona inferior de la History Card: "a, b i c". */
+function resumenPedido(a: Almuerzo): string {
+  const chunks: string[] = []
+  const boc = a.bocadillo_name?.trim()
+  if (boc) chunks.push(boc)
+  const ing = a.bocadillo_ingredients?.trim()
+  if (ing) {
+    for (const x of ing.split(/[,;]/)) {
+      const t = x.trim()
+      if (t) chunks.push(t)
+    }
+  }
+  const gastoParts = (a.gasto ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  chunks.push(...gastoParts)
+  if (a.drink?.trim()) chunks.push(a.drink.trim())
+  if (a.coffee?.trim()) chunks.push(a.coffee.trim())
+  const text = joinAmbI(chunks)
+  if (text) return text
   const r = a.review?.trim()
-  if (r) return r.length > 80 ? `${r.slice(0, 80)}…` : r
-  return 'Sense descripció'
+  if (r) return r.length > 120 ? `${r.slice(0, 120)}…` : r
+  return 'Sense detall'
 }
 
 function firstName(user: User | null): string {
@@ -112,9 +141,9 @@ function IconSupport() {
   )
 }
 
-function IconChevron() {
+function IconChevron({ className }: { className?: string }) {
   return (
-    <svg className="home-recent-chevron" width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg className={className} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M9 6l6 6-6 6"
         stroke="currentColor"
@@ -123,6 +152,46 @@ function IconChevron() {
         strokeLinejoin="round"
       />
     </svg>
+  )
+}
+
+function IconHistoryCalendar({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={15} height={15} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconHistoryBurger({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={16} height={16} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M5 7h14M5 12h14M5 17h10"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function HistoryCardAvatar({ photoPath }: { photoPath: string | null }) {
+  if (photoPath) {
+    return (
+      <img
+        src={getFotoPublicUrl(photoPath)}
+        alt=""
+        className="home-history-avatar-img"
+        loading="lazy"
+      />
+    )
+  }
+  return (
+    <div className="home-history-avatar-placeholder" aria-hidden>
+      <IconHistoryBurger className="home-history-avatar-placeholder-icon" />
+    </div>
   )
 }
 
@@ -293,18 +362,32 @@ export function HomeList() {
 
         {!loading && items.length > 0 && (
           <ul className="home-recent-list">
-            {displayedRecents.map((a) => (
-              <li key={a.id}>
-                <Link to={`/almuerzo/${a.id}`} className="home-recent-item">
-                  <div className="home-recent-item-body">
-                    <span className="home-recent-item-title">{a.bar_name}</span>
-                    <span className="home-recent-item-meta">{formatFecha(a.meal_date)}</span>
-                    <span className="home-recent-item-snippet">{resumen(a)}</span>
-                  </div>
-                  <IconChevron />
-                </Link>
-              </li>
-            ))}
+            {displayedRecents.map((a) => {
+              const firstPhoto = a.photo_paths?.[0] ?? null
+              return (
+                <li key={a.id}>
+                  <Link to={`/almuerzo/${a.id}`} className="home-history-card">
+                    <div className="home-history-card-header">
+                      <HistoryCardAvatar photoPath={firstPhoto} />
+                      <div className="home-history-text">
+                        <span className="home-history-bar">{a.bar_name}</span>
+                        <span className="home-history-city">{PLACEHOLDER_CIUTAT_PROVINCIA_DISPLAY}</span>
+                        <div className="home-history-date">
+                          <IconHistoryCalendar className="home-history-date-icon" />
+                          <span className="home-history-date-text">{formatFechaLarga(a.meal_date)}</span>
+                        </div>
+                      </div>
+                      <IconChevron className="home-history-chevron" />
+                    </div>
+                    <div className="home-history-divider" aria-hidden />
+                    <div className="home-history-summary">
+                      <IconHistoryBurger className="home-history-burger-icon" />
+                      <p className="home-history-summary-text">{resumenPedido(a)}</p>
+                    </div>
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         )}
       </section>

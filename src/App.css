@@ -639,77 +639,171 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 12px;
 }
 
-.home-recent-item {
+/* History Card — llistat d'esmorzars (flat, dues zones + divider) */
+.home-history-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid #e8e5df;
+  background: #ffffff;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.home-history-card:hover {
+  border-color: #ddd9d0;
+}
+
+.home-history-card:focus-visible {
+  outline: 2px solid var(--home-orange, #f5a623);
+  outline-offset: 2px;
+}
+
+.home-history-card-header {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.95rem 1rem;
-  border-radius: 1.1rem;
-  background: var(--color-surface);
-  box-shadow: var(--home-card-shadow);
-  border: 1px solid var(--app-border, #d6d3cc);
-  text-decoration: none;
-  color: inherit;
-  transition:
-    border-color 0.15s ease,
-    transform 0.15s ease;
+  padding: 0.85rem 1rem 0.75rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  .home-recent-item {
-    border-color: var(--color-border);
-  }
+.home-history-avatar-img,
+.home-history-avatar-placeholder {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
 }
 
-.home-recent-item:hover {
-  border-color: var(--home-orange);
-  transform: translateY(-1px);
+.home-history-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f3ee;
+  border: 1px solid #eceae4;
 }
 
-.home-recent-item-body {
+.home-history-avatar-placeholder-icon {
+  color: var(--home-orange, #f5a623);
+  opacity: 0.55;
+  width: 28px;
+  height: 28px;
+}
+
+.home-history-text {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
-.home-recent-item-title {
+.home-history-bar {
   display: block;
+  font-size: 1.0625rem;
   font-weight: 700;
-  font-size: 0.9375rem;
+  line-height: 1.25;
   letter-spacing: -0.02em;
+  color: #2c2419;
 }
 
-.home-recent-item-meta {
+.home-history-city {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--home-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f5a623;
+  line-height: 1.3;
+}
+
+.home-history-date {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   margin-top: 0.15rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  .home-recent-item-meta {
-    color: var(--color-muted);
-  }
-}
-
-.home-recent-item-snippet {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--color-muted);
-  margin-top: 0.35rem;
-  line-height: 1.35;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.home-recent-chevron {
+.home-history-date-icon {
   flex-shrink: 0;
-  color: var(--home-orange);
-  opacity: 0.85;
+  color: #f5a623;
+}
+
+.home-history-date-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #4a4540;
+}
+
+.home-history-chevron {
+  flex-shrink: 0;
+  align-self: center;
+  color: #c4bfb6;
+}
+
+.home-history-divider {
+  height: 0;
+  margin: 0;
+  border: none;
+  border-top: 1px solid #f0ede8;
+}
+
+.home-history-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.7rem 1rem 0.85rem;
+}
+
+.home-history-burger-icon {
+  flex-shrink: 0;
+  margin-top: 0.12rem;
+  color: #f5a623;
+}
+
+.home-history-summary-text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #4a4540;
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-history-card {
+    background: var(--color-surface, #2a2926);
+    border-color: var(--app-border, #4a4843);
+  }
+
+  .home-history-card:hover {
+    border-color: #5c5a54;
+  }
+
+  .home-history-bar {
+    color: var(--app-text, #f5f3ee);
+  }
+
+  .home-history-date-text,
+  .home-history-summary-text {
+    color: var(--color-muted, #c9c4bc);
+  }
+
+  .home-history-avatar-placeholder {
+    background: var(--app-fill, #3d3b36);
+    border-color: var(--app-border, #4a4843);
+  }
+
+  .home-history-chevron {
+    color: #7a756d;
+  }
 }
 
 .home-footer {
