@@ -2,7 +2,8 @@ import { type FormEvent, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
-import { hasSupabaseConfig } from '../lib/env'
+import { autoLoginSharedPassword, isAutoLoginEmail } from '../lib/autoLogin'
+import { hasSupabaseConfig, passwordLoginEnabled } from '../lib/env'
 import { supabase } from '../lib/supabaseClient'
 
 /**
@@ -11,7 +12,9 @@ import { supabase } from '../lib/supabaseClient'
 export function LoginPage() {
   const { session, loading } = useAuth()
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [sent, setSent] = useState(false)
+  const allowPassword = passwordLoginEnabled()
   const [err, setErr] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -46,16 +49,44 @@ export function LoginPage() {
     }
 
     setSubmitting(true)
-    const { error } = await supabase.auth.signInWithOtp({
-      email: trimmed,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-      },
-    })
+
+    const emailNorm = trimmed.toLowerCase()
+    const shared = autoLoginSharedPassword()
+    const useAutoLogin = isAutoLoginEmail(trimmed) && shared != null
+
+    if (isAutoLoginEmail(trimmed) && !shared) {
+      setSubmitting(false)
+      setErr(
+        'Este correo usa accés directe: afegeix VITE_AUTO_LOGIN_SHARED_PASSWORD al fitxer .env (veure .env.example).',
+      )
+      return
+    }
+
+    const res = useAutoLogin
+      ? await supabase.auth.signInWithPassword({
+          email: emailNorm,
+          password: shared,
+        })
+      : allowPassword && password.trim()
+        ? await supabase.auth.signInWithPassword({
+            email: trimmed,
+            password: password.trim(),
+          })
+        : await supabase.auth.signInWithOtp({
+            email: trimmed,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+            },
+          })
+
     setSubmitting(false)
 
-    if (error) {
-      setErr(formatSupabaseError(error))
+    if (res.error) {
+      setErr(formatSupabaseError(res.error))
+      return
+    }
+
+    if (useAutoLogin || (allowPassword && password.trim())) {
       return
     }
     setSent(true)
@@ -65,7 +96,13 @@ export function LoginPage() {
     <main className="page">
       <header className="page-header">
         <h1>Iniciar sesión</h1>
-        <p className="muted">Te enviaremos un enlace mágico a tu correo (sin contraseña).</p>
+        <p className="muted">
+          {isAutoLoginEmail(email) && autoLoginSharedPassword()
+            ? 'Amb aquest correu entres directament (sense correu ni contrasenya a pantalla).'
+            : allowPassword
+              ? 'Con contraseña entras sin correo (ideal para pruebas). Déjala vacía para el enlace mágico.'
+              : 'Te enviaremos un enlace mágico a tu correo (sin contraseña).'}
+        </p>
       </header>
 
       {sent ? (
@@ -93,8 +130,28 @@ export function LoginPage() {
               required
             />
           </label>
+          {allowPassword && !(isAutoLoginEmail(email) && autoLoginSharedPassword()) && (
+            <label className="field">
+              <span>Contraseña (solo QA)</span>
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Vacío = enlace mágico"
+              />
+            </label>
+          )}
           <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? 'Enviando…' : 'Enviar enlace'}
+            {submitting
+              ? isAutoLoginEmail(email) && autoLoginSharedPassword()
+                ? 'Entrando…'
+                : 'Enviando…'
+              : isAutoLoginEmail(email) && autoLoginSharedPassword()
+                ? 'Entrar'
+                : allowPassword && password.trim()
+                  ? 'Entrar'
+                  : 'Enviar enlace'}
           </button>
         </form>
       )}
