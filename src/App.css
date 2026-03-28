@@ -1412,3 +1412,332 @@ button.form-flow-back:hover {
     color: var(--app-text, #f5f3ee);
   }
 }
+
+/* Pas 5 — resum, reseña, preu opcional, fotos (sense tab bar) */
+.form-flow--step5 {
+  min-height: calc(100dvh - 3.5rem);
+  display: flex;
+  flex-direction: column;
+  padding: 0.15rem 1.5rem 0;
+  box-sizing: border-box;
+}
+
+.form-step5-header-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-bottom: 0.15rem;
+}
+
+.form-step5 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.form-step5-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.form-summary-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 1.2rem 1.15rem 1.25rem;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.form-summary-bar {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--app-text, #2c2419);
+  word-break: break-word;
+}
+
+.form-summary-loc {
+  margin: 0.25rem 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  color: var(--app-text-muted, #8a8478);
+}
+
+.form-summary-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-summary-row {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+
+.form-summary-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--app-accent, #f5a623);
+}
+
+.form-summary-text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--app-text, #1a1a1a);
+  white-space: pre-line;
+}
+
+.form-summary-row--inline {
+  flex-wrap: wrap;
+  gap: 0.65rem 1.15rem;
+  align-items: center;
+}
+
+.form-summary-inline-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.form-summary-text--inline {
+  flex: unset;
+  white-space: normal;
+}
+
+.form-step5-review-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-step5-review-label {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--app-text, #1a1a1a);
+}
+
+.form-step5-review-hint {
+  margin: 0.3rem 0 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--app-text-muted, #8a8478);
+}
+
+.form-step5-review-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 120px;
+  resize: none;
+  border-radius: 16px;
+  border: 1px solid #e8e5df;
+  background: #ffffff;
+  padding: 0.85rem 1rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--app-text, #1a1a1a);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.form-step5-review-textarea::placeholder {
+  color: var(--app-text-muted, #9e9e9e);
+}
+
+.form-step5-review-textarea:focus {
+  outline: none;
+  border-color: var(--app-accent, #f5a623);
+  box-shadow: 0 0 0 2px var(--app-accent-soft, rgba(245, 166, 35, 0.2));
+}
+
+.form-step5-price-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-step5-price-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.form-step5-price-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--app-text, #1a1a1a);
+}
+
+.form-step5-price-optional {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--app-text-muted, #8a8478);
+}
+
+.form-step5-price-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.form-step5-price-input {
+  flex: 0 0 35%;
+  width: 35%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 0.8rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid #e8e5df;
+  background: #ffffff;
+  color: var(--app-text, #1a1a1a);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.form-step5-price-input::placeholder {
+  color: var(--app-text-muted, #9e9e9e);
+  font-weight: 500;
+}
+
+.form-step5-price-input:focus {
+  outline: none;
+  border-color: var(--app-accent, #f5a623);
+  box-shadow: 0 0 0 2px var(--app-accent-soft, rgba(245, 166, 35, 0.2));
+}
+
+.form-step5-photo-add {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.7rem 0.5rem;
+  border-radius: 999px;
+  border: 2px dashed #d6d3cc;
+  background: #eceae4;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.form-step5-photo-add:hover:not(.is-disabled) {
+  border-color: var(--app-accent, #f5a623);
+}
+
+.form-step5-photo-add:focus-within {
+  outline: none;
+}
+
+.form-step5-photo-add:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 2px;
+}
+
+.form-step5-photo-add-icon {
+  color: var(--app-accent, #f5a623);
+}
+
+.form-step5-photo-add-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--app-accent, #f5a623);
+}
+
+.form-step5-photo-add.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-step5-photos-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-step5-photos-count {
+  margin: 0;
+}
+
+.form-step5-footer.form-mid-footer-row {
+  flex-shrink: 0;
+}
+
+.form-step5-btn-atras {
+  flex: 0 0 26%;
+  max-width: 7.5rem;
+  padding: 0.85rem 0.75rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--app-fill, #eceae4);
+  color: var(--app-text, #1a1a1a);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.form-step5-btn-atras:hover {
+  background: var(--app-bg, #e0ddd6);
+}
+
+.form-step5-btn-atras:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .form-summary-card {
+    background: var(--app-surface, #2a2926);
+    box-shadow: none;
+  }
+
+  .form-summary-bar {
+    color: var(--app-text, #f5f3ee);
+  }
+
+  .form-summary-text {
+    color: var(--app-text, #f5f3ee);
+  }
+
+  .form-step5-review-textarea,
+  .form-step5-price-input {
+    background: var(--app-surface, #2a2926);
+    border-color: var(--app-border, #4a4843);
+    color: var(--app-text, #f5f3ee);
+  }
+
+  .form-step5-photo-add {
+    background: var(--app-fill, #3d3b36);
+    border-color: var(--app-border, #5c5a54);
+  }
+
+  .form-step5-btn-atras:hover {
+    background: var(--app-fill, #4a4843);
+  }
+}

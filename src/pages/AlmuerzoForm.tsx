@@ -139,6 +139,36 @@ function IconBurger(props: { className?: string }) {
   )
 }
 
+function IconSummaryGasto({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M9 5h11l-1 14H8L7 5zM7 5V4a2 2 0 012-2h2a2 2 0 012 2v1"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M5 9h18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconCameraPlus({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M4 10h2.5l1.8-2.2h7.4L17.5 10H20v9H4V10z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="14.5" r="2.8" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M18.5 5.5v3M17 7h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function IconDrinkTab(props: { className?: string }) {
   return (
     <svg className={props.className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -496,8 +526,6 @@ export function AlmuerzoForm({ mode }: Props) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const title = mode === 'create' ? 'Nou esmorzar' : 'Editar esmorzar'
-
   const newPreviewUrls = useMemo(
     () => newFiles.map((f) => URL.createObjectURL(f)),
     [newFiles],
@@ -669,9 +697,15 @@ export function AlmuerzoForm({ mode }: Props) {
     'page',
     step === 1 ? 'form-flow form-flow--step1' : '',
     step >= 2 && step <= 4 ? 'form-flow form-flow--mid' : '',
+    step === 5 ? 'form-flow form-flow--step5' : '',
   ]
     .filter(Boolean)
     .join(' ')
+
+  const bocSummaryText = [bocName.trim(), bocIng.trim()].filter(Boolean).join('\n\n') || '—'
+  const gastoSummaryText = gasto.trim() || '—'
+  const drinkSummaryText = drink.trim() || '—'
+  const coffeeSummaryText = coffee.trim() || '—'
 
   return (
     <main className={mainClass}>
@@ -886,85 +920,144 @@ export function AlmuerzoForm({ mode }: Props) {
 
       {step === 5 && (
         <>
-          <header className="page-header">
-            <button type="button" className="back-link form-flow-back" onClick={() => setStep(4)}>
-              ← Enrere
-            </button>
-            <h1>{title}</h1>
-            <p className="muted">Pas 5 de 5 · Resum, reseña, precio y fotos</p>
-          </header>
+          <div className="form-step5-header-row">
+            <Link to={closeHref} className="form-step1-close" aria-label="Tancar">
+              ×
+            </Link>
+          </div>
 
-          <form className="stack-form" onSubmit={onSubmit}>
-            <label className="field">
-              <span>Ingredientes del bocadillo</span>
-              <textarea value={bocIng} onChange={(e) => setBocIng(e.target.value)} rows={2} />
-            </label>
-            <label className="field">
-              <span>Precio (opcional)</span>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={priceStr}
-                onChange={(e) => setPriceStr(e.target.value)}
-                placeholder="Ej. 12,50"
-              />
-            </label>
-            <label className="field">
-              <span>Reseña</span>
-              <textarea value={review} onChange={(e) => setReview(e.target.value)} rows={4} placeholder="Qué te ha parecido…" />
-            </label>
-
-            <fieldset className="field">
-              <legend>Fotos (máx. {MAX_FOTOS_ALMUERZO})</legend>
-              <p className="muted small">
-                {totalFotos}/{MAX_FOTOS_ALMUERZO} fotos
-              </p>
-
-              <div className="photo-previews">
-                {keepPaths.map((path) => (
-                  <div key={path} className="photo-preview-wrap">
-                    <img src={getFotoPublicUrl(path)} alt="" className="photo-thumb" />
-                    <button type="button" className="btn-remove-photo" onClick={() => removeKeepPath(path)} aria-label="Quitar foto">
-                      ×
-                    </button>
+          <form className="form-step5" onSubmit={onSubmit}>
+            <div className="form-step5-body">
+              <div className="form-summary-card">
+                <h2 className="form-summary-bar">{barName.trim() || '—'}</h2>
+                <p className="form-summary-loc">{PLACEHOLDER_BAR_UBICACIO}</p>
+                <div className="form-summary-rows">
+                  <div className="form-summary-row">
+                    <IconBurger className="form-summary-icon" />
+                    <p className="form-summary-text">{bocSummaryText}</p>
                   </div>
-                ))}
-                {newFiles.map((file, i) => (
-                  <div key={`${file.name}-${i}`} className="photo-preview-wrap">
-                    <img src={newPreviewUrls[i]} alt="" className="photo-thumb" />
-                    <button
-                      type="button"
-                      className="btn-remove-photo"
-                      onClick={() => removeNewFile(i)}
-                      aria-label="Quitar foto nueva"
-                    >
-                      ×
-                    </button>
+                  <div className="form-summary-row">
+                    <IconSummaryGasto className="form-summary-icon" />
+                    <p className="form-summary-text">{gastoSummaryText}</p>
                   </div>
-                ))}
+                  <div className="form-summary-row form-summary-row--inline">
+                    <span className="form-summary-inline-item">
+                      <IconDrinkTab className="form-summary-icon" />
+                      <span className="form-summary-text form-summary-text--inline">{drinkSummaryText}</span>
+                    </span>
+                    <span className="form-summary-inline-item">
+                      <IconCoffeeTab className="form-summary-icon" />
+                      <span className="form-summary-text form-summary-text--inline">{coffeeSummaryText}</span>
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <label className="file-input-label">
-                <span className="btn btn-secondary">Añadir fotos</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  disabled={!puedeMasFotos}
-                  className="visually-hidden"
-                  onChange={(e) => {
-                    onPickFiles(e.target.files)
-                    e.target.value = ''
-                  }}
+              <div className="form-step5-review-block">
+                <label className="form-step5-review-label" htmlFor="form-step5-review">
+                  Nota personal / Reseña (opcional)
+                </label>
+                <p className="form-step5-review-hint">Este comentario es privado y solo lo podrás ver tú.</p>
+                <textarea
+                  id="form-step5-review"
+                  className="form-step5-review-textarea"
+                  value={review}
+                  onChange={(e) => setReview(e.target.value)}
+                  rows={4}
+                  placeholder="El bocadillo de calamares estaba espectacular…"
                 />
-              </label>
-            </fieldset>
+              </div>
 
-            <div className="actions-row form-actions">
-              <button type="submit" className="btn btn-primary" disabled={saving}>
-                {saving ? 'Guardando…' : 'Guardar'}
-              </button>
+              <div className="form-step5-price-block">
+                <div className="form-step5-price-head">
+                  <span className="form-step5-price-title">Precio (€)</span>
+                  <span id="form-step5-price-optional-note" className="form-step5-price-optional">
+                    Opcional
+                  </span>
+                </div>
+                <div className="form-step5-price-row">
+                  <input
+                    id="form-step5-price"
+                    className="form-step5-price-input"
+                    type="text"
+                    inputMode="decimal"
+                    value={priceStr}
+                    onChange={(e) => setPriceStr(e.target.value)}
+                    placeholder="9.50"
+                    aria-describedby="form-step5-price-optional-note"
+                  />
+                  <input
+                    id="form-step5-files"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={!puedeMasFotos}
+                    className="visually-hidden"
+                    onChange={(e) => {
+                      onPickFiles(e.target.files)
+                      e.target.value = ''
+                    }}
+                  />
+                  <label
+                    htmlFor="form-step5-files"
+                    className={`form-step5-photo-add ${!puedeMasFotos ? 'is-disabled' : ''}`}
+                  >
+                    <IconCameraPlus className="form-step5-photo-add-icon" />
+                    <span className="form-step5-photo-add-label">Añadir fotos</span>
+                  </label>
+                </div>
+              </div>
+
+              {totalFotos > 0 && (
+                <div className="form-step5-photos-meta">
+                  <p className="form-step5-photos-count muted small">
+                    {totalFotos}/{MAX_FOTOS_ALMUERZO} fotos
+                  </p>
+                  <div className="photo-previews">
+                    {keepPaths.map((path) => (
+                      <div key={path} className="photo-preview-wrap">
+                        <img src={getFotoPublicUrl(path)} alt="" className="photo-thumb" />
+                        <button
+                          type="button"
+                          className="btn-remove-photo"
+                          onClick={() => removeKeepPath(path)}
+                          aria-label="Quitar foto"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    {newFiles.map((file, i) => (
+                      <div key={`${file.name}-${i}`} className="photo-preview-wrap">
+                        <img src={newPreviewUrls[i]} alt="" className="photo-thumb" />
+                        <button
+                          type="button"
+                          className="btn-remove-photo"
+                          onClick={() => removeNewFile(i)}
+                          aria-label="Quitar foto nueva"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+
+            <footer className="form-mid-footer-row form-step5-footer">
+              <button type="button" className="form-step5-btn-atras" onClick={() => setStep(4)}>
+                Atrás
+              </button>
+              <button type="submit" className="form-mid-btn-siguiente" disabled={saving}>
+                {saving ? 'Guardant…' : 'Guardar esmorzar'}
+                {!saving && (
+                  <span className="form-mid-btn-arrow" aria-hidden>
+                    →
+                  </span>
+                )}
+              </button>
+            </footer>
           </form>
         </>
       )}
