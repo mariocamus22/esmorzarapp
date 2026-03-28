@@ -11,45 +11,18 @@ const RECENT_PREVIEW = 5
 const FEEDBACK_MAIL = 'mailto:?subject=' + encodeURIComponent('Esmorzapp — comentari')
 
 /** Ciutat i província (placeholder fins que vinga de la BD del bar). */
-const PLACEHOLDER_CIUTAT_PROVINCIA_DISPLAY = 'VALÈNCIA, VALÈNCIA'
+const PLACEHOLDER_CIUTAT_PROVINCIA_DISPLAY = 'València, València'
 
 function formatFechaLarga(isoDate: string): string {
   const d = new Date(`${isoDate}T12:00:00`)
   return d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function joinAmbI(parts: string[]): string {
-  const p = parts.map((s) => s.trim()).filter(Boolean)
-  if (p.length === 0) return ''
-  if (p.length === 1) return p[0]
-  if (p.length === 2) return `${p[0]} i ${p[1]}`
-  return `${p.slice(0, -1).join(', ')} i ${p[p.length - 1]}`
-}
-
-/** Resum del pedido per a la zona inferior de la History Card: "a, b i c". */
-function resumenPedido(a: Almuerzo): string {
-  const chunks: string[] = []
-  const boc = a.bocadillo_name?.trim()
-  if (boc) chunks.push(boc)
-  const ing = a.bocadillo_ingredients?.trim()
-  if (ing) {
-    for (const x of ing.split(/[,;]/)) {
-      const t = x.trim()
-      if (t) chunks.push(t)
-    }
-  }
-  const gastoParts = (a.gasto ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)
-  chunks.push(...gastoParts)
-  if (a.drink?.trim()) chunks.push(a.drink.trim())
-  if (a.coffee?.trim()) chunks.push(a.coffee.trim())
-  const text = joinAmbI(chunks)
-  if (text) return text
-  const r = a.review?.trim()
-  if (r) return r.length > 120 ? `${r.slice(0, 120)}…` : r
-  return 'Sense detall'
+/** Nom del bocadillo per a la zona inferior de la History Card (text complet, sense retallar). */
+function nomBocadilloResum(a: Almuerzo): string {
+  const n = a.bocadillo_name?.trim()
+  if (n) return n
+  return 'Sense bocadillo'
 }
 
 function firstName(user: User | null): string {
@@ -379,10 +352,12 @@ export function HomeList() {
                       </div>
                       <IconChevron className="home-history-chevron" />
                     </div>
-                    <div className="home-history-divider" aria-hidden />
+                    <div className="home-history-divider-wrap" aria-hidden>
+                      <span className="home-history-divider" />
+                    </div>
                     <div className="home-history-summary">
                       <IconHistoryBurger className="home-history-burger-icon" />
-                      <p className="home-history-summary-text">{resumenPedido(a)}</p>
+                      <p className="home-history-summary-text">{nomBocadilloResum(a)}</p>
                     </div>
                   </Link>
                 </li>
