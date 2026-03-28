@@ -19,58 +19,74 @@ function formatPrecioPill(n: number): string {
   }).format(n)
 }
 
-function IconBurgerSummary({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M5 7h14M5 12h14M5 17h10"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
+type DetailCategory = 'bocGasto' | 'drink' | 'coffee'
+
+function gastoPartsList(g: string | null | undefined): string[] {
+  return (g ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
 }
 
-function IconSummaryGasto({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M9 5h11l-1 14H8L7 5zM7 5V4a2 2 0 012-2h2a2 2 0 012 2v1"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="M5 9h18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  )
-}
+function DetailCategoryPanel({ category, row }: { category: DetailCategory; row: Almuerzo }) {
+  const bocName = row.bocadillo_name?.trim() ?? ''
+  const bocIng = row.bocadillo_ingredients?.trim() ?? ''
+  const bocChipText = [bocName, bocIng].filter(Boolean).join('\n')
+  const gastoItems = gastoPartsList(row.gasto)
+  const drink = row.drink?.trim() ?? ''
+  const coffee = row.coffee?.trim() ?? ''
 
-function IconDrinkTab({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M8 3h8l-1 14.5a2 2 0 01-2 1.5h-2a2 2 0 01-2-1.5L8 3zM6 8h12"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
+  if (category === 'bocGasto') {
+    return (
+      <>
+        <div className="detail-subsection">
+          <h3 className="detail-subsection-title">Bocadillo</h3>
+          {bocChipText ? (
+            <span className="detail-readonly-chip detail-readonly-chip--block">{bocChipText}</span>
+          ) : (
+            <p className="detail-empty-val">No registrat</p>
+          )}
+        </div>
+        <div className="detail-subsection">
+          <h3 className="detail-subsection-title">Gasto</h3>
+          {gastoItems.length > 0 ? (
+            <div className="detail-readonly-chips-row">
+              {gastoItems.map((label, i) => (
+                <span key={`${label}-${i}`} className="detail-readonly-chip">
+                  {label}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="detail-empty-val">No registrat</p>
+          )}
+        </div>
+      </>
+    )
+  }
 
-function IconCoffeeTab({ className }: { className?: string }) {
+  if (category === 'drink') {
+    return (
+      <div className="detail-subsection">
+        <h3 className="detail-subsection-title">Beguda</h3>
+        {drink ? (
+          <span className="detail-readonly-chip detail-readonly-chip--block">{drink}</span>
+        ) : (
+          <p className="detail-empty-val">No registrat</p>
+        )}
+      </div>
+    )
+  }
+
   return (
-    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M6 6h12v6a4 4 0 01-4 4H10a4 4 0 01-4-4V6zM18 9h1.5a2.5 2.5 0 010 5H18M8 20h8"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <div className="detail-subsection">
+      <h3 className="detail-subsection-title">Cafè</h3>
+      {coffee ? (
+        <span className="detail-readonly-chip detail-readonly-chip--block">{coffee}</span>
+      ) : (
+        <p className="detail-empty-val">No registrat</p>
+      )}
+    </div>
   )
 }
 
@@ -172,6 +188,11 @@ export function AlmuerzoDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [detailCategory, setDetailCategory] = useState<DetailCategory>('bocGasto')
+
+  useEffect(() => {
+    setDetailCategory('bocGasto')
+  }, [id])
 
   useEffect(() => {
     if (!id || !hasSupabaseConfig()) {
@@ -252,11 +273,6 @@ export function AlmuerzoDetail() {
     )
   }
 
-  const bocText =
-    [row.bocadillo_name?.trim(), row.bocadillo_ingredients?.trim()].filter(Boolean).join('\n\n') || '—'
-  const gastoText = row.gasto?.trim() || '—'
-  const drinkText = row.drink?.trim() || '—'
-  const coffeeText = row.coffee?.trim() || '—'
   const reviewTrim = row.review?.trim() ?? ''
   const hasReview = reviewTrim.length > 0
 
@@ -289,25 +305,64 @@ export function AlmuerzoDetail() {
           </div>
 
           <div className="detail-pad detail-stack">
-            <div className="form-summary-card detail-summary-card">
-              <div className="form-summary-rows">
-                <div className="form-summary-row">
-                  <IconBurgerSummary className="form-summary-icon" />
-                  <p className="form-summary-text">{bocText}</p>
-                </div>
-                <div className="form-summary-row">
-                  <IconSummaryGasto className="form-summary-icon" />
-                  <p className="form-summary-text">{gastoText}</p>
-                </div>
-                <div className="form-summary-row">
-                  <IconDrinkTab className="form-summary-icon" />
-                  <p className="form-summary-text">{drinkText}</p>
-                </div>
-                <div className="form-summary-row">
-                  <IconCoffeeTab className="form-summary-icon" />
-                  <p className="form-summary-text">{coffeeText}</p>
-                </div>
-              </div>
+            <nav className="detail-nav-chips" role="tablist" aria-label="Categories de l'esmorzar">
+              <button
+                type="button"
+                id="detail-tab-boc-gasto"
+                role="tab"
+                aria-selected={detailCategory === 'bocGasto'}
+                aria-controls="detail-category-panel"
+                className={`detail-nav-chip ${detailCategory === 'bocGasto' ? 'is-active' : ''}`}
+                onClick={() => setDetailCategory('bocGasto')}
+              >
+                <span className="detail-nav-chip-emoji" aria-hidden>
+                  🍔
+                </span>
+                <span>Bocadillo i Gasto</span>
+              </button>
+              <button
+                type="button"
+                id="detail-tab-drink"
+                role="tab"
+                aria-selected={detailCategory === 'drink'}
+                aria-controls="detail-category-panel"
+                className={`detail-nav-chip ${detailCategory === 'drink' ? 'is-active' : ''}`}
+                onClick={() => setDetailCategory('drink')}
+              >
+                <span className="detail-nav-chip-emoji" aria-hidden>
+                  🍺
+                </span>
+                <span>Beguda</span>
+              </button>
+              <button
+                type="button"
+                id="detail-tab-coffee"
+                role="tab"
+                aria-selected={detailCategory === 'coffee'}
+                aria-controls="detail-category-panel"
+                className={`detail-nav-chip ${detailCategory === 'coffee' ? 'is-active' : ''}`}
+                onClick={() => setDetailCategory('coffee')}
+              >
+                <span className="detail-nav-chip-emoji" aria-hidden>
+                  ☕
+                </span>
+                <span>Cafè</span>
+              </button>
+            </nav>
+
+            <div
+              id="detail-category-panel"
+              className="detail-category-panel"
+              role="tabpanel"
+              aria-labelledby={
+                detailCategory === 'bocGasto'
+                  ? 'detail-tab-boc-gasto'
+                  : detailCategory === 'drink'
+                    ? 'detail-tab-drink'
+                    : 'detail-tab-coffee'
+              }
+            >
+              <DetailCategoryPanel category={detailCategory} row={row} />
             </div>
 
             {hasReview && (
