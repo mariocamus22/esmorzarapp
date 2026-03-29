@@ -19,75 +19,11 @@ function formatPrecioPill(n: number): string {
   }).format(n)
 }
 
-type DetailCategory = 'bocGasto' | 'drink' | 'coffee'
-
 function gastoPartsList(g: string | null | undefined): string[] {
   return (g ?? '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
-}
-
-function DetailCategoryPanel({ category, row }: { category: DetailCategory; row: Almuerzo }) {
-  const bocName = row.bocadillo_name?.trim() ?? ''
-  const bocIng = row.bocadillo_ingredients?.trim() ?? ''
-  const bocChipText = [bocName, bocIng].filter(Boolean).join('\n')
-  const gastoItems = gastoPartsList(row.gasto)
-  const drink = row.drink?.trim() ?? ''
-  const coffee = row.coffee?.trim() ?? ''
-
-  if (category === 'bocGasto') {
-    return (
-      <>
-        <div className="detail-subsection">
-          <h3 className="detail-subsection-title">Bocadillo</h3>
-          {bocChipText ? (
-            <span className="detail-readonly-chip detail-readonly-chip--block">{bocChipText}</span>
-          ) : (
-            <p className="detail-empty-val">No registrat</p>
-          )}
-        </div>
-        <div className="detail-subsection">
-          <h3 className="detail-subsection-title">Gasto</h3>
-          {gastoItems.length > 0 ? (
-            <div className="detail-readonly-chips-row">
-              {gastoItems.map((label, i) => (
-                <span key={`${label}-${i}`} className="detail-readonly-chip">
-                  {label}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="detail-empty-val">No registrat</p>
-          )}
-        </div>
-      </>
-    )
-  }
-
-  if (category === 'drink') {
-    return (
-      <div className="detail-subsection">
-        <h3 className="detail-subsection-title">Beguda</h3>
-        {drink ? (
-          <span className="detail-readonly-chip detail-readonly-chip--block">{drink}</span>
-        ) : (
-          <p className="detail-empty-val">No registrat</p>
-        )}
-      </div>
-    )
-  }
-
-  return (
-    <div className="detail-subsection">
-      <h3 className="detail-subsection-title">Cafè</h3>
-      {coffee ? (
-        <span className="detail-readonly-chip detail-readonly-chip--block">{coffee}</span>
-      ) : (
-        <p className="detail-empty-val">No registrat</p>
-      )}
-    </div>
-  )
 }
 
 /** Comilles d'obertura (estil ❝), 20×20, color via `currentColor`. */
@@ -256,11 +192,6 @@ export function AlmuerzoDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const [detailCategory, setDetailCategory] = useState<DetailCategory>('bocGasto')
-
-  useEffect(() => {
-    setDetailCategory('bocGasto')
-  }, [id])
 
   useEffect(() => {
     if (!id || !hasSupabaseConfig()) {
@@ -343,6 +274,16 @@ export function AlmuerzoDetail() {
 
   const reviewTrim = row.review?.trim() ?? ''
   const hasReview = reviewTrim.length > 0
+  const hasPrice = typeof row.price === 'number' && Number.isFinite(row.price)
+  const bocText = [row.bocadillo_name?.trim(), row.bocadillo_ingredients?.trim()]
+    .filter(Boolean)
+    .join(', ')
+  const gastoItems = gastoPartsList(row.gasto)
+  const drinkText = row.drink?.trim() ?? ''
+  const coffeeText = row.coffee?.trim() ?? ''
+  const hasDrink = drinkText !== ''
+  const hasCoffee = coffeeText !== ''
+  const dualCols = (hasDrink && hasCoffee) || (!hasDrink && !hasCoffee)
 
   return (
     <main className="page detail-page">
@@ -380,73 +321,60 @@ export function AlmuerzoDetail() {
           </div>
 
           <div className="detail-pad detail-stack">
-            <nav className="detail-nav-chips" role="tablist" aria-label="Categories de l'esmorzar">
-              <button
-                type="button"
-                id="detail-tab-boc-gasto"
-                role="tab"
-                aria-selected={detailCategory === 'bocGasto'}
-                aria-controls="detail-category-panel"
-                className={`detail-nav-chip ${detailCategory === 'bocGasto' ? 'is-active' : ''}`}
-                onClick={() => setDetailCategory('bocGasto')}
-              >
-                <span className="detail-nav-chip-emoji" aria-hidden>
-                  🍔
-                </span>
-                <span>Bocadillo i Gasto</span>
-              </button>
-              <button
-                type="button"
-                id="detail-tab-drink"
-                role="tab"
-                aria-selected={detailCategory === 'drink'}
-                aria-controls="detail-category-panel"
-                className={`detail-nav-chip ${detailCategory === 'drink' ? 'is-active' : ''}`}
-                onClick={() => setDetailCategory('drink')}
-              >
-                <span className="detail-nav-chip-emoji" aria-hidden>
-                  🍺
-                </span>
-                <span>Beguda</span>
-              </button>
-              <button
-                type="button"
-                id="detail-tab-coffee"
-                role="tab"
-                aria-selected={detailCategory === 'coffee'}
-                aria-controls="detail-category-panel"
-                className={`detail-nav-chip ${detailCategory === 'coffee' ? 'is-active' : ''}`}
-                onClick={() => setDetailCategory('coffee')}
-              >
-                <span className="detail-nav-chip-emoji" aria-hidden>
-                  ☕
-                </span>
-                <span>Cafè</span>
-              </button>
-            </nav>
+            <section className="detail-static-card" aria-label="Detalls de l'esmorzar">
+              <header className="detail-static-head">
+                <span className="detail-static-title">Detalls de l&apos;esmorzar</span>
+                {hasPrice && row.price != null && (
+                  <span className="detail-static-price">
+                    <span className="detail-static-price-label">Preu:</span>{' '}
+                    <span className="detail-static-price-value">{formatPrecioPill(row.price)} €</span>
+                  </span>
+                )}
+              </header>
 
-            <div
-              id="detail-category-panel"
-              className="detail-category-panel"
-              role="tabpanel"
-              aria-labelledby={
-                detailCategory === 'bocGasto'
-                  ? 'detail-tab-boc-gasto'
-                  : detailCategory === 'drink'
-                    ? 'detail-tab-drink'
-                    : 'detail-tab-coffee'
-              }
-            >
-              <DetailCategoryPanel category={detailCategory} row={row} />
-            </div>
-
-            {typeof row.price === 'number' && Number.isFinite(row.price) && (
-              <div className="detail-price-wrap">
-                <span className="detail-price-pill" aria-label="Preu">
-                  {formatPrecioPill(row.price)} €
-                </span>
+              <div className="detail-static-section">
+                <h3 className="detail-static-label">Bocadillo</h3>
+                <p className="detail-static-boc-text">{bocText || 'No registrat'}</p>
               </div>
-            )}
+
+              <div className="detail-static-section">
+                <h3 className="detail-static-label">Gasto</h3>
+                {gastoItems.length > 0 ? (
+                  <div className="detail-static-chip-row">
+                    {gastoItems.map((label, i) => (
+                      <span key={`${label}-${i}`} className="detail-static-chip">
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="detail-empty-val">No registrat</p>
+                )}
+              </div>
+
+              <div className={`detail-static-drink-coffee ${dualCols ? 'is-dual' : ''}`}>
+                {(dualCols || hasDrink) && (
+                  <div className="detail-static-section">
+                    <h3 className="detail-static-label">Beguda</h3>
+                    {hasDrink ? (
+                      <span className="detail-static-chip">{drinkText}</span>
+                    ) : (
+                      <p className="detail-empty-val">No registrat</p>
+                    )}
+                  </div>
+                )}
+                {(dualCols || hasCoffee) && (
+                  <div className="detail-static-section">
+                    <h3 className="detail-static-label">Café</h3>
+                    {hasCoffee ? (
+                      <span className="detail-static-chip">{coffeeText}</span>
+                    ) : (
+                      <p className="detail-empty-val">No registrat</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
         </div>
 
