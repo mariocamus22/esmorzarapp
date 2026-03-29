@@ -321,7 +321,7 @@ export function AlmuerzoDetail() {
           </div>
 
           <div className="detail-pad detail-stack">
-            <section className="detail-static-card" aria-label="Detalls de l'esmorzar">
+            <section className="detail-static-root" aria-label="Detalls de l'esmorzar">
               <header className="detail-static-head">
                 <span className="detail-static-title">Detalls de l&apos;esmorzar</span>
                 {hasPrice && row.price != null && (
