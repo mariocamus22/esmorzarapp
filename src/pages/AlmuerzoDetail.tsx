@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { type TouchEvent, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { formatSupabaseError } from '../lib/errors'
 import { deleteAlmuerzo, getAlmuerzo, getFotoPublicUrl } from '../lib/almuerzosApi'
@@ -132,9 +132,13 @@ function IconPencil({ className }: { className?: string }) {
   )
 }
 
+const SWIPE_MIN_PX = 48
+
 function DetailHero({ paths }: { paths: string[] }) {
   const [i, setI] = useState(0)
   const n = paths.length
+  const touchStartX = useRef<number | null>(null)
+  const touchLastX = useRef<number | null>(null)
 
   useEffect(() => {
     setI((prev) => (n === 0 ? 0 : Math.min(prev, n - 1)))
@@ -148,32 +152,80 @@ function DetailHero({ paths }: { paths: string[] }) {
     )
   }
 
+  function goNext() {
+    setI((prev) => Math.min(prev + 1, n - 1))
+  }
+
+  function goPrev() {
+    setI((prev) => Math.max(prev - 1, 0))
+  }
+
+  function onTouchStart(e: TouchEvent) {
+    if (n <= 1) return
+    touchStartX.current = e.touches[0].clientX
+    touchLastX.current = e.touches[0].clientX
+  }
+
+  function onTouchMove(e: TouchEvent) {
+    touchLastX.current = e.touches[0].clientX
+  }
+
+  function onTouchEnd() {
+    if (n <= 1) return
+    const start = touchStartX.current
+    const end = touchLastX.current
+    touchStartX.current = null
+    touchLastX.current = null
+    if (start == null || end == null) return
+    const dx = start - end
+    if (dx > SWIPE_MIN_PX) goNext()
+    else if (dx < -SWIPE_MIN_PX) goPrev()
+  }
+
+  const translatePct = n > 0 ? (i / n) * 100 : 0
+
   return (
     <div className="detail-hero">
-      <div className="detail-hero-viewport">
-        <div className="detail-hero-track" style={{ transform: `translateX(-${i * 100}%)` }}>
-          {paths.map((p) => (
-            <div key={p} className="detail-hero-slide">
-              <img src={getFotoPublicUrl(p)} alt="" />
+      <div
+        className="detail-hero-viewport"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
+      >
+        <div
+          className="detail-hero-track"
+          style={{
+            width: `${n * 100}%`,
+            transform: `translateX(-${translatePct}%)`,
+          }}
+        >
+          {paths.map((p, idx) => (
+            <div
+              key={`${p}-${idx}`}
+              className="detail-hero-slide"
+              style={{ width: `${100 / n}%` }}
+            >
+              <img src={getFotoPublicUrl(p)} alt="" draggable={false} />
             </div>
           ))}
         </div>
-        {n > 1 && (
-          <div className="detail-hero-dots" role="tablist" aria-label="Seleccionar foto">
-            {paths.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                role="tab"
-                aria-selected={idx === i}
-                className={`detail-hero-dot ${idx === i ? 'is-active' : ''}`}
-                onClick={() => setI(idx)}
-                aria-label={`Foto ${idx + 1} de ${n}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
+      {n > 1 && (
+        <div className="detail-hero-dots-row" role="tablist" aria-label="Seleccionar foto">
+          {paths.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              role="tab"
+              aria-selected={idx === i}
+              className={`detail-hero-dot ${idx === i ? 'is-active' : ''}`}
+              onClick={() => setI(idx)}
+              aria-label={`Foto ${idx + 1} de ${n}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -298,6 +350,15 @@ export function AlmuerzoDetail() {
                 </div>
               </div>
             </header>
+
+            {hasReview && (
+              <blockquote className="detail-review-quote">
+                <span className="detail-review-quote-mark" aria-hidden>
+                  &ldquo;
+                </span>
+                <p className="detail-review-quote-text">{reviewTrim}</p>
+              </blockquote>
+            )}
           </div>
 
           <div className="detail-hero-wrap">
@@ -364,21 +425,6 @@ export function AlmuerzoDetail() {
             >
               <DetailCategoryPanel category={detailCategory} row={row} />
             </div>
-
-            {hasReview && (
-              <div className="detail-review-block">
-                <span className="detail-review-label">La teua nota</span>
-                <p className="detail-review-sublabel">Este comentario es privado</p>
-                <textarea
-                  className="detail-review-readonly"
-                  readOnly
-                  tabIndex={-1}
-                  rows={4}
-                  value={reviewTrim}
-                  aria-label="La teua nota"
-                />
-              </div>
-            )}
 
             {typeof row.price === 'number' && Number.isFinite(row.price) && (
               <div className="detail-price-wrap">
