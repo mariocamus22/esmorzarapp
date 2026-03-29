@@ -90,6 +90,22 @@ function DetailCategoryPanel({ category, row }: { category: DetailCategory; row:
   )
 }
 
+/** Comilles d'obertura (estil ❝), 20×20, color via `currentColor`. */
+function IconQuoteOpen({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width={20}
+      height={20}
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M2.8 15.2V9.9c0-1.9 1.3-3.4 3.2-4l.8 1.9c-.7.3-1.2 1-1.2 1.8v.4h2.2v5.2H2.8zm8.6 0V9.9c0-1.9 1.3-3.4 3.2-4l.8 1.9c-.7.3-1.2 1-1.2 1.8v.4h2.2v5.2h-4.8z" />
+    </svg>
+  )
+}
+
 function IconLocationPin({ className }: { className?: string }) {
   return (
     <svg className={className} width={12} height={12} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -353,9 +369,7 @@ export function AlmuerzoDetail() {
 
             {hasReview && (
               <blockquote className="detail-review-quote">
-                <span className="detail-review-quote-mark" aria-hidden>
-                  &ldquo;
-                </span>
+                <IconQuoteOpen className="detail-review-quote-icon" />
                 <p className="detail-review-quote-text">{reviewTrim}</p>
               </blockquote>
             )}
