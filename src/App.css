@@ -861,9 +861,99 @@
   font-size: 0.95rem;
 }
 
-/* Google Places: el desplegable (.pac-container) va al body; assegurem que no quedi darrere del layout */
+/*
+ * Google Places Autocomplete — alineat amb tokens Esmorzapp (index.css).
+ * El contenidor s’enganxa al body; cal !important per damunt dels estils inline de Google.
+ */
 .pac-container {
   z-index: 10000 !important;
+  font-family: 'Nunito', system-ui, -apple-system, sans-serif !important;
+  font-size: 0.9375rem !important;
+  line-height: 1.35 !important;
+  color: var(--app-text) !important;
+  background: var(--app-surface) !important;
+  border: 1px solid var(--app-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--home-card-shadow, 0 4px 24px rgba(26, 26, 26, 0.1)) !important;
+  margin-top: 6px !important;
+  padding: 0.35rem 0 !important;
+  overflow: hidden;
+  max-height: min(55vh, 20rem);
+  box-sizing: border-box !important;
+}
+
+.pac-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  padding: 0.65rem 1rem 0.65rem 0.85rem !important;
+  margin: 0 !important;
+  border: none !important;
+  border-top: 1px solid transparent !important;
+  cursor: pointer !important;
+  color: var(--app-text) !important;
+  background: transparent !important;
+  transition: background 0.12s ease;
+}
+
+.pac-item:first-child {
+  border-top: none !important;
+}
+
+.pac-item:hover,
+.pac-item-selected {
+  background: var(--app-fill) !important;
+}
+
+.pac-icon {
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  min-width: 1.1rem !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  flex-shrink: 0;
+  opacity: 0.72;
+}
+
+.pac-item-query {
+  font-size: inherit !important;
+  color: var(--app-text) !important;
+  padding-right: 0 !important;
+}
+
+.pac-matched {
+  font-weight: 700 !important;
+  color: var(--app-accent) !important;
+}
+
+/* “Powered by Google”: visible (ToS), to suau amb la paleta */
+.pac-logo {
+  padding: 0.35rem 0.75rem 0.45rem !important;
+  margin-top: 0 !important;
+  border-top: 1px solid var(--app-border) !important;
+  background: var(--app-fill) !important;
+}
+
+.hdpi.pac-logo:after {
+  background-size: contain !important;
+  opacity: 0.45;
+  filter: grayscale(0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .pac-container {
+    box-shadow: var(--home-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.35)) !important;
+  }
+
+  .pac-item:hover,
+  .pac-item-selected {
+    background: var(--app-fill) !important;
+  }
+
+  .hdpi.pac-logo:after {
+    filter: grayscale(0.2) brightness(1.35);
+    opacity: 0.5;
+  }
 }
 
 /* Form pas 1 — bar + data (identitat Esmorzapp) */
