@@ -463,7 +463,7 @@
 
 .home-stats-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.25fr) minmax(0, 1.5fr);
   gap: 0.5rem;
   margin-bottom: 0.65rem;
   align-items: stretch;
