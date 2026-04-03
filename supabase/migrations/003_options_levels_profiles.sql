@@ -56,7 +56,7 @@ select c.id, v.label, v.ord
 from public.meal_option_categories c
 cross join lateral (
   values
-    ('gasto', '🥜 Cacahuete del collaret', 10),
+    ('gasto', '🥜 Cacahuetes del collaret', 10),
     ('gasto', '🫘 Cacahuetes fritos', 20),
     ('gasto', '🫒 Olivas', 30),
     ('gasto', '🟡 Altramuces', 40),
@@ -76,7 +76,8 @@ cross join lateral (
     ('cafe', 'Cortado', 50),
     ('cafe', 'Café con leche', 60),
     ('cafe', 'Descafeinado', 70),
-    ('cafe', 'Americano', 80)
+    ('cafe', 'Americano', 80),
+    ('cafe', 'Sin café', 90)
 ) as v(cat_code, label, ord)
 where c.code = v.cat_code
 on conflict (category_id, label) do nothing;
