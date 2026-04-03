@@ -35,8 +35,7 @@ type Props = {
   mode: FormMode
 }
 
-const BAR_SEARCH_PLACEHOLDER =
-  'Ej.: Bar La Parra, Murcia — o solo el nombre del bar'
+const BAR_SEARCH_PLACEHOLDER = 'Busca un bar… (ej. La Mesedora, Algemesí)'
 
 const ES_MONTHS = [
   'enero',
@@ -330,8 +329,12 @@ export function AlmuerzoForm({ mode }: Props) {
   const navigate = useNavigate()
   const { refreshProfile } = useAuth()
   const dateInputRef = useRef<HTMLInputElement>(null)
+  const barSearchInputRef = useRef<HTMLInputElement>(null)
+  const step1BlurTimerRef = useRef<number | null>(null)
+  const focusBarAfterClearRef = useRef(false)
 
   const [step, setStep] = useState(1)
+  const [step1BarDocked, setStep1BarDocked] = useState(false)
 
   const [barName, setBarName] = useState('')
   /** Nombre devuelto por Places en la última selección; si el usuario edita el texto, se limpian metadatos. */
@@ -441,6 +444,31 @@ export function AlmuerzoForm({ mode }: Props) {
     }
   }, [mode, id])
 
+  useEffect(() => {
+    if (step !== 1) {
+      if (step1BlurTimerRef.current != null) {
+        window.clearTimeout(step1BlurTimerRef.current)
+        step1BlurTimerRef.current = null
+      }
+      setStep1BarDocked(false)
+    }
+  }, [step])
+
+  useEffect(() => {
+    return () => {
+      if (step1BlurTimerRef.current != null) window.clearTimeout(step1BlurTimerRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!focusBarAfterClearRef.current) return
+    focusBarAfterClearRef.current = false
+    const id = window.setTimeout(() => {
+      barSearchInputRef.current?.focus()
+    }, 0)
+    return () => window.clearTimeout(id)
+  }, [barFieldKey])
+
   const gastoOpts = useMemo(
     () =>
       optionsForCategory(mealOptions, 'gasto').filter(
@@ -478,8 +506,30 @@ export function AlmuerzoForm({ mode }: Props) {
     setBarNameFromPlace(p.name)
   }, [])
 
+  const onBarSearchFocus = useCallback(() => {
+    if (step1BlurTimerRef.current != null) {
+      window.clearTimeout(step1BlurTimerRef.current)
+      step1BlurTimerRef.current = null
+    }
+    setStep1BarDocked(true)
+  }, [])
+
+  const onBarSearchBlur = useCallback(() => {
+    if (step1BlurTimerRef.current != null) window.clearTimeout(step1BlurTimerRef.current)
+    step1BlurTimerRef.current = window.setTimeout(() => {
+      setStep1BarDocked(false)
+      step1BlurTimerRef.current = null
+    }, 220)
+  }, [])
+
   const clearBarSearch = useCallback(() => {
+    focusBarAfterClearRef.current = true
     handleBarInputChange('')
+    setStep1BarDocked(true)
+    if (step1BlurTimerRef.current != null) {
+      window.clearTimeout(step1BlurTimerRef.current)
+      step1BlurTimerRef.current = null
+    }
     setBarFieldKey((k) => k + 1)
   }, [handleBarInputChange])
 
@@ -691,7 +741,9 @@ export function AlmuerzoForm({ mode }: Props) {
 
   const mainClass = [
     'page',
-    step === 1 ? 'form-flow form-flow--step1' : '',
+    step === 1
+      ? `form-flow form-flow--step1${step1BarDocked ? ' form-flow--step1-bar-docked' : ''}`
+      : '',
     step >= 2 && step <= 4 ? 'form-flow form-flow--mid' : '',
     step === 5 ? 'form-flow form-flow--step5' : '',
   ]
@@ -742,6 +794,7 @@ export function AlmuerzoForm({ mode }: Props) {
               >
                 <IconSearch className="form-step1-search-icon" />
                 <BarPlaceSearch
+                  ref={barSearchInputRef}
                   key={barFieldKey}
                   id="form-step1-bar"
                   className="form-step1-search-input"
@@ -750,11 +803,14 @@ export function AlmuerzoForm({ mode }: Props) {
                   onPlaceResolved={handlePlaceResolved}
                   apiKey={mapsApiKey}
                   placeholder={BAR_SEARCH_PLACEHOLDER}
+                  onSearchFocus={onBarSearchFocus}
+                  onSearchBlur={onBarSearchBlur}
                 />
                 {barName.trim() !== '' && (
                   <button
                     type="button"
                     className="form-step1-search-clear"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={clearBarSearch}
                     aria-label="Borrar bar y buscar otro"
                   >

@@ -1,5 +1,14 @@
 import { importLibrary, setOptions } from '@googlemaps/js-api-loader'
-import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react'
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type MutableRefObject,
+  type Ref,
+} from 'react'
 
 export type BarPlaceResolved = {
   name: string
@@ -18,27 +27,43 @@ type Props = {
   apiKey: string | undefined
   placeholder?: string
   disabled?: boolean
+  onSearchFocus?: () => void
+  onSearchBlur?: () => void
+}
+
+function assignRef<T>(ref: Ref<T> | undefined, el: T | null) {
+  if (!ref) return
+  if (typeof ref === 'function') ref(el)
+  else (ref as MutableRefObject<T | null>).current = el
 }
 
 /**
  * Campo de búsqueda de bar: con clave de Google, Autocomplete (Places + Maps JS);
  * sin clave, input de texto normal.
  */
-export function BarPlaceSearch({
-  id,
-  className,
-  value,
-  onBarInputChange,
-  onPlaceResolved,
-  apiKey,
-  placeholder = 'Ej.: Bar La Parra, Murcia — o solo el nombre del bar',
-  disabled = false,
-}: Props) {
-  /** Ref estable para el callback de React; el efecto depende de `inputNode` para evitar `ref.current === null` en el primer useEffect. */
+export const BarPlaceSearch = forwardRef<HTMLInputElement, Props>(function BarPlaceSearch(
+  {
+    id,
+    className,
+    value,
+    onBarInputChange,
+    onPlaceResolved,
+    apiKey,
+    placeholder = 'Busca un bar… (ej. La Mesedora, Algemesí)',
+    disabled = false,
+    onSearchFocus,
+    onSearchBlur,
+  },
+  ref,
+) {
   const [inputNode, setInputNode] = useState<HTMLInputElement | null>(null)
-  const setInputRef = useCallback((el: HTMLInputElement | null) => {
-    setInputNode(el)
-  }, [])
+  const setInputRef = useCallback(
+    (el: HTMLInputElement | null) => {
+      setInputNode(el)
+      assignRef(ref, el)
+    },
+    [ref],
+  )
 
   const listenerRef = useRef<google.maps.MapsEventListener | null>(null)
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
@@ -125,6 +150,17 @@ export function BarPlaceSearch({
     [onBarInputChange],
   )
 
+  const sharedInputProps = {
+    id,
+    className,
+    autoComplete: 'off' as const,
+    placeholder,
+    enterKeyHint: 'next' as const,
+    disabled,
+    onFocus: onSearchFocus,
+    onBlur: onSearchBlur,
+  }
+
   /**
    * Con Autocomplete de Google, un input **controlado** (`value` + `onChange`) hace que React
    * vuelva a pintar el valor en cada tecla y el desplegable de sugerencias no funcione o quede vacío.
@@ -134,15 +170,10 @@ export function BarPlaceSearch({
     return (
       <input
         ref={setInputRef}
-        id={id}
-        className={className}
         type="text"
         defaultValue={value}
         onChange={onChange}
-        autoComplete="off"
-        placeholder={placeholder}
-        enterKeyHint="next"
-        disabled={disabled}
+        {...sharedInputProps}
       />
     )
   }
@@ -150,15 +181,10 @@ export function BarPlaceSearch({
   return (
     <input
       ref={setInputRef}
-      id={id}
-      className={className}
       type="text"
       value={value}
       onChange={onChange}
-      autoComplete="off"
-      placeholder={placeholder}
-      enterKeyHint="next"
-      disabled={disabled}
+      {...sharedInputProps}
     />
   )
-}
+})
