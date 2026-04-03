@@ -1,4 +1,12 @@
-import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  type FormEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   createAlmuerzo,
@@ -62,7 +70,7 @@ function todayISO(): string {
 function buildInput(
   barName: string,
   mealDate: string,
-  gastoOptionId: string,
+  gastoOptionIds: string[],
   bebidaOptionId: string,
   cafeOptionId: string,
   bocName: string,
@@ -76,10 +84,11 @@ function buildInput(
     const n = Number(priceTrim.replace(',', '.'))
     price = Number.isFinite(n) ? n : null
   }
+  const uniqueGasto = [...new Set(gastoOptionIds.filter((id) => id.trim() !== ''))]
   return {
     bar_name: barName.trim(),
     meal_date: mealDate,
-    gasto_option_id: gastoOptionId.trim() === '' ? null : gastoOptionId.trim(),
+    gasto_option_ids: uniqueGasto,
     bebida_option_id: bebidaOptionId.trim() === '' ? null : bebidaOptionId.trim(),
     cafe_option_id: cafeOptionId.trim() === '' ? null : cafeOptionId.trim(),
     bocadillo_name: bocName,
@@ -216,15 +225,6 @@ function labelByOptionId(rows: MealOptionRow[], id: string): string {
   return rows.find((r) => r.id === t)?.label ?? ''
 }
 
-/** Separa un posible emoji inicial (p. ej. en etiquetas de gasto desde BD) */
-function chipEmojiAndRest(label: string): { emoji: string; rest: string } {
-  const m = label.match(/^(\p{Extended_Pictographic}+)\s*/u)
-  if (m) {
-    return { emoji: m[1], rest: label.slice(m[0].length).trim() || label }
-  }
-  return { emoji: '', rest: label }
-}
-
 type MidStep = 2 | 3 | 4
 
 function FormSteps234Shell({
@@ -316,7 +316,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
   const [barName, setBarName] = useState('')
   const [mealDate, setMealDate] = useState(todayISO())
-  const [gastoOptionId, setGastoOptionId] = useState('')
+  const [gastoOptionIds, setGastoOptionIds] = useState<string[]>([])
   const [bebidaOptionId, setBebidaOptionId] = useState('')
   const [cafeOptionId, setCafeOptionId] = useState('')
   const [bocName, setBocName] = useState('')
@@ -388,7 +388,7 @@ export function AlmuerzoForm({ mode }: Props) {
         }
         setBarName(row.bar_name)
         setMealDate(row.meal_date)
-        setGastoOptionId(row.gasto_option_id ?? '')
+        setGastoOptionIds(row.gasto_opts.map((g) => g.id))
         setBebidaOptionId(row.bebida_option_id ?? '')
         setCafeOptionId(row.cafe_option_id ?? '')
         setBocName(row.bocadillo_name ?? '')
@@ -408,6 +408,30 @@ export function AlmuerzoForm({ mode }: Props) {
       cancelled = true
     }
   }, [mode, id])
+
+  const gastoOpts = useMemo(() => optionsForCategory(mealOptions, 'gasto'), [mealOptions])
+  const bebidaOpts = useMemo(() => optionsForCategory(mealOptions, 'bebida'), [mealOptions])
+  const cafeOpts = useMemo(() => optionsForCategory(mealOptions, 'cafe'), [mealOptions])
+  const nadaGastoId = useMemo(
+    () => gastoOpts.find((o) => /🤷/u.test(o.label) && /nada/i.test(o.label))?.id,
+    [gastoOpts],
+  )
+  const toggleGastoOption = useCallback(
+    (optId: string) => {
+      setGastoOptionIds((prev) => {
+        if (prev.includes(optId)) {
+          return prev.filter((id) => id !== optId)
+        }
+        if (nadaGastoId != null && optId === nadaGastoId) {
+          return [optId]
+        }
+        const withoutNada =
+          nadaGastoId != null ? prev.filter((id) => id !== nadaGastoId) : [...prev]
+        return [...withoutNada, optId]
+      })
+    },
+    [nadaGastoId],
+  )
 
   const totalFotos = keepPaths.length + newFiles.length
   const puedeMasFotos = totalFotos < MAX_FOTOS_ALMUERZO
@@ -450,20 +474,68 @@ export function AlmuerzoForm({ mode }: Props) {
     setStep(2)
   }
 
+  const step2Complete = useCallback(() => {
+    return bocName.trim() !== '' && gastoOptionIds.length > 0
+  }, [bocName, gastoOptionIds])
+
+  const step3Complete = useCallback(() => bebidaOptionId.trim() !== '', [bebidaOptionId])
+  const step4Complete = useCallback(() => cafeOptionId.trim() !== '', [cafeOptionId])
+
   function handleMidTab(s: MidStep) {
-    setStep(s)
+    setError(null)
+    if (s <= step) {
+      setStep(s)
+      return
+    }
+    if (s === 3) {
+      if (!step2Complete()) {
+        setError('Ompli el bocadillo i tria almenys una opció de gasto abans de continuar.')
+        return
+      }
+      setStep(3)
+      return
+    }
+    if (s === 4) {
+      if (!step2Complete()) {
+        setError('Ompli el bocadillo i tria almenys una opció de gasto abans de continuar.')
+        return
+      }
+      if (!step3Complete()) {
+        setError('Tria una beguda abans de continuar.')
+        return
+      }
+      setStep(4)
+    }
   }
 
   function handleMidAtras() {
+    setError(null)
     if (step === 2) setStep(1)
     else if (step === 3) setStep(2)
     else if (step === 4) setStep(3)
   }
 
   function handleMidSiguiente() {
-    if (step === 2) setStep(3)
-    else if (step === 3) setStep(4)
-    else if (step === 4) setStep(5)
+    setError(null)
+    if (step === 2) {
+      if (!step2Complete()) {
+        setError('Ompli el bocadillo i tria almenys una opció de gasto abans de continuar.')
+        return
+      }
+      setStep(3)
+    } else if (step === 3) {
+      if (!step3Complete()) {
+        setError('Tria una beguda abans de continuar.')
+        return
+      }
+      setStep(4)
+    } else if (step === 4) {
+      if (!step4Complete()) {
+        setError('Tria un cafè abans de continuar.')
+        return
+      }
+      setStep(5)
+    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -474,11 +546,15 @@ export function AlmuerzoForm({ mode }: Props) {
       setError('El nombre del bar es obligatorio.')
       return
     }
+    if (!step2Complete() || !step3Complete() || !step4Complete()) {
+      setError('Falten dades obligatòries (bocadillo, gasto, beguda o cafè).')
+      return
+    }
 
     const input = buildInput(
       barName,
       mealDate,
-      gastoOptionId,
+      gastoOptionIds,
       bebidaOptionId,
       cafeOptionId,
       bocName,
@@ -536,12 +612,12 @@ export function AlmuerzoForm({ mode }: Props) {
     .filter(Boolean)
     .join(' ')
 
-  const gastoOpts = optionsForCategory(mealOptions, 'gasto')
-  const bebidaOpts = optionsForCategory(mealOptions, 'bebida')
-  const cafeOpts = optionsForCategory(mealOptions, 'cafe')
-
   const bocSummaryText = [bocName.trim(), bocIng.trim()].filter(Boolean).join('\n\n') || '—'
-  const gastoSummaryText = labelByOptionId(mealOptions, gastoOptionId) || '—'
+  const gastoSummaryText =
+    gastoOptionIds.length === 0
+      ? '—'
+      : gastoOptionIds.map((id) => labelByOptionId(mealOptions, id)).filter(Boolean).join(', ') ||
+        '—'
   const drinkSummaryText = labelByOptionId(mealOptions, bebidaOptionId) || '—'
   const coffeeSummaryText = labelByOptionId(mealOptions, cafeOptionId) || '—'
 
@@ -646,23 +722,15 @@ export function AlmuerzoForm({ mode }: Props) {
             <h3 className="form-mid-section-title">Gasto</h3>
             <div className="form-gasto-grid" role="group" aria-label="Gasto en el bar">
               {gastoOpts.map((opt) => {
-                const selected = gastoOptionId === opt.id
-                const { emoji, rest } = chipEmojiAndRest(opt.label)
+                const selected = gastoOptionIds.includes(opt.id)
                 return (
                   <button
                     key={opt.id}
                     type="button"
                     className={`form-gasto-chip ${selected ? 'is-selected' : ''}`}
-                    onClick={() =>
-                      setGastoOptionId((prev) => (prev === opt.id ? '' : opt.id))
-                    }
+                    onClick={() => toggleGastoOption(opt.id)}
                   >
-                    {emoji ? (
-                      <span className="form-gasto-chip-emoji" aria-hidden>
-                        {emoji}
-                      </span>
-                    ) : null}
-                    <span className="form-gasto-chip-label">{rest}</span>
+                    <span className="form-gasto-chip-label">{opt.label}</span>
                   </button>
                 )
               })}
@@ -694,8 +762,10 @@ export function AlmuerzoForm({ mode }: Props) {
                       setBebidaOptionId((prev) => (prev === opt.id ? '' : opt.id))
                     }
                   >
-                    <IconCardBeer className="form-drink-card-icon" />
-                    <span className="form-drink-card-label">{opt.label}</span>
+                    <IconCardBeer className="form-drink-card-icon" aria-hidden />
+                    <span className="form-drink-card-label form-drink-card-label--full">
+                      {opt.label}
+                    </span>
                   </button>
                 )
               })}

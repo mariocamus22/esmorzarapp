@@ -1,4 +1,5 @@
 -- Opcional: intenta rellenar gasto_option_id / bebida_option_id / cafe_option_id
+-- Ejecutar ANTES de 005_multi_gasto_bebida_emojis.sql (005 elimina gasto_option_id).
 -- a partir de las columnas texto legadas (gasto, drink, coffee) cuando coincidan
 -- exactamente con meal_options.label de la categoría correspondiente.
 -- Ejecutar después de 003_options_levels_profiles.sql.

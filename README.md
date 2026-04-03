@@ -27,4 +27,4 @@ Instrucciones detalladas: **[GUIA_PASOS_MANUALES.md](GUIA_PASOS_MANUALES.md)** (
 
 ## Migraciones SQL
 
-Orden: `001_initial.sql` → `002_auth_rls.sql` → `003_options_levels_profiles.sql` → opcional `004_backfill_option_ids_from_text.sql` (en el SQL Editor de Supabase o con la CLI).
+Orden: `001` → `002` → `003` → opcional `004` (antes de `005` si lo usas) → `005_multi_gasto_bebida_emojis.sql` (gasto múltiple, bebidas con emoji, `Sin bebida`, `🤷🏻‍♂️ Nada`). Ejecuta en el SQL Editor de Supabase o con la CLI.

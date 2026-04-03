@@ -13,7 +13,7 @@ export type Almuerzo = {
   user_id: string
   bar_name: string
   meal_date: string
-  /** Columnas legadas; se rellenan por trigger desde *_option_id cuando existen */
+  /** Texto agregado (trigger desde almuerzo_gasto_selections o legado) */
   gasto: string | null
   drink: string | null
   bocadillo_name: string | null
@@ -23,11 +23,12 @@ export type Almuerzo = {
   review: string | null
   photo_paths: string[]
   created_at: string
-  gasto_option_id: string | null
   bebida_option_id: string | null
   cafe_option_id: string | null
-  /** Etiquetas resueltas (select anidado PostgREST) */
-  gasto_opt?: MealOptionRef | null
+  /** Opciones de gasto (tabla puente) */
+  gasto_opts: MealOptionRef[]
+  /** Fila anidada cruda (opcional) */
+  gasto_selections?: { option: MealOptionRef | null }[] | null
   bebida_opt?: MealOptionRef | null
   cafe_opt?: MealOptionRef | null
 }
@@ -36,7 +37,8 @@ export type Almuerzo = {
 export type AlmuerzoInput = {
   bar_name: string
   meal_date: string
-  gasto_option_id: string | null
+  /** UUIDs de meal_options categoría gasto (uno o varios) */
+  gasto_option_ids: string[]
   bebida_option_id: string | null
   cafe_option_id: string | null
   bocadillo_name: string

@@ -1399,6 +1399,12 @@ button.form-flow-back:hover {
   color: var(--app-text, #1a1a1a);
 }
 
+.form-drink-card-label--full {
+  text-align: center;
+  word-break: break-word;
+  hyphens: auto;
+}
+
 .form-drink-card.is-selected {
   border-color: var(--app-accent, #f5a623);
   background: var(--app-accent-soft, rgba(245, 166, 35, 0.18));

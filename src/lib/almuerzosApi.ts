@@ -2,6 +2,7 @@ import { supabase } from './supabaseClient'
 import type {
   Almuerzo,
   AlmuerzoInput,
+  MealOptionRef,
   MealOptionRow,
   UserProfile,
 } from '../types/almuerzo'
@@ -13,11 +14,14 @@ export const MAX_FOTOS_ALMUERZO = 5
 export const BUCKET_FOTOS = 'almuerzo-fotos'
 
 const TABLE = 'almuerzos'
+const GASTO_SEL = 'almuerzo_gasto_selections'
 
-/** Select PostgREST: FKs nombradas en 003_options_levels_profiles.sql */
+/** Select PostgREST: 005_multi_gasto_bebida_emojis.sql */
 const ALMUERZO_SELECT = `
   *,
-  gasto_opt:meal_options!almuerzos_gasto_option_id_fkey ( id, label ),
+  gasto_selections:almuerzo_gasto_selections (
+    option:meal_options!almuerzo_gasto_selections_option_id_fkey ( id, label )
+  ),
   bebida_opt:meal_options!almuerzos_bebida_option_id_fkey ( id, label ),
   cafe_opt:meal_options!almuerzos_cafe_option_id_fkey ( id, label )
 `
@@ -32,11 +36,23 @@ async function getUserIdOrThrow(): Promise<string> {
   return user.id
 }
 
-function parseMealOptionRef(v: unknown): { id: string; label: string } | null {
+function parseMealOptionRef(v: unknown): MealOptionRef | null {
   if (!v || typeof v !== 'object') return null
   const o = v as Record<string, unknown>
   if (o.id == null || o.label == null) return null
   return { id: String(o.id), label: String(o.label) }
+}
+
+function parseGastoOptsFromRow(row: Record<string, unknown>): MealOptionRef[] {
+  const raw = row.gasto_selections
+  if (!Array.isArray(raw)) return []
+  const out: MealOptionRef[] = []
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue
+    const opt = parseMealOptionRef((item as Record<string, unknown>).option)
+    if (opt) out.push(opt)
+  }
+  return out
 }
 
 /**
@@ -60,6 +76,7 @@ function uniqueFileId(): string {
 }
 
 function rowToAlmuerzo(row: Record<string, unknown>): Almuerzo {
+  const gasto_opts = parseGastoOptsFromRow(row)
   return {
     id: String(row.id),
     user_id: row.user_id != null ? String(row.user_id) : '',
@@ -75,10 +92,12 @@ function rowToAlmuerzo(row: Record<string, unknown>): Almuerzo {
     review: row.review != null ? String(row.review) : null,
     photo_paths: Array.isArray(row.photo_paths) ? (row.photo_paths as string[]) : [],
     created_at: String(row.created_at),
-    gasto_option_id: row.gasto_option_id != null ? String(row.gasto_option_id) : null,
     bebida_option_id: row.bebida_option_id != null ? String(row.bebida_option_id) : null,
     cafe_option_id: row.cafe_option_id != null ? String(row.cafe_option_id) : null,
-    gasto_opt: parseMealOptionRef(row.gasto_opt),
+    gasto_opts,
+    gasto_selections: Array.isArray(row.gasto_selections)
+      ? (row.gasto_selections as Almuerzo['gasto_selections'])
+      : null,
     bebida_opt: parseMealOptionRef(row.bebida_opt),
     cafe_opt: parseMealOptionRef(row.cafe_opt),
   }
@@ -199,12 +218,24 @@ function uuidOrNull(s: string | null): string | null {
   return t === '' ? null : t
 }
 
+async function replaceGastoSelections(almuerzoId: string, optionIds: string[]): Promise<void> {
+  const { error: delErr } = await supabase.from(GASTO_SEL).delete().eq('almuerzo_id', almuerzoId)
+  if (delErr) throw delErr
+  if (optionIds.length === 0) return
+  const rows = optionIds.map((option_id) => ({ almuerzo_id: almuerzoId, option_id }))
+  const { error: insErr } = await supabase.from(GASTO_SEL).insert(rows)
+  if (insErr) throw insErr
+}
+
 export async function createAlmuerzo(
   input: AlmuerzoInput,
   newFiles: File[],
 ): Promise<Almuerzo> {
   if (newFiles.length > MAX_FOTOS_ALMUERZO) {
     throw new Error(`Máximo ${MAX_FOTOS_ALMUERZO} fotos`)
+  }
+  if (input.gasto_option_ids.length === 0) {
+    throw new Error('Selecciona al menos una opción de gasto.')
   }
 
   const userId = await getUserIdOrThrow()
@@ -213,7 +244,6 @@ export async function createAlmuerzo(
     user_id: userId,
     bar_name: input.bar_name,
     meal_date: input.meal_date,
-    gasto_option_id: uuidOrNull(input.gasto_option_id),
     bebida_option_id: uuidOrNull(input.bebida_option_id),
     cafe_option_id: uuidOrNull(input.cafe_option_id),
     bocadillo_name: emptyToNull(input.bocadillo_name),
@@ -226,30 +256,34 @@ export async function createAlmuerzo(
   const { data: inserted, error: insErr } = await supabase
     .from(TABLE)
     .insert(payload)
-    .select(ALMUERZO_SELECT)
+    .select('id')
     .single()
 
   if (insErr) throw insErr
   const row = inserted as Record<string, unknown>
-  const id = String(row.id)
-
-  if (newFiles.length === 0) {
-    return rowToAlmuerzo(row)
-  }
+  const almuerzoId = String(row.id)
 
   try {
-    const paths = await uploadFotos(userId, id, newFiles)
-    const { data: updated, error: upErr } = await supabase
+    await replaceGastoSelections(almuerzoId, input.gasto_option_ids)
+
+    if (newFiles.length === 0) {
+      const full = await getAlmuerzo(almuerzoId)
+      if (!full) throw new Error('No se pudo cargar el almuerzo creado.')
+      return full
+    }
+
+    const paths = await uploadFotos(userId, almuerzoId, newFiles)
+    const { error: upErr } = await supabase
       .from(TABLE)
       .update({ photo_paths: paths })
-      .eq('id', id)
-      .select(ALMUERZO_SELECT)
-      .single()
+      .eq('id', almuerzoId)
 
     if (upErr) throw upErr
-    return rowToAlmuerzo(updated as Record<string, unknown>)
+    const full = await getAlmuerzo(almuerzoId)
+    if (!full) throw new Error('No se pudo cargar el almuerzo creado.')
+    return full
   } catch (e) {
-    await supabase.from(TABLE).delete().eq('id', id)
+    await supabase.from(TABLE).delete().eq('id', almuerzoId)
     throw e
   }
 }
@@ -262,6 +296,10 @@ export async function updateAlmuerzo(
   newFiles: File[],
 ): Promise<Almuerzo> {
   await getUserIdOrThrow()
+
+  if (input.gasto_option_ids.length === 0) {
+    throw new Error('Selecciona al menos una opción de gasto.')
+  }
 
   const existing = await getAlmuerzo(id)
   if (!existing) throw new Error('Almuerzo no encontrado')
@@ -279,10 +317,11 @@ export async function updateAlmuerzo(
   const uploaded = newFiles.length > 0 ? await uploadFotos(userId, id, newFiles) : []
   const photo_paths = [...keepPaths, ...uploaded]
 
+  await replaceGastoSelections(id, input.gasto_option_ids)
+
   const payload = {
     bar_name: input.bar_name,
     meal_date: input.meal_date,
-    gasto_option_id: uuidOrNull(input.gasto_option_id),
     bebida_option_id: uuidOrNull(input.bebida_option_id),
     cafe_option_id: uuidOrNull(input.cafe_option_id),
     bocadillo_name: emptyToNull(input.bocadillo_name),
@@ -292,15 +331,12 @@ export async function updateAlmuerzo(
     photo_paths,
   }
 
-  const { data, error } = await supabase
-    .from(TABLE)
-    .update(payload)
-    .eq('id', id)
-    .select(ALMUERZO_SELECT)
-    .single()
+  const { error } = await supabase.from(TABLE).update(payload).eq('id', id)
 
   if (error) throw error
-  return rowToAlmuerzo(data as Record<string, unknown>)
+  const full = await getAlmuerzo(id)
+  if (!full) throw new Error('Almuerzo no encontrado tras actualizar.')
+  return full
 }
 
 export async function deleteAlmuerzo(id: string): Promise<void> {

@@ -279,9 +279,10 @@ export function AlmuerzoDetail() {
   const bocText = [row.bocadillo_name?.trim(), row.bocadillo_ingredients?.trim()]
     .filter(Boolean)
     .join(', ')
-  const gastoItems = row.gasto_opt?.label
-    ? [row.gasto_opt.label]
-    : gastoPartsList(row.gasto)
+  const gastoItems =
+    row.gasto_opts.length > 0
+      ? row.gasto_opts.map((g) => g.label)
+      : gastoPartsList(row.gasto)
   const drinkText = (row.bebida_opt?.label ?? row.drink)?.trim() ?? ''
   const coffeeText = (row.cafe_opt?.label ?? row.coffee)?.trim() ?? ''
   const hasDrink = drinkText !== ''

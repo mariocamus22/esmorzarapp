@@ -69,7 +69,7 @@ En [https://supabase.com/dashboard](https://supabase.com/dashboard) → tu proye
 
 ### 4.3 Si algo falla al guardar datos
 
-1. **SQL Editor:** ejecuta en orden `supabase/migrations/001_initial.sql`, `002_auth_rls.sql`, `003_options_levels_profiles.sql` y, si tienes datos viejos con texto en gasto/bebida/café, opcionalmente `004_backfill_option_ids_from_text.sql`.
+1. **SQL Editor:** ejecuta en orden `001_initial.sql`, `002_auth_rls.sql`, `003_options_levels_profiles.sql`; si aplica, `004_backfill_option_ids_from_text.sql` **antes** de `005`; luego `005_multi_gasto_bebida_emojis.sql` (gasto múltiple, emojis en bebidas, opciones nuevas).
 
 ### 4.4 Nivel y tiempo real (perfil)
 
