@@ -505,7 +505,7 @@
   color: var(--color-text);
 }
 
-/* Mismo cuerpo tipográfico que los números; la columna ancha (2/4) evita reducir el nivel. */
+/* Mismo cuerpo tipográfico que los números; columna de nivel algo más ancha (1.5fr vs 1.25fr). */
 .home-stat-value--level {
   line-height: 1.22;
   max-width: 100%;
