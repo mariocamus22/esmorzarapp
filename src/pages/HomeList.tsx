@@ -451,7 +451,7 @@ export function HomeList() {
         <div className="home-stat-card">
           <div className="home-stat-body">
             <span
-              className={`home-stat-value home-stat-value--level ${loading ? 'home-stat-value--muted' : ''} ${statNivell.length > 11 ? 'home-stat-value--level-sm' : ''}`}
+              className={`home-stat-value home-stat-value--level ${loading ? 'home-stat-value--muted' : ''}`}
             >
               {statNivell}
             </span>

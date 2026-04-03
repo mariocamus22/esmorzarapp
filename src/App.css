@@ -463,8 +463,8 @@
 
 .home-stats-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.65rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
+  gap: 0.5rem;
   margin-bottom: 0.65rem;
   align-items: stretch;
 }
@@ -472,10 +472,10 @@
 .home-stat-card {
   display: flex;
   flex-direction: column;
-  min-height: 6.35rem;
+  min-height: 5.35rem;
   background: var(--color-surface);
-  border-radius: 1.1rem;
-  padding: 0.75rem 0.65rem 0.7rem;
+  border-radius: 1rem;
+  padding: 0.55rem 0.45rem 0.5rem;
   text-align: center;
   box-shadow: var(--home-card-shadow);
   border: 1px solid var(--app-border, #d6d3cc);
@@ -486,8 +486,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.85rem;
-  padding: 0.15rem 0;
+  min-height: 2.35rem;
+  padding: 0.08rem 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -498,22 +498,19 @@
 
 .home-stat-value {
   display: block;
-  font-size: 1.42rem;
+  font-size: 1.08rem;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--color-text);
 }
 
+/* Mismo cuerpo tipográfico que los números; la columna ancha (2/4) evita reducir el nivel. */
 .home-stat-value--level {
-  font-size: clamp(0.82rem, 3.1vw, 1.2rem);
-  line-height: 1.2;
+  line-height: 1.22;
   max-width: 100%;
   overflow-wrap: anywhere;
-}
-
-.home-stat-value--level-sm {
-  font-size: clamp(0.72rem, 2.8vw, 1.02rem);
+  hyphens: auto;
 }
 
 .home-stat-value--muted {
@@ -525,11 +522,11 @@
   display: block;
   flex-shrink: 0;
   margin-top: auto;
-  padding-top: 0.35rem;
-  font-size: 0.78rem;
+  padding-top: 0.28rem;
+  font-size: 0.62rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   color: var(--home-label);
 }
 
