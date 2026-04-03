@@ -589,11 +589,11 @@ export function AlmuerzoForm({ mode }: Props) {
       setSaving(true)
       if (mode === 'create') {
         const row = await createAlmuerzo(input, newFiles)
-        void refreshProfile()
+        await refreshProfile()
         navigate(`/almuerzo/${row.id}`, { replace: true })
       } else if (id) {
         await updateAlmuerzo(id, input, keepPaths, newFiles)
-        void refreshProfile()
+        await refreshProfile()
         navigate(`/almuerzo/${id}`, { replace: true })
       }
     } catch (err) {

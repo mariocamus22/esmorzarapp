@@ -233,7 +233,7 @@ export function AlmuerzoDetail() {
     try {
       setDeleting(true)
       await deleteAlmuerzo(id)
-      void refreshProfile()
+      await refreshProfile()
       navigate('/', { replace: true })
     } catch (e) {
       setError(formatSupabaseError(e))

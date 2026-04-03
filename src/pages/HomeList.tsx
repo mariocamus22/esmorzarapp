@@ -205,7 +205,9 @@ export function HomeList() {
 
   const sinConfig = !hasSupabaseConfig()
   const nom = firstName(user)
-  const total = profile != null ? profile.total_meals : items.length
+  /** Comptador d'esmorzars: mateixa font que la llista (evita desfase amb `profile.total_meals`). */
+  const esmorzarCount = items.length
+  /** Bars diferents (nom normalitzat): només puja quan apareix un bar nou a l'historial. */
   const uniqueBars = useMemo(
     () => new Set(items.map((i) => i.bar_name.trim().toLowerCase())).size,
     [items],
@@ -219,8 +221,7 @@ export function HomeList() {
 
   const showVeureTots = !loading && items.length > RECENT_PREVIEW
 
-  const statEsmorzars =
-    loading || (profileLoading && profile == null) ? '—' : String(total)
+  const statEsmorzars = loading ? '—' : String(esmorzarCount)
   const statBars = loading ? '—' : String(uniqueBars)
   const statNivell = loading || (profileLoading && profile == null) ? '…' : nivell
 
