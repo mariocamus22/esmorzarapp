@@ -20,6 +20,7 @@ import { BarPlaceSearch, type BarPlaceResolved } from '../components/BarPlaceSea
 import { MapsStepDiagnostics } from '../components/MapsStepDiagnostics'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
+import { barLocationLine } from '../lib/barLocation'
 import { hasSupabaseConfig } from '../lib/env'
 import {
   beverageSelectLabel,
@@ -112,9 +113,6 @@ function buildInput(
     review,
   }
 }
-
-/** Ubicació placeholder (futur: BD del bar). */
-const PLACEHOLDER_BAR_UBICACIO = 'Valencia, Valencia'
 
 function IconSearch(props: { className?: string }) {
   return (
@@ -269,7 +267,7 @@ function FormSteps234Shell({
         <span className="form-mid-header-spacer" aria-hidden />
         <div className="form-mid-head-center">
           <h2 className="form-mid-bar-title">{barName.trim() || 'Bar'}</h2>
-          <p className="form-mid-bar-subtitle">{barSubtitle.trim() || PLACEHOLDER_BAR_UBICACIO}</p>
+          <p className="form-mid-bar-subtitle">{barSubtitle}</p>
         </div>
         <Link to={closeHref} className="form-mid-close-x" aria-label="Cerrar">
           ×
@@ -477,7 +475,7 @@ export function AlmuerzoForm({ mode }: Props) {
     setBarNameFromPlace(p.name)
   }, [])
 
-  const barMidSubtitle = barFormattedAddress?.trim() || PLACEHOLDER_BAR_UBICACIO
+  const barMidSubtitle = barLocationLine(barFormattedAddress)
 
   const toggleGastoOption = useCallback((optId: string) => {
     setGastoOptionIds((prev) =>
@@ -907,7 +905,7 @@ export function AlmuerzoForm({ mode }: Props) {
             <div className="form-step5-body">
               <div className="form-summary-card">
                 <h2 className="form-summary-bar">{barName.trim() || '—'}</h2>
-                <p className="form-summary-loc">{PLACEHOLDER_BAR_UBICACIO}</p>
+                <p className="form-summary-loc">{barMidSubtitle}</p>
                 <div className="form-summary-rows">
                   <div className="form-summary-row">
                     <IconBurger className="form-summary-icon" />

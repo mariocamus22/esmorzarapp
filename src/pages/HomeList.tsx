@@ -4,14 +4,12 @@ import type { User } from '@supabase/supabase-js'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
 import { getFotoPublicUrl, listAlmuerzos } from '../lib/almuerzosApi'
+import { barLocationLine } from '../lib/barLocation'
 import { hasSupabaseConfig } from '../lib/env'
 import type { Almuerzo } from '../types/almuerzo'
 
 const RECENT_PREVIEW = 5
 const FEEDBACK_MAIL = 'mailto:?subject=' + encodeURIComponent('Esmorzapp — comentari')
-
-/** Ciutat i província (placeholder fins que vinga de la BD del bar). */
-const PLACEHOLDER_CIUTAT_PROVINCIA_DISPLAY = 'València, València'
 
 function formatFechaLarga(isoDate: string): string {
   const d = new Date(`${isoDate}T12:00:00`)
@@ -336,7 +334,7 @@ export function HomeList() {
                       <HistoryCardAvatar photoPath={firstPhoto} />
                       <div className="home-history-text">
                         <span className="home-history-bar">{a.bar_name}</span>
-                        <span className="home-history-city">{PLACEHOLDER_CIUTAT_PROVINCIA_DISPLAY}</span>
+                        <span className="home-history-city">{barLocationLine(a.bar_formatted_address)}</span>
                         <div className="home-history-date">
                           <IconHistoryCalendar className="home-history-date-icon" />
                           <span className="home-history-date-text">{formatFechaLarga(a.meal_date)}</span>

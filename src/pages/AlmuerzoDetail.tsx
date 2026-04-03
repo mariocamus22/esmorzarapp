@@ -1,12 +1,11 @@
 import { type TouchEvent, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { barLocationLine } from '../lib/barLocation'
 import { formatSupabaseError } from '../lib/errors'
 import { deleteAlmuerzo, getAlmuerzo, getFotoPublicUrl } from '../lib/almuerzosApi'
 import { hasSupabaseConfig } from '../lib/env'
 import type { Almuerzo } from '../types/almuerzo'
-
-const PLACEHOLDER_CIUTAT_PROVINCIA = 'València, València'
 
 function formatFechaLarga(isoDate: string): string {
   const d = new Date(`${isoDate}T12:00:00`)
@@ -307,7 +306,7 @@ export function AlmuerzoDetail() {
                 <h1 className="detail-header-title">{row.bar_name}</h1>
                 <div className="detail-header-loc">
                   <IconLocationPin className="detail-header-pin" aria-hidden />
-                  <span className="detail-header-loc-text">{PLACEHOLDER_CIUTAT_PROVINCIA}</span>
+                  <span className="detail-header-loc-text">{barLocationLine(row.bar_formatted_address)}</span>
                 </div>
               </div>
             </header>
