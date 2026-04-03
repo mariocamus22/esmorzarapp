@@ -19,6 +19,11 @@ import {
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
 import { hasSupabaseConfig } from '../lib/env'
+import {
+  beverageSelectLabel,
+  dedupeBebidaOptions,
+  stripLeadingEmojisFromLabel,
+} from '../lib/optionLabels'
 import type { AlmuerzoInput, MealOptionCategoryCode, MealOptionRow } from '../types/almuerzo'
 
 type FormMode = 'create' | 'edit'
@@ -268,7 +273,7 @@ function FormSteps234Shell({
           <IconBurger className="form-mid-tab-icon" />
           <span className="form-mid-tab-text form-mid-tab-text--stack">
             <span>Bocadillo</span>
-            <span>y gasto</span>
+            <span>gasto opcional</span>
           </span>
         </button>
         <button
@@ -409,29 +414,48 @@ export function AlmuerzoForm({ mode }: Props) {
     }
   }, [mode, id])
 
-  const gastoOpts = useMemo(() => optionsForCategory(mealOptions, 'gasto'), [mealOptions])
-  const bebidaOpts = useMemo(() => optionsForCategory(mealOptions, 'bebida'), [mealOptions])
+  const gastoOpts = useMemo(
+    () =>
+      optionsForCategory(mealOptions, 'gasto').filter(
+        (o) => !(/🤷/u.test(o.label) && /nada/i.test(o.label)),
+      ),
+    [mealOptions],
+  )
+  const bebidaOptsRaw = useMemo(() => optionsForCategory(mealOptions, 'bebida'), [mealOptions])
+  const bebidaOpts = useMemo(() => dedupeBebidaOptions(bebidaOptsRaw), [bebidaOptsRaw])
   const cafeOpts = useMemo(() => optionsForCategory(mealOptions, 'cafe'), [mealOptions])
-  const nadaGastoId = useMemo(
-    () => gastoOpts.find((o) => /🤷/u.test(o.label) && /nada/i.test(o.label))?.id,
-    [gastoOpts],
-  )
-  const toggleGastoOption = useCallback(
-    (optId: string) => {
-      setGastoOptionIds((prev) => {
-        if (prev.includes(optId)) {
-          return prev.filter((id) => id !== optId)
-        }
-        if (nadaGastoId != null && optId === nadaGastoId) {
-          return [optId]
-        }
-        const withoutNada =
-          nadaGastoId != null ? prev.filter((id) => id !== nadaGastoId) : [...prev]
-        return [...withoutNada, optId]
-      })
-    },
-    [nadaGastoId],
-  )
+
+  const toggleGastoOption = useCallback((optId: string) => {
+    setGastoOptionIds((prev) =>
+      prev.includes(optId) ? prev.filter((id) => id !== optId) : [...prev, optId],
+    )
+  }, [])
+
+  useEffect(() => {
+    if (optionsLoading || mealOptions.length === 0) return
+    const valid = new Set(gastoOpts.map((o) => o.id))
+    setGastoOptionIds((prev) => {
+      const next = prev.filter((id) => valid.has(id))
+      return next.length === prev.length ? prev : next
+    })
+  }, [optionsLoading, mealOptions.length, gastoOpts])
+
+  useEffect(() => {
+    if (optionsLoading || mealOptions.length === 0) return
+    const dedupedIds = new Set(bebidaOpts.map((o) => o.id))
+    setBebidaOptionId((prev) => {
+      const t = prev.trim()
+      if (t === '') return prev
+      if (dedupedIds.has(t)) return prev
+      const row = bebidaOptsRaw.find((o) => o.id === t)
+      if (!row) return prev
+      const plain = stripLeadingEmojisFromLabel(row.label).toLowerCase().trim()
+      const canonical = bebidaOpts.find(
+        (o) => stripLeadingEmojisFromLabel(o.label).toLowerCase().trim() === plain,
+      )
+      return canonical?.id ?? prev
+    })
+  }, [optionsLoading, mealOptions.length, bebidaOpts, bebidaOptsRaw])
 
   const totalFotos = keepPaths.length + newFiles.length
   const puedeMasFotos = totalFotos < MAX_FOTOS_ALMUERZO
@@ -474,9 +498,7 @@ export function AlmuerzoForm({ mode }: Props) {
     setStep(2)
   }
 
-  const step2Complete = useCallback(() => {
-    return bocName.trim() !== '' && gastoOptionIds.length > 0
-  }, [bocName, gastoOptionIds])
+  const step2Complete = useCallback(() => bocName.trim() !== '', [bocName])
 
   const step3Complete = useCallback(() => bebidaOptionId.trim() !== '', [bebidaOptionId])
   const step4Complete = useCallback(() => cafeOptionId.trim() !== '', [cafeOptionId])
@@ -489,7 +511,7 @@ export function AlmuerzoForm({ mode }: Props) {
     }
     if (s === 3) {
       if (!step2Complete()) {
-        setError('Ompli el bocadillo i tria almenys una opció de gasto abans de continuar.')
+        setError('Ompli el nom del bocadillo abans de continuar.')
         return
       }
       setStep(3)
@@ -497,7 +519,7 @@ export function AlmuerzoForm({ mode }: Props) {
     }
     if (s === 4) {
       if (!step2Complete()) {
-        setError('Ompli el bocadillo i tria almenys una opció de gasto abans de continuar.')
+        setError('Ompli el nom del bocadillo abans de continuar.')
         return
       }
       if (!step3Complete()) {
@@ -519,7 +541,7 @@ export function AlmuerzoForm({ mode }: Props) {
     setError(null)
     if (step === 2) {
       if (!step2Complete()) {
-        setError('Ompli el bocadillo i tria almenys una opció de gasto abans de continuar.')
+        setError('Ompli el nom del bocadillo abans de continuar.')
         return
       }
       setStep(3)
@@ -547,7 +569,7 @@ export function AlmuerzoForm({ mode }: Props) {
       return
     }
     if (!step2Complete() || !step3Complete() || !step4Complete()) {
-      setError('Falten dades obligatòries (bocadillo, gasto, beguda o cafè).')
+      setError('Falten dades obligatòries (bocadillo, beguda o cafè).')
       return
     }
 
@@ -719,8 +741,10 @@ export function AlmuerzoForm({ mode }: Props) {
           </section>
 
           <section className="form-mid-section">
-            <h3 className="form-mid-section-title">Gasto</h3>
-            <div className="form-gasto-grid" role="group" aria-label="Gasto en el bar">
+            <h3 className="form-mid-section-title">
+              Gasto <span className="muted">(opcional, múltiple)</span>
+            </h3>
+            <div className="form-gasto-grid" role="group" aria-label="Gasto en el bar (opcional)">
               {gastoOpts.map((opt) => {
                 const selected = gastoOptionIds.includes(opt.id)
                 return (
@@ -764,7 +788,7 @@ export function AlmuerzoForm({ mode }: Props) {
                   >
                     <IconCardBeer className="form-drink-card-icon" aria-hidden />
                     <span className="form-drink-card-label form-drink-card-label--full">
-                      {opt.label}
+                      {beverageSelectLabel(opt.label)}
                     </span>
                   </button>
                 )

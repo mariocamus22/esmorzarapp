@@ -234,9 +234,6 @@ export async function createAlmuerzo(
   if (newFiles.length > MAX_FOTOS_ALMUERZO) {
     throw new Error(`Máximo ${MAX_FOTOS_ALMUERZO} fotos`)
   }
-  if (input.gasto_option_ids.length === 0) {
-    throw new Error('Selecciona al menos una opción de gasto.')
-  }
 
   const userId = await getUserIdOrThrow()
 
@@ -296,10 +293,6 @@ export async function updateAlmuerzo(
   newFiles: File[],
 ): Promise<Almuerzo> {
   await getUserIdOrThrow()
-
-  if (input.gasto_option_ids.length === 0) {
-    throw new Error('Selecciona al menos una opción de gasto.')
-  }
 
   const existing = await getAlmuerzo(id)
   if (!existing) throw new Error('Almuerzo no encontrado')

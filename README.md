@@ -27,4 +27,4 @@ Instrucciones detalladas: **[GUIA_PASOS_MANUALES.md](GUIA_PASOS_MANUALES.md)** (
 
 ## Migraciones SQL
 
-Orden: `001` → `002` → `003` → opcional `004` (antes de `005` si lo usas) → `005_multi_gasto_bebida_emojis.sql` (gasto múltiple, bebidas con emoji, `Sin bebida`, `🤷🏻‍♂️ Nada`). Ejecuta en el SQL Editor de Supabase o con la CLI.
+Orden: `001` → `002` → `003` → opcional `004` (antes de `005` si lo usas) → `005_multi_gasto_bebida_emojis.sql` → `006_optional_gasto_remove_nada_dedupe_bebida.sql` (gasto opcional sin “Nada”, dedupe bebidas). Ejecuta en el SQL Editor de Supabase o con la CLI.
