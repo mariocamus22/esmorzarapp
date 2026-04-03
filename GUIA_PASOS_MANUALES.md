@@ -69,7 +69,11 @@ En [https://supabase.com/dashboard](https://supabase.com/dashboard) → tu proye
 
 ### 4.3 Si algo falla al guardar datos
 
-1. **SQL Editor:** ejecuta el contenido de `supabase/migrations/001_initial.sql` y luego `002_auth_rls.sql` si no lo hiciste ya (tabla + RLS + Storage).
+1. **SQL Editor:** ejecuta en orden `supabase/migrations/001_initial.sql`, `002_auth_rls.sql`, `003_options_levels_profiles.sql` y, si tienes datos viejos con texto en gasto/bebida/café, opcionalmente `004_backfill_option_ids_from_text.sql`.
+
+### 4.4 Nivel y tiempo real (perfil)
+
+La migración `003` añade la tabla `profiles` a la publicación `supabase_realtime`. Si el nivel no se actualiza en vivo en otro dispositivo, en Supabase revisa **Database → Replication** y confirma que `profiles` está publicada (la migración lo intenta por SQL).
 
 ---
 

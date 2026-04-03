@@ -27,4 +27,4 @@ Instrucciones detalladas: **[GUIA_PASOS_MANUALES.md](GUIA_PASOS_MANUALES.md)** (
 
 ## Migraciones SQL
 
-Orden: `supabase/migrations/001_initial.sql` y luego `002_auth_rls.sql` (si aún no están aplicadas en tu proyecto).
+Orden: `001_initial.sql` → `002_auth_rls.sql` → `003_options_levels_profiles.sql` → opcional `004_backfill_option_ids_from_text.sql` (en el SQL Editor de Supabase o con la CLI).

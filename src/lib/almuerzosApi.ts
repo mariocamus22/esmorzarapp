@@ -1,5 +1,10 @@
 import { supabase } from './supabaseClient'
-import type { Almuerzo, AlmuerzoInput } from '../types/almuerzo'
+import type {
+  Almuerzo,
+  AlmuerzoInput,
+  MealOptionRow,
+  UserProfile,
+} from '../types/almuerzo'
 
 /** Máximo de fotos por almuerzo (producto) */
 export const MAX_FOTOS_ALMUERZO = 5
@@ -9,6 +14,14 @@ export const BUCKET_FOTOS = 'almuerzo-fotos'
 
 const TABLE = 'almuerzos'
 
+/** Select PostgREST: FKs nombradas en 003_options_levels_profiles.sql */
+const ALMUERZO_SELECT = `
+  *,
+  gasto_opt:meal_options!almuerzos_gasto_option_id_fkey ( id, label ),
+  bebida_opt:meal_options!almuerzos_bebida_option_id_fkey ( id, label ),
+  cafe_opt:meal_options!almuerzos_cafe_option_id_fkey ( id, label )
+`
+
 async function getUserIdOrThrow(): Promise<string> {
   const {
     data: { user },
@@ -17,6 +30,13 @@ async function getUserIdOrThrow(): Promise<string> {
   if (error) throw error
   if (!user) throw new Error('Debes iniciar sesión para continuar.')
   return user.id
+}
+
+function parseMealOptionRef(v: unknown): { id: string; label: string } | null {
+  if (!v || typeof v !== 'object') return null
+  const o = v as Record<string, unknown>
+  if (o.id == null || o.label == null) return null
+  return { id: String(o.id), label: String(o.label) }
 }
 
 /**
@@ -55,6 +75,36 @@ function rowToAlmuerzo(row: Record<string, unknown>): Almuerzo {
     review: row.review != null ? String(row.review) : null,
     photo_paths: Array.isArray(row.photo_paths) ? (row.photo_paths as string[]) : [],
     created_at: String(row.created_at),
+    gasto_option_id: row.gasto_option_id != null ? String(row.gasto_option_id) : null,
+    bebida_option_id: row.bebida_option_id != null ? String(row.bebida_option_id) : null,
+    cafe_option_id: row.cafe_option_id != null ? String(row.cafe_option_id) : null,
+    gasto_opt: parseMealOptionRef(row.gasto_opt),
+    bebida_opt: parseMealOptionRef(row.bebida_opt),
+    cafe_opt: parseMealOptionRef(row.cafe_opt),
+  }
+}
+
+function rowToProfile(row: Record<string, unknown>): UserProfile {
+  const levelRaw = row.level ?? row.levels
+  let level: UserProfile['level'] = null
+  if (levelRaw && typeof levelRaw === 'object') {
+    const l = levelRaw as Record<string, unknown>
+    if (l.id != null && l.code != null && l.label != null && l.min_meals != null) {
+      level = {
+        id: Number(l.id),
+        code: String(l.code),
+        label: String(l.label),
+        min_meals: Number(l.min_meals),
+      }
+    }
+  }
+  return {
+    id: String(row.id),
+    display_name: row.display_name != null ? String(row.display_name) : null,
+    total_meals: Number(row.total_meals ?? 0),
+    level_id: Number(row.level_id),
+    updated_at: String(row.updated_at),
+    level,
   }
 }
 
@@ -64,10 +114,45 @@ export function getFotoPublicUrl(storagePath: string): string {
   return data.publicUrl
 }
 
+/** Opciones activas de menú, agrupables por `meal_option_categories.code` en el cliente */
+export async function listAllMealOptions(): Promise<MealOptionRow[]> {
+  const { data, error } = await supabase
+    .from('meal_options')
+    .select('id, category_id, label, sort_order, is_active, meal_option_categories ( code )')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []).map((r) => {
+    const rec = r as Record<string, unknown>
+    const cat = rec.meal_option_categories as Record<string, unknown> | null | undefined
+    return {
+      id: String(rec.id),
+      category_id: Number(rec.category_id),
+      label: String(rec.label),
+      sort_order: Number(rec.sort_order ?? 0),
+      is_active: Boolean(rec.is_active),
+      meal_option_categories: cat?.code != null ? { code: String(cat.code) } : null,
+    }
+  })
+}
+
+export async function fetchProfile(userId: string): Promise<UserProfile | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, display_name, total_meals, level_id, updated_at, level:levels ( id, code, label, min_meals )')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) return null
+  return rowToProfile(data as Record<string, unknown>)
+}
+
 export async function listAlmuerzos(): Promise<Almuerzo[]> {
   const { data, error } = await supabase
     .from(TABLE)
-    .select('*')
+    .select(ALMUERZO_SELECT)
     .order('meal_date', { ascending: false })
 
   if (error) throw error
@@ -75,7 +160,11 @@ export async function listAlmuerzos(): Promise<Almuerzo[]> {
 }
 
 export async function getAlmuerzo(id: string): Promise<Almuerzo | null> {
-  const { data, error } = await supabase.from(TABLE).select('*').eq('id', id).maybeSingle()
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(ALMUERZO_SELECT)
+    .eq('id', id)
+    .maybeSingle()
 
   if (error) throw error
   if (!data) return null
@@ -104,6 +193,12 @@ async function deleteFotosFromStorage(paths: string[]): Promise<void> {
   if (error) throw error
 }
 
+function uuidOrNull(s: string | null): string | null {
+  if (s == null) return null
+  const t = s.trim()
+  return t === '' ? null : t
+}
+
 export async function createAlmuerzo(
   input: AlmuerzoInput,
   newFiles: File[],
@@ -118,11 +213,11 @@ export async function createAlmuerzo(
     user_id: userId,
     bar_name: input.bar_name,
     meal_date: input.meal_date,
-    gasto: emptyToNull(input.gasto),
-    drink: emptyToNull(input.drink),
+    gasto_option_id: uuidOrNull(input.gasto_option_id),
+    bebida_option_id: uuidOrNull(input.bebida_option_id),
+    cafe_option_id: uuidOrNull(input.cafe_option_id),
     bocadillo_name: emptyToNull(input.bocadillo_name),
     bocadillo_ingredients: emptyToNull(input.bocadillo_ingredients),
-    coffee: emptyToNull(input.coffee),
     price: input.price,
     review: emptyToNull(input.review),
     photo_paths: [] as string[],
@@ -131,7 +226,7 @@ export async function createAlmuerzo(
   const { data: inserted, error: insErr } = await supabase
     .from(TABLE)
     .insert(payload)
-    .select('*')
+    .select(ALMUERZO_SELECT)
     .single()
 
   if (insErr) throw insErr
@@ -148,7 +243,7 @@ export async function createAlmuerzo(
       .from(TABLE)
       .update({ photo_paths: paths })
       .eq('id', id)
-      .select('*')
+      .select(ALMUERZO_SELECT)
       .single()
 
     if (upErr) throw upErr
@@ -187,17 +282,22 @@ export async function updateAlmuerzo(
   const payload = {
     bar_name: input.bar_name,
     meal_date: input.meal_date,
-    gasto: emptyToNull(input.gasto),
-    drink: emptyToNull(input.drink),
+    gasto_option_id: uuidOrNull(input.gasto_option_id),
+    bebida_option_id: uuidOrNull(input.bebida_option_id),
+    cafe_option_id: uuidOrNull(input.cafe_option_id),
     bocadillo_name: emptyToNull(input.bocadillo_name),
     bocadillo_ingredients: emptyToNull(input.bocadillo_ingredients),
-    coffee: emptyToNull(input.coffee),
     price: input.price,
     review: emptyToNull(input.review),
     photo_paths,
   }
 
-  const { data, error } = await supabase.from(TABLE).update(payload).eq('id', id).select('*').single()
+  const { data, error } = await supabase
+    .from(TABLE)
+    .update(payload)
+    .eq('id', id)
+    .select(ALMUERZO_SELECT)
+    .single()
 
   if (error) throw error
   return rowToAlmuerzo(data as Record<string, unknown>)

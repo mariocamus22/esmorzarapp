@@ -4,12 +4,14 @@ import {
   createAlmuerzo,
   getAlmuerzo,
   getFotoPublicUrl,
+  listAllMealOptions,
   MAX_FOTOS_ALMUERZO,
   updateAlmuerzo,
 } from '../lib/almuerzosApi'
+import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
 import { hasSupabaseConfig } from '../lib/env'
-import type { AlmuerzoInput } from '../types/almuerzo'
+import type { AlmuerzoInput, MealOptionCategoryCode, MealOptionRow } from '../types/almuerzo'
 
 type FormMode = 'create' | 'edit'
 
@@ -60,11 +62,11 @@ function todayISO(): string {
 function buildInput(
   barName: string,
   mealDate: string,
-  gasto: string,
-  drink: string,
+  gastoOptionId: string,
+  bebidaOptionId: string,
+  cafeOptionId: string,
   bocName: string,
   bocIng: string,
-  coffee: string,
   priceStr: string,
   review: string,
 ): AlmuerzoInput {
@@ -77,11 +79,11 @@ function buildInput(
   return {
     bar_name: barName.trim(),
     meal_date: mealDate,
-    gasto,
-    drink,
+    gasto_option_id: gastoOptionId.trim() === '' ? null : gastoOptionId.trim(),
+    bebida_option_id: bebidaOptionId.trim() === '' ? null : bebidaOptionId.trim(),
+    cafe_option_id: cafeOptionId.trim() === '' ? null : cafeOptionId.trim(),
     bocadillo_name: bocName,
     bocadillo_ingredients: bocIng,
-    coffee,
     price,
     review,
   }
@@ -89,16 +91,6 @@ function buildInput(
 
 /** Ubicació placeholder (futur: BD del bar). */
 const PLACEHOLDER_BAR_UBICACIO = 'Valencia, Valencia'
-
-const GASTO_CHIPS = [
-  { id: 'cacau', emoji: '🥜', label: 'Cacau del Collaret' },
-  { id: 'olivas', emoji: '🫒', label: 'Olivas' },
-  { id: 'cremaet', emoji: '☕', label: 'Cremaet' },
-  { id: 'tramussos', emoji: '🫘', label: 'Tramussos' },
-  { id: 'ensalada', emoji: '🥗', label: 'Ensalada' },
-  { id: 'vi', emoji: '🍷', label: 'Vino con Gaseosa' },
-  { id: 'cervesa', emoji: '🍺', label: 'Cerveza' },
-] as const
 
 function IconSearch(props: { className?: string }) {
   return (
@@ -196,21 +188,7 @@ function IconCoffeeTab(props: { className?: string }) {
   )
 }
 
-/** Iconos outline ~32px per a cards de beguda (pas 3) */
-function IconCardWine({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M9 2h6M9 2v6c0 2.8 1.4 4.2 3 4.5s3-1.2 3-4.5V2M9 12.5V20a1 1 0 001 1h4a1 1 0 001-1v-7.5"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
+/** Icono genérico para cards de bebida (las opciones vienen de Supabase) */
 function IconCardBeer({ className }: { className?: string }) {
   return (
     <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -225,176 +203,26 @@ function IconCardBeer({ className }: { className?: string }) {
   )
 }
 
-function IconCardWater({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 3c-2 4-5 7.2-5 10.2a5 5 0 0010 0C17 10.2 14 7 12 3z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
+function optionsForCategory(
+  rows: MealOptionRow[],
+  code: MealOptionCategoryCode,
+): MealOptionRow[] {
+  return rows.filter((r) => r.meal_option_categories?.code === code)
 }
 
-function IconCardRefresco({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M9 6h6v11a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM9 6V4h6v2M10 4V3M14 4V3M11 9h2M11 12h2"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
+function labelByOptionId(rows: MealOptionRow[], id: string): string {
+  const t = id.trim()
+  if (t === '') return ''
+  return rows.find((r) => r.id === t)?.label ?? ''
 }
 
-function IconCardJuice({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M9 3h6l-1 14H10L9 3zM10 8h4M11 21h2"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function IconCardHorchata({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M10 2h4v3h-4V2zM9 6h6v12a2.5 2.5 0 01-2.5 2.5h-1A2.5 2.5 0 019 18V6zM11 10h2"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function IconCardOther({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.75" />
-      <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-const DRINK_CARD_OPTIONS = [
-  { id: 'vino', label: 'Vino con gaseosa', Icon: IconCardWine },
-  { id: 'cerveza', label: 'Cerveza', Icon: IconCardBeer },
-  { id: 'agua', label: 'Agua', Icon: IconCardWater },
-  { id: 'refresco', label: 'Refresco', Icon: IconCardRefresco },
-  { id: 'zumo', label: 'Zumo', Icon: IconCardJuice },
-  { id: 'horchata', label: 'Horchata', Icon: IconCardHorchata },
-] as const
-
-const DRINK_PRESET_LABELS = new Set<string>(DRINK_CARD_OPTIONS.map((o) => o.label))
-
-/** Icones outline 24px — color via CSS (--app-accent) */
-function IconCafeSolo({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M8 20h8M9 20V12a1 1 0 011-1h4a1 1 0 011 1v8M10 10V9a2 2 0 114 0v1M7 14H6a2 2 0 000 4h1"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function IconCafeCortado({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M8 19h8M9 19l-1.2-9h8.4L15 19M9.5 10V8h5v2M8 8H7a2 2 0 000 4h1M12 5V3"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function IconCafeBombon({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M10 3h4l-1.2 18h-1.6L10 3zM11 9h2M11 13h2M11 17h2"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function IconCafeDelTemps({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
-function IconCafeCremaet({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 22c-2.5-3.5-1-6.5 0-10 1.2 2.8 3.5 5.5 0 10zM9.5 8.5c.5-1.5 1.5-2.5 2.5-3 1 .5 2 1.5 2.5 3"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function IconCafeNada({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={24} height={24} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M8 18h8M9 18V10a1 1 0 011-1h4a1 1 0 011 1v8M10 8V7a2 2 0 114 0v1M5 5l14 14"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-const COFFEE_ROW_OPTIONS = [
-  { id: 'solo', label: 'Café Solo', Icon: IconCafeSolo },
-  { id: 'cortado', label: 'Cortado', Icon: IconCafeCortado },
-  { id: 'bombon', label: 'Bombón', Icon: IconCafeBombon },
-  { id: 'del-temps', label: 'Del Temps', Icon: IconCafeDelTemps },
-  { id: 'cremaet', label: 'Cremaet', Icon: IconCafeCremaet },
-  { id: 'nada', label: 'Nada', Icon: IconCafeNada },
-] as const
-
-function coffeeRowMatches(coffeeVal: string, label: string): boolean {
-  return coffeeVal.trim().toLowerCase() === label.toLowerCase()
+/** Separa un posible emoji inicial (p. ej. en etiquetas de gasto desde BD) */
+function chipEmojiAndRest(label: string): { emoji: string; rest: string } {
+  const m = label.match(/^(\p{Extended_Pictographic}+)\s*/u)
+  if (m) {
+    return { emoji: m[1], rest: label.slice(m[0].length).trim() || label }
+  }
+  return { emoji: '', rest: label }
 }
 
 type MidStep = 2 | 3 | 4
@@ -478,46 +306,27 @@ function FormSteps234Shell({
   )
 }
 
-function gastoParts(g: string): string[] {
-  return g
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)
-}
-
-function isGastoChipSelected(gasto: string, label: string): boolean {
-  return gastoParts(gasto).some((p) => p.toLowerCase() === label.toLowerCase())
-}
-
-function toggleGastoChipLabel(gasto: string, label: string): string {
-  const parts = gastoParts(gasto)
-  const i = parts.findIndex((p) => p.toLowerCase() === label.toLowerCase())
-  if (i >= 0) {
-    parts.splice(i, 1)
-  } else {
-    parts.push(label)
-  }
-  return parts.join(', ')
-}
-
 export function AlmuerzoForm({ mode }: Props) {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { refreshProfile } = useAuth()
   const dateInputRef = useRef<HTMLInputElement>(null)
 
   const [step, setStep] = useState(1)
 
   const [barName, setBarName] = useState('')
   const [mealDate, setMealDate] = useState(todayISO())
-  const [gasto, setGasto] = useState('')
-  const [drink, setDrink] = useState('')
-  /** Pas 3: mode «Otra» (text lliure) */
-  const [drinkOtraMode, setDrinkOtraMode] = useState(false)
+  const [gastoOptionId, setGastoOptionId] = useState('')
+  const [bebidaOptionId, setBebidaOptionId] = useState('')
+  const [cafeOptionId, setCafeOptionId] = useState('')
   const [bocName, setBocName] = useState('')
   const [bocIng, setBocIng] = useState('')
-  const [coffee, setCoffee] = useState('')
   const [priceStr, setPriceStr] = useState('')
   const [review, setReview] = useState('')
+
+  const [mealOptions, setMealOptions] = useState<MealOptionRow[]>([])
+  const [optionsLoading, setOptionsLoading] = useState(true)
+  const [optionsError, setOptionsError] = useState<string | null>(null)
 
   const [keepPaths, setKeepPaths] = useState<string[]>([])
   const [newFiles, setNewFiles] = useState<File[]>([])
@@ -538,6 +347,31 @@ export function AlmuerzoForm({ mode }: Props) {
   }, [newPreviewUrls])
 
   useEffect(() => {
+    if (!hasSupabaseConfig()) {
+      setOptionsLoading(false)
+      return
+    }
+    let cancelled = false
+    ;(async () => {
+      try {
+        setOptionsLoading(true)
+        const rows = await listAllMealOptions()
+        if (!cancelled) {
+          setMealOptions(rows)
+          setOptionsError(null)
+        }
+      } catch (e) {
+        if (!cancelled) setOptionsError(formatSupabaseError(e))
+      } finally {
+        if (!cancelled) setOptionsLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
     if (mode !== 'edit' || !id || !hasSupabaseConfig()) {
       setLoadingEdit(false)
       return
@@ -554,13 +388,11 @@ export function AlmuerzoForm({ mode }: Props) {
         }
         setBarName(row.bar_name)
         setMealDate(row.meal_date)
-        setGasto(row.gasto ?? '')
-        const dRow = row.drink ?? ''
-        setDrink(dRow)
-        setDrinkOtraMode(dRow !== '' && !DRINK_PRESET_LABELS.has(dRow))
+        setGastoOptionId(row.gasto_option_id ?? '')
+        setBebidaOptionId(row.bebida_option_id ?? '')
+        setCafeOptionId(row.cafe_option_id ?? '')
         setBocName(row.bocadillo_name ?? '')
         setBocIng(row.bocadillo_ingredients ?? '')
-        setCoffee(row.coffee ?? '')
         setPriceStr(row.price != null ? String(row.price) : '')
         setReview(row.review ?? '')
         setKeepPaths([...row.photo_paths])
@@ -646,11 +478,11 @@ export function AlmuerzoForm({ mode }: Props) {
     const input = buildInput(
       barName,
       mealDate,
-      gasto,
-      drink,
+      gastoOptionId,
+      bebidaOptionId,
+      cafeOptionId,
       bocName,
       bocIng,
-      coffee,
       priceStr,
       review,
     )
@@ -659,9 +491,11 @@ export function AlmuerzoForm({ mode }: Props) {
       setSaving(true)
       if (mode === 'create') {
         const row = await createAlmuerzo(input, newFiles)
+        void refreshProfile()
         navigate(`/almuerzo/${row.id}`, { replace: true })
       } else if (id) {
         await updateAlmuerzo(id, input, keepPaths, newFiles)
+        void refreshProfile()
         navigate(`/almuerzo/${id}`, { replace: true })
       }
     } catch (err) {
@@ -682,7 +516,7 @@ export function AlmuerzoForm({ mode }: Props) {
     )
   }
 
-  if (loadingEdit) {
+  if (loadingEdit || optionsLoading) {
     return (
       <main className="page">
         <div className="loading-block" aria-busy="true">
@@ -702,16 +536,25 @@ export function AlmuerzoForm({ mode }: Props) {
     .filter(Boolean)
     .join(' ')
 
+  const gastoOpts = optionsForCategory(mealOptions, 'gasto')
+  const bebidaOpts = optionsForCategory(mealOptions, 'bebida')
+  const cafeOpts = optionsForCategory(mealOptions, 'cafe')
+
   const bocSummaryText = [bocName.trim(), bocIng.trim()].filter(Boolean).join('\n\n') || '—'
-  const gastoSummaryText = gasto.trim() || '—'
-  const drinkSummaryText = drink.trim() || '—'
-  const coffeeSummaryText = coffee.trim() || '—'
+  const gastoSummaryText = labelByOptionId(mealOptions, gastoOptionId) || '—'
+  const drinkSummaryText = labelByOptionId(mealOptions, bebidaOptionId) || '—'
+  const coffeeSummaryText = labelByOptionId(mealOptions, cafeOptionId) || '—'
 
   return (
     <main className={mainClass}>
       {error && (
         <p className="banner banner-error" role="alert">
           {error}
+        </p>
+      )}
+      {optionsError && (
+        <p className="banner banner-error" role="alert">
+          {optionsError}
         </p>
       )}
 
@@ -802,19 +645,24 @@ export function AlmuerzoForm({ mode }: Props) {
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">Gasto</h3>
             <div className="form-gasto-grid" role="group" aria-label="Gasto en el bar">
-              {GASTO_CHIPS.map((chip) => {
-                const selected = isGastoChipSelected(gasto, chip.label)
+              {gastoOpts.map((opt) => {
+                const selected = gastoOptionId === opt.id
+                const { emoji, rest } = chipEmojiAndRest(opt.label)
                 return (
                   <button
-                    key={chip.id}
+                    key={opt.id}
                     type="button"
                     className={`form-gasto-chip ${selected ? 'is-selected' : ''}`}
-                    onClick={() => setGasto((g) => toggleGastoChipLabel(g, chip.label))}
+                    onClick={() =>
+                      setGastoOptionId((prev) => (prev === opt.id ? '' : opt.id))
+                    }
                   >
-                    <span className="form-gasto-chip-emoji" aria-hidden>
-                      {chip.emoji}
-                    </span>
-                    <span className="form-gasto-chip-label">{chip.label}</span>
+                    {emoji ? (
+                      <span className="form-gasto-chip-emoji" aria-hidden>
+                        {emoji}
+                      </span>
+                    ) : null}
+                    <span className="form-gasto-chip-label">{rest}</span>
                   </button>
                 )
               })}
@@ -835,49 +683,23 @@ export function AlmuerzoForm({ mode }: Props) {
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">Bebida</h3>
             <div className="form-drink-card-grid" role="group" aria-label="Trie la beguda">
-              {DRINK_CARD_OPTIONS.map((opt) => {
-                const selected = !drinkOtraMode && drink === opt.label
+              {bebidaOpts.map((opt) => {
+                const selected = bebidaOptionId === opt.id
                 return (
                   <button
                     key={opt.id}
                     type="button"
                     className={`form-drink-card ${selected ? 'is-selected' : ''}`}
-                    onClick={() => {
-                      setDrinkOtraMode(false)
-                      setDrink((prev) => (prev === opt.label ? '' : opt.label))
-                    }}
+                    onClick={() =>
+                      setBebidaOptionId((prev) => (prev === opt.id ? '' : opt.id))
+                    }
                   >
-                    <opt.Icon className="form-drink-card-icon" />
+                    <IconCardBeer className="form-drink-card-icon" />
                     <span className="form-drink-card-label">{opt.label}</span>
                   </button>
                 )
               })}
-              <button
-                type="button"
-                className={`form-drink-card ${drinkOtraMode ? 'is-selected' : ''}`}
-                onClick={() => {
-                  setDrinkOtraMode(true)
-                  if (DRINK_PRESET_LABELS.has(drink)) setDrink('')
-                }}
-              >
-                <IconCardOther className="form-drink-card-icon" />
-                <span className="form-drink-card-label">Otra</span>
-              </button>
             </div>
-            {drinkOtraMode && (
-              <label className="form-drink-other-wrap" htmlFor="form-step3-drink-other">
-                <span className="visually-hidden">Altra beguda</span>
-                <input
-                  id="form-step3-drink-other"
-                  className="form-drink-other-input"
-                  type="text"
-                  value={drink}
-                  onChange={(e) => setDrink(e.target.value)}
-                  placeholder="Escribe la bebida…"
-                  autoComplete="off"
-                />
-              </label>
-            )}
           </section>
         </FormSteps234Shell>
       )}
@@ -895,8 +717,8 @@ export function AlmuerzoForm({ mode }: Props) {
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">Café</h3>
             <div className="form-cafe-row-list" role="listbox" aria-label="Trie el cafè">
-              {COFFEE_ROW_OPTIONS.map((opt) => {
-                const selected = coffeeRowMatches(coffee, opt.label)
+              {cafeOpts.map((opt) => {
+                const selected = cafeOptionId === opt.id
                 return (
                   <button
                     key={opt.id}
@@ -904,11 +726,11 @@ export function AlmuerzoForm({ mode }: Props) {
                     role="option"
                     aria-selected={selected}
                     className={`form-cafe-row ${selected ? 'is-selected' : ''}`}
-                    onClick={() => {
-                      setCoffee((prev) => (coffeeRowMatches(prev, opt.label) ? '' : opt.label))
-                    }}
+                    onClick={() =>
+                      setCafeOptionId((prev) => (prev === opt.id ? '' : opt.id))
+                    }
                   >
-                    <opt.Icon className="form-cafe-row-icon" aria-hidden />
+                    <IconCoffeeTab className="form-cafe-row-icon" aria-hidden />
                     <span className="form-cafe-row-label">{opt.label}</span>
                   </button>
                 )

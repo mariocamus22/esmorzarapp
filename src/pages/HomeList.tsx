@@ -42,16 +42,6 @@ function firstName(user: User | null): string {
   return email?.trim() || 'amic'
 }
 
-/** Nivell segons el nombre total d'esmorzars registrats */
-function nivellLabel(total: number): string {
-  if (total === 0) return 'Principiante'
-  if (total < 5) return 'Novell'
-  if (total < 10) return 'Explorador'
-  if (total < 20) return 'Aficionat'
-  if (total < 35) return 'Expert'
-  return 'Llegenda'
-}
-
 function IconCroissant() {
   return (
     <svg
@@ -172,7 +162,7 @@ function HistoryCardAvatar({ photoPath }: { photoPath: string | null }) {
  * Pantalla principal: resum, estadístiques i últims esmorzars (buit o amb dades).
  */
 export function HomeList() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, profile, profileLoading } = useAuth()
   const [items, setItems] = useState<Almuerzo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -215,12 +205,12 @@ export function HomeList() {
 
   const sinConfig = !hasSupabaseConfig()
   const nom = firstName(user)
-  const total = items.length
+  const total = profile != null ? profile.total_meals : items.length
   const uniqueBars = useMemo(
     () => new Set(items.map((i) => i.bar_name.trim().toLowerCase())).size,
     [items],
   )
-  const nivell = useMemo(() => nivellLabel(total), [total])
+  const nivell = profile?.level?.label ?? '…'
 
   const displayedRecents = useMemo(() => {
     if (showAllRecents || items.length <= RECENT_PREVIEW) return items
@@ -229,9 +219,10 @@ export function HomeList() {
 
   const showVeureTots = !loading && items.length > RECENT_PREVIEW
 
-  const statEsmorzars = loading ? '—' : String(total)
+  const statEsmorzars =
+    loading || (profileLoading && profile == null) ? '—' : String(total)
   const statBars = loading ? '—' : String(uniqueBars)
-  const statNivell = loading ? '…' : nivell
+  const statNivell = loading || (profileLoading && profile == null) ? '…' : nivell
 
   return (
     <main className="page home-page">

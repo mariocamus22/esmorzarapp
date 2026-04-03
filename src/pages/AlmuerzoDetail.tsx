@@ -1,5 +1,6 @@
 import { type TouchEvent, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
 import { deleteAlmuerzo, getAlmuerzo, getFotoPublicUrl } from '../lib/almuerzosApi'
 import { hasSupabaseConfig } from '../lib/env'
@@ -91,10 +92,8 @@ function DetailHero({ paths }: { paths: string[] }) {
   const n = paths.length
   const touchStartX = useRef<number | null>(null)
   const touchLastX = useRef<number | null>(null)
-
-  useEffect(() => {
-    setI((prev) => (n === 0 ? 0 : Math.min(prev, n - 1)))
-  }, [n])
+  /** Evita índice fuera de rango si cambia el número de fotos sin remontar */
+  const safeI = n === 0 ? 0 : Math.min(i, n - 1)
 
   if (n === 0) {
     return (
@@ -134,7 +133,7 @@ function DetailHero({ paths }: { paths: string[] }) {
     else if (dx < -SWIPE_MIN_PX) goPrev()
   }
 
-  const translatePct = n > 0 ? (i / n) * 100 : 0
+  const translatePct = n > 0 ? (safeI / n) * 100 : 0
 
   return (
     <div className="detail-hero">
@@ -170,8 +169,8 @@ function DetailHero({ paths }: { paths: string[] }) {
               key={idx}
               type="button"
               role="tab"
-              aria-selected={idx === i}
-              className={`detail-hero-dot ${idx === i ? 'is-active' : ''}`}
+              aria-selected={idx === safeI}
+              className={`detail-hero-dot ${idx === safeI ? 'is-active' : ''}`}
               onClick={() => setI(idx)}
               aria-label={`Foto ${idx + 1} de ${n}`}
             />
@@ -188,6 +187,7 @@ function DetailHero({ paths }: { paths: string[] }) {
 export function AlmuerzoDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { refreshProfile } = useAuth()
   const [row, setRow] = useState<Almuerzo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -233,6 +233,7 @@ export function AlmuerzoDetail() {
     try {
       setDeleting(true)
       await deleteAlmuerzo(id)
+      void refreshProfile()
       navigate('/', { replace: true })
     } catch (e) {
       setError(formatSupabaseError(e))
@@ -278,9 +279,11 @@ export function AlmuerzoDetail() {
   const bocText = [row.bocadillo_name?.trim(), row.bocadillo_ingredients?.trim()]
     .filter(Boolean)
     .join(', ')
-  const gastoItems = gastoPartsList(row.gasto)
-  const drinkText = row.drink?.trim() ?? ''
-  const coffeeText = row.coffee?.trim() ?? ''
+  const gastoItems = row.gasto_opt?.label
+    ? [row.gasto_opt.label]
+    : gastoPartsList(row.gasto)
+  const drinkText = (row.bebida_opt?.label ?? row.drink)?.trim() ?? ''
+  const coffeeText = (row.cafe_opt?.label ?? row.coffee)?.trim() ?? ''
   const hasDrink = drinkText !== ''
   const hasCoffee = coffeeText !== ''
   const dualCols = (hasDrink && hasCoffee) || (!hasDrink && !hasCoffee)
