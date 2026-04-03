@@ -9,6 +9,22 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      /** HTML primer des de xarxa: menys risc de PWA servint index antic després d’un deploy. */
+      workbox: {
+        clientsClaim: true,
+        skipWaiting: true,
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages',
+              networkTimeoutSeconds: 4,
+              expiration: { maxEntries: 16, maxAgeSeconds: 86400 },
+            },
+          },
+        ],
+      },
       includeAssets: ['favicon.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Esmorzar',

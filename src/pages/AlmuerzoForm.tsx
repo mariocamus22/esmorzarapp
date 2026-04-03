@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   createAlmuerzo,
   getAlmuerzo,
@@ -16,6 +16,8 @@ import {
   MAX_FOTOS_ALMUERZO,
   updateAlmuerzo,
 } from '../lib/almuerzosApi'
+import { BarPlaceSearch, type BarPlaceResolved } from '../components/BarPlaceSearch'
+import { MapsStepDiagnostics } from '../components/MapsStepDiagnostics'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
 import { hasSupabaseConfig } from '../lib/env'
@@ -74,6 +76,10 @@ function todayISO(): string {
 
 function buildInput(
   barName: string,
+  googlePlaceId: string | null,
+  barFormattedAddress: string | null,
+  barLat: number | null,
+  barLng: number | null,
   mealDate: string,
   gastoOptionIds: string[],
   bebidaOptionId: string,
@@ -92,6 +98,10 @@ function buildInput(
   const uniqueGasto = [...new Set(gastoOptionIds.filter((id) => id.trim() !== ''))]
   return {
     bar_name: barName.trim(),
+    google_place_id: googlePlaceId,
+    bar_formatted_address: barFormattedAddress,
+    bar_lat: barLat,
+    bar_lng: barLng,
     meal_date: mealDate,
     gasto_option_ids: uniqueGasto,
     bebida_option_id: bebidaOptionId.trim() === '' ? null : bebidaOptionId.trim(),
@@ -235,6 +245,7 @@ type MidStep = 2 | 3 | 4
 function FormSteps234Shell({
   step,
   barName,
+  barSubtitle,
   closeHref,
   onTab,
   onAtras,
@@ -244,6 +255,7 @@ function FormSteps234Shell({
 }: {
   step: MidStep
   barName: string
+  barSubtitle: string
   closeHref: string
   onTab: (s: MidStep) => void
   onAtras: () => void
@@ -257,7 +269,7 @@ function FormSteps234Shell({
         <span className="form-mid-header-spacer" aria-hidden />
         <div className="form-mid-head-center">
           <h2 className="form-mid-bar-title">{barName.trim() || 'Bar'}</h2>
-          <p className="form-mid-bar-subtitle">{PLACEHOLDER_BAR_UBICACIO}</p>
+          <p className="form-mid-bar-subtitle">{barSubtitle.trim() || PLACEHOLDER_BAR_UBICACIO}</p>
         </div>
         <Link to={closeHref} className="form-mid-close-x" aria-label="Cerrar">
           ×
@@ -313,6 +325,9 @@ function FormSteps234Shell({
 
 export function AlmuerzoForm({ mode }: Props) {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const mapsDebug = searchParams.get('mapsDebug') === '1'
+  const mapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   const navigate = useNavigate()
   const { refreshProfile } = useAuth()
   const dateInputRef = useRef<HTMLInputElement>(null)
@@ -320,6 +335,12 @@ export function AlmuerzoForm({ mode }: Props) {
   const [step, setStep] = useState(1)
 
   const [barName, setBarName] = useState('')
+  /** Nom retornat per Places en l'última selecció; si l'usuari edita el text, es netegen metadades. */
+  const [barNameFromPlace, setBarNameFromPlace] = useState<string | null>(null)
+  const [googlePlaceId, setGooglePlaceId] = useState<string | null>(null)
+  const [barFormattedAddress, setBarFormattedAddress] = useState<string | null>(null)
+  const [barLat, setBarLat] = useState<number | null>(null)
+  const [barLng, setBarLng] = useState<number | null>(null)
   const [mealDate, setMealDate] = useState(todayISO())
   const [gastoOptionIds, setGastoOptionIds] = useState<string[]>([])
   const [bebidaOptionId, setBebidaOptionId] = useState('')
@@ -392,6 +413,11 @@ export function AlmuerzoForm({ mode }: Props) {
           return
         }
         setBarName(row.bar_name)
+        setGooglePlaceId(row.google_place_id)
+        setBarFormattedAddress(row.bar_formatted_address)
+        setBarLat(row.bar_lat)
+        setBarLng(row.bar_lng)
+        setBarNameFromPlace(row.google_place_id ? row.bar_name : null)
         setMealDate(row.meal_date)
         setGastoOptionIds(row.gasto_opts.map((g) => g.id))
         setBebidaOptionId(row.bebida_option_id ?? '')
@@ -424,6 +450,34 @@ export function AlmuerzoForm({ mode }: Props) {
   const bebidaOptsRaw = useMemo(() => optionsForCategory(mealOptions, 'bebida'), [mealOptions])
   const bebidaOpts = useMemo(() => dedupeBebidaOptions(bebidaOptsRaw), [bebidaOptsRaw])
   const cafeOpts = useMemo(() => optionsForCategory(mealOptions, 'cafe'), [mealOptions])
+
+  const barNameFromPlaceRef = useRef<string | null>(null)
+  useEffect(() => {
+    barNameFromPlaceRef.current = barNameFromPlace
+  }, [barNameFromPlace])
+
+  const handleBarInputChange = useCallback((v: string) => {
+    setBarName(v)
+    const prev = barNameFromPlaceRef.current
+    if (prev !== null && v.trim() !== prev.trim()) {
+      setGooglePlaceId(null)
+      setBarFormattedAddress(null)
+      setBarLat(null)
+      setBarLng(null)
+      setBarNameFromPlace(null)
+    }
+  }, [])
+
+  const handlePlaceResolved = useCallback((p: BarPlaceResolved) => {
+    setBarName(p.name)
+    setGooglePlaceId(p.googlePlaceId)
+    setBarFormattedAddress(p.formattedAddress)
+    setBarLat(p.lat)
+    setBarLng(p.lng)
+    setBarNameFromPlace(p.name)
+  }, [])
+
+  const barMidSubtitle = barFormattedAddress?.trim() || PLACEHOLDER_BAR_UBICACIO
 
   const toggleGastoOption = useCallback((optId: string) => {
     setGastoOptionIds((prev) =>
@@ -575,6 +629,10 @@ export function AlmuerzoForm({ mode }: Props) {
 
     const input = buildInput(
       barName,
+      googlePlaceId,
+      barFormattedAddress,
+      barLat,
+      barLng,
       mealDate,
       gastoOptionIds,
       bebidaOptionId,
@@ -666,21 +724,21 @@ export function AlmuerzoForm({ mode }: Props) {
 
           <h1 className="form-step1-title">¿On has esmorzat hui?</h1>
 
+          {mapsDebug && <MapsStepDiagnostics apiKey={mapsApiKey} />}
+
           <div className="form-step1-body">
             <label className="form-step1-label" htmlFor="form-step1-bar">
               Bar
             </label>
             <div className="form-step1-search-wrap">
               <IconSearch className="form-step1-search-icon" />
-              <input
+              <BarPlaceSearch
                 id="form-step1-bar"
                 className="form-step1-search-input"
-                type="text"
                 value={barName}
-                onChange={(e) => setBarName(e.target.value)}
-                autoComplete="off"
-                placeholder="Busca un bar…"
-                enterKeyHint="next"
+                onBarInputChange={handleBarInputChange}
+                onPlaceResolved={handlePlaceResolved}
+                apiKey={mapsApiKey}
               />
             </div>
 
@@ -719,6 +777,7 @@ export function AlmuerzoForm({ mode }: Props) {
         <FormSteps234Shell
           step={2}
           barName={barName}
+          barSubtitle={barMidSubtitle}
           closeHref={closeHref}
           onTab={handleMidTab}
           onAtras={handleMidAtras}
@@ -767,6 +826,7 @@ export function AlmuerzoForm({ mode }: Props) {
         <FormSteps234Shell
           step={3}
           barName={barName}
+          barSubtitle={barMidSubtitle}
           closeHref={closeHref}
           onTab={handleMidTab}
           onAtras={handleMidAtras}
@@ -802,6 +862,7 @@ export function AlmuerzoForm({ mode }: Props) {
         <FormSteps234Shell
           step={4}
           barName={barName}
+          barSubtitle={barMidSubtitle}
           closeHref={closeHref}
           onTab={handleMidTab}
           onAtras={handleMidAtras}

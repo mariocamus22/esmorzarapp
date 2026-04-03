@@ -12,6 +12,11 @@ export type Almuerzo = {
   /** Propietario (Supabase Auth) */
   user_id: string
   bar_name: string
+  /** Google Place ID si l'usuari va triar un lloc a Places */
+  google_place_id: string | null
+  bar_formatted_address: string | null
+  bar_lat: number | null
+  bar_lng: number | null
   meal_date: string
   /** Texto agregado (trigger desde almuerzo_gasto_selections o legado) */
   gasto: string | null
@@ -36,6 +41,10 @@ export type Almuerzo = {
 /** Datos que enviamos al crear o actualizar (sin id ni created_at) */
 export type AlmuerzoInput = {
   bar_name: string
+  google_place_id: string | null
+  bar_formatted_address: string | null
+  bar_lat: number | null
+  bar_lng: number | null
   meal_date: string
   /** UUIDs de meal_options categoría gasto (uno o varios) */
   gasto_option_ids: string[]

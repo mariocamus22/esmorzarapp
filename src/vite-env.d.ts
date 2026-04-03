@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly VITE_ENABLE_PASSWORD_LOGIN?: string
   /** Contraseña para correos en autoLogin (ver src/lib/autoLogin.ts); solo .env local */
   readonly VITE_AUTO_LOGIN_SHARED_PASSWORD?: string
+  /** Clau del navegador (Maps JavaScript API + Places); restricció per referrers a GCP */
+  readonly VITE_GOOGLE_MAPS_API_KEY?: string
 }
 
 interface ImportMeta {

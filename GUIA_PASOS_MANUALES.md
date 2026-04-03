@@ -14,6 +14,7 @@ Ya está hecho en el repo: código, `git init`, primer commit, `vercel.json`, `n
 2. Abre `.env` con un editor y pega:
    - `VITE_SUPABASE_URL` = `https://TU_PROJECT_ID.supabase.co`
    - `VITE_SUPABASE_ANON_KEY` = tu clave anon / publishable (del panel de Supabase).
+   - Opcional pero recomendable para la **cerca de bars** (Google Places): `VITE_GOOGLE_MAPS_API_KEY` = clave de navegador de Google Cloud (la misma que usarás en Vercel; ver sección 3).
 3. **No subas `.env` a GitHub** (ya está en `.gitignore`).
 
 ---
@@ -40,11 +41,14 @@ Ya está hecho en el repo: código, `git init`, primer commit, `vercel.json`, `n
 3. **Framework Preset:** Vite (o “Other” si no aparece; el build sigue siendo el mismo).
 4. **Build Command:** `npm run build`  
    **Output Directory:** `dist`
-5. **Environment Variables** (mismas que en tu `.env` local):
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`  
-   Márcalas para **Production** y **Preview**.
-6. Pulsa **Deploy**. Cuando termine, te dará una URL `https://algo.vercel.app`.
+5. **Environment Variables** (Settings → Environment Variables del proyecto, o en el asistente del primer deploy):
+   - `VITE_SUPABASE_URL` — mismo valor que en tu `.env` local.
+   - `VITE_SUPABASE_ANON_KEY` — mismo valor que en tu `.env` local.
+   - `VITE_GOOGLE_MAPS_API_KEY` — **copia el valor desde tu `.env` del Mac** (no lo subas a GitHub). Sin esta variable, el despliegue seguirá funcionando pero el campo del bar será solo texto, sin autocompletado de Google.
+   - Para cada una, marca **Production** y **Preview** (así funcionan tanto la URL principal como los despliegues de rama).
+6. **Google Cloud** (misma clave que acabas de pegar): en la credencial de la API, restricción por **referentes HTTP**, añade también:
+   - `https://*.vercel.app/*` (o la URL concreta tipo `https://tu-proyecto.vercel.app/*`) para producción y previews.
+7. Pulsa **Deploy** (o **Redeploy** si el proyecto ya existía tras añadir variables). Cuando termine, te dará una URL `https://algo.vercel.app`.
 
 ---
 
@@ -69,7 +73,7 @@ En [https://supabase.com/dashboard](https://supabase.com/dashboard) → tu proye
 
 ### 4.3 Si algo falla al guardar datos
 
-1. **SQL Editor:** ejecuta en orden `001_initial.sql`, `002_auth_rls.sql`, `003_options_levels_profiles.sql`; si aplica, `004_backfill_option_ids_from_text.sql` **antes** de `005`; luego `005`, `006` y `007_sin_cafe_y_cacahuetes_collaret.sql` (opción “Sin café”, etiqueta gasto cacahuetes).
+1. **SQL Editor:** ejecuta en orden `001_initial.sql`, `002_auth_rls.sql`, `003_options_levels_profiles.sql`; si aplica, `004_backfill_option_ids_from_text.sql` **antes** de `005`; luego `005`, `006`, `007_sin_cafe_y_cacahuetes_collaret.sql` y, si usas Google Places al guardar bars, `008_almuerzos_google_places.sql`.
 
 ### 4.4 Nivel y tiempo real (perfil)
 
@@ -90,8 +94,9 @@ La migración `003` añade la tabla `profiles` a la publicación `supabase_realt
 
 1. [https://app.netlify.com](https://app.netlify.com) → **Add new site → Import an existing project** → GitHub → el mismo repo.
 2. Build: `npm run build`, publish: `dist` (el archivo `netlify.toml` ya lo indica).
-3. **Site settings → Environment variables:** añade `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
-4. Repite los pasos de **Supabase → Redirect URLs** con la URL que te dé Netlify (`https://tu-app.netlify.app`).
+3. **Site settings → Environment variables:** añade `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` y `VITE_GOOGLE_MAPS_API_KEY` (valor copiado de tu `.env` local). Define los mismos nombres para **Production** y para **Deploy Previews** si usas ramas.
+4. En **Google Cloud → Credenciales**, en los referentes HTTP de la clave, incluye `https://tu-app.netlify.app/*` (y el dominio de preview de Netlify si aplica).
+5. Repite los pasos de **Supabase → Redirect URLs** con la URL que te dé Netlify (`https://tu-app.netlify.app`).
 
 ---
 

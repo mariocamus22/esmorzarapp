@@ -161,6 +161,21 @@
   }
 }
 
+.maps-debug-panel {
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.maps-debug-list {
+  margin: 0.5rem 0 0 1.1rem;
+  padding: 0;
+}
+
+.maps-debug-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+}
+
 .almuerzo-list {
   list-style: none;
   margin: 0;
@@ -844,6 +859,11 @@
   padding: 2rem 1rem;
   color: var(--color-muted);
   font-size: 0.95rem;
+}
+
+/* Google Places: el desplegable (.pac-container) va al body; assegurem que no quedi darrere del layout */
+.pac-container {
+  z-index: 10000 !important;
 }
 
 /* Form pas 1 — bar + data (identitat Esmorzapp) */

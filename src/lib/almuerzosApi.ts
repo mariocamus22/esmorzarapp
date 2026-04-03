@@ -75,12 +75,23 @@ function uniqueFileId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`
 }
 
+function numOrNull(v: unknown): number | null {
+  if (v == null) return null
+  const n = Number(v)
+  return Number.isFinite(n) ? n : null
+}
+
 function rowToAlmuerzo(row: Record<string, unknown>): Almuerzo {
   const gasto_opts = parseGastoOptsFromRow(row)
   return {
     id: String(row.id),
     user_id: row.user_id != null ? String(row.user_id) : '',
     bar_name: String(row.bar_name),
+    google_place_id: row.google_place_id != null ? String(row.google_place_id) : null,
+    bar_formatted_address:
+      row.bar_formatted_address != null ? String(row.bar_formatted_address) : null,
+    bar_lat: numOrNull(row.bar_lat),
+    bar_lng: numOrNull(row.bar_lng),
     meal_date: String(row.meal_date),
     gasto: row.gasto != null ? String(row.gasto) : null,
     drink: row.drink != null ? String(row.drink) : null,
@@ -240,6 +251,10 @@ export async function createAlmuerzo(
   const payload = {
     user_id: userId,
     bar_name: input.bar_name,
+    google_place_id: emptyToNull(input.google_place_id ?? ''),
+    bar_formatted_address: emptyToNull(input.bar_formatted_address ?? ''),
+    bar_lat: input.bar_lat,
+    bar_lng: input.bar_lng,
     meal_date: input.meal_date,
     bebida_option_id: uuidOrNull(input.bebida_option_id),
     cafe_option_id: uuidOrNull(input.cafe_option_id),
@@ -314,6 +329,10 @@ export async function updateAlmuerzo(
 
   const payload = {
     bar_name: input.bar_name,
+    google_place_id: emptyToNull(input.google_place_id ?? ''),
+    bar_formatted_address: emptyToNull(input.bar_formatted_address ?? ''),
+    bar_lat: input.bar_lat,
+    bar_lng: input.bar_lng,
     meal_date: input.meal_date,
     bebida_option_id: uuidOrNull(input.bebida_option_id),
     cafe_option_id: uuidOrNull(input.cafe_option_id),
