@@ -13,12 +13,23 @@ create table if not exists public.almuerzo_gasto_selections (
 create index if not exists almuerzo_gasto_selections_option_id_idx
   on public.almuerzo_gasto_selections (option_id);
 
--- Migrar selección única antigua
-insert into public.almuerzo_gasto_selections (almuerzo_id, option_id)
-select a.id, a.gasto_option_id
-from public.almuerzos a
-where a.gasto_option_id is not null
-on conflict do nothing;
+-- Migrar selección única antigua (solo si existe la columna de 003; si saltaste 003, no hay nada que copiar)
+do $mig_gasto_col$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'almuerzos'
+      and column_name = 'gasto_option_id'
+  ) then
+    insert into public.almuerzo_gasto_selections (almuerzo_id, option_id)
+    select a.id, a.gasto_option_id
+    from public.almuerzos a
+    where a.gasto_option_id is not null
+    on conflict do nothing;
+  end if;
+end $mig_gasto_col$;
 
 -- ---------------------------------------------------------------------------
 -- Sincronizar columna texto `gasto` desde la tabla puente
