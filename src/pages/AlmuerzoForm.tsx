@@ -35,6 +35,9 @@ type Props = {
   mode: FormMode
 }
 
+const BAR_SEARCH_PLACEHOLDER =
+  'Ej.: Bar La Parra, Murcia — o solo el nombre del bar'
+
 const ES_MONTHS = [
   'enero',
   'febrero',
@@ -356,6 +359,8 @@ export function AlmuerzoForm({ mode }: Props) {
   const [loadingEdit, setLoadingEdit] = useState(mode === 'edit')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  /** Remonta el input con Places (uncontrolled) al limpiar el bar para vaciar el DOM. */
+  const [barFieldKey, setBarFieldKey] = useState(0)
 
   const newPreviewUrls = useMemo(
     () => newFiles.map((f) => URL.createObjectURL(f)),
@@ -472,6 +477,11 @@ export function AlmuerzoForm({ mode }: Props) {
     setBarLng(p.lng)
     setBarNameFromPlace(p.name)
   }, [])
+
+  const clearBarSearch = useCallback(() => {
+    handleBarInputChange('')
+    setBarFieldKey((k) => k + 1)
+  }, [handleBarInputChange])
 
   const barMidSubtitle = barLocationLine(barFormattedAddress)
 
@@ -718,46 +728,62 @@ export function AlmuerzoForm({ mode }: Props) {
             </Link>
           </div>
 
-          <h1 className="form-step1-title">¿Dónde has almorzado hoy?</h1>
+          <div className="form-step1-center">
+            <h1 className="form-step1-title">¿Dónde has almorzado?</h1>
 
-          {mapsDebug && <MapsStepDiagnostics apiKey={mapsApiKey} />}
+            {mapsDebug && <MapsStepDiagnostics apiKey={mapsApiKey} />}
 
-          <div className="form-step1-body">
-            <label className="form-step1-label" htmlFor="form-step1-bar">
-              Bar
-            </label>
-            <div className="form-step1-search-wrap">
-              <IconSearch className="form-step1-search-icon" />
-              <BarPlaceSearch
-                id="form-step1-bar"
-                className="form-step1-search-input"
-                value={barName}
-                onBarInputChange={handleBarInputChange}
-                onPlaceResolved={handlePlaceResolved}
-                apiKey={mapsApiKey}
-              />
-            </div>
-
-            <div className="form-step1-date-row">
-              <input
-                ref={dateInputRef}
-                type="date"
-                className="visually-hidden"
-                tabIndex={-1}
-                value={mealDate}
-                onChange={(e) => setMealDate(e.target.value)}
-                aria-label="Fecha del almuerzo"
-              />
-              <button
-                type="button"
-                className="form-step1-date-btn"
-                onClick={openDatePicker}
-                aria-label="Abrir selector de fecha"
+            <div className="form-step1-body">
+              <label className="form-step1-label" htmlFor="form-step1-bar">
+                Bar
+              </label>
+              <div
+                className={`form-step1-search-wrap${barName.trim() ? ' form-step1-search-wrap--has-value' : ''}`}
               >
-                <IconCalendar />
-                <span>{mealDateChipLabel(mealDate)}</span>
-                <IconChevronDown />
-              </button>
+                <IconSearch className="form-step1-search-icon" />
+                <BarPlaceSearch
+                  key={barFieldKey}
+                  id="form-step1-bar"
+                  className="form-step1-search-input"
+                  value={barName}
+                  onBarInputChange={handleBarInputChange}
+                  onPlaceResolved={handlePlaceResolved}
+                  apiKey={mapsApiKey}
+                  placeholder={BAR_SEARCH_PLACEHOLDER}
+                />
+                {barName.trim() !== '' && (
+                  <button
+                    type="button"
+                    className="form-step1-search-clear"
+                    onClick={clearBarSearch}
+                    aria-label="Borrar bar y buscar otro"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+
+              <div className="form-step1-date-row">
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  className="visually-hidden"
+                  tabIndex={-1}
+                  value={mealDate}
+                  onChange={(e) => setMealDate(e.target.value)}
+                  aria-label="Fecha del almuerzo"
+                />
+                <button
+                  type="button"
+                  className="form-step1-date-btn"
+                  onClick={openDatePicker}
+                  aria-label="Abrir selector de fecha"
+                >
+                  <IconCalendar />
+                  <span>{mealDateChipLabel(mealDate)}</span>
+                  <IconChevronDown />
+                </button>
+              </div>
             </div>
           </div>
 

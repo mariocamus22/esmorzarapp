@@ -31,7 +31,7 @@ export function BarPlaceSearch({
   onBarInputChange,
   onPlaceResolved,
   apiKey,
-  placeholder = 'Busca un bar…',
+  placeholder = 'Ej.: Bar La Parra, Murcia — o solo el nombre del bar',
   disabled = false,
 }: Props) {
   /** Ref estable para el callback de React; el efecto depende de `inputNode` para evitar `ref.current === null` en el primer useEffect. */
