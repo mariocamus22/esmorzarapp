@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      /** HTML primer des de xarxa: menys risc de PWA servint index antic després d’un deploy. */
+      /** HTML primero desde red: menos riesgo de que la PWA sirva un index antiguo tras un deploy. */
       workbox: {
         clientsClaim: true,
         skipWaiting: true,
@@ -27,9 +27,9 @@ export default defineConfig({
       },
       includeAssets: ['favicon.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'Esmorzar',
-        short_name: 'Esmorzar',
-        description: 'Registro de almuerzos valencianos',
+        name: 'Esmorzapp',
+        short_name: 'Esmorzapp',
+        description: 'Registro de tus almuerzos',
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',

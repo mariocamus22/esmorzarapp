@@ -26,8 +26,8 @@
   --home-label: #6b6560;
   --home-card-shadow: 0 2px 14px rgba(26, 26, 26, 0.06);
 
-  font-family: 'Nunito', system-ui, -apple-system, sans-serif;
-  font-size: 16px;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-size: 17px;
   line-height: 1.45;
   color: var(--app-text);
   background: var(--app-bg);

@@ -9,11 +9,11 @@ import type { Almuerzo } from '../types/almuerzo'
 
 function formatFechaLarga(isoDate: string): string {
   const d = new Date(`${isoDate}T12:00:00`)
-  return d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 function formatPrecioPill(n: number): string {
-  return new Intl.NumberFormat('ca-ES', {
+  return new Intl.NumberFormat('es-ES', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(n)
@@ -26,7 +26,7 @@ function gastoPartsList(g: string | null | undefined): string[] {
     .filter(Boolean)
 }
 
-/** Comilles d'obertura (estil ❝), 20×20, color via `currentColor`. */
+/** Comillas de apertura (estilo ❝), 20×20, color vía `currentColor`. */
 function IconQuoteOpen({ className }: { className?: string }) {
   return (
     <svg
@@ -96,7 +96,7 @@ function DetailHero({ paths }: { paths: string[] }) {
 
   if (n === 0) {
     return (
-      <div className="detail-hero detail-hero--empty" aria-label="Sense fotos">
+      <div className="detail-hero detail-hero--empty" aria-label="Sin fotos">
         <IconDetailCamera className="detail-hero-empty-icon" />
       </div>
     )
@@ -181,7 +181,7 @@ function DetailHero({ paths }: { paths: string[] }) {
 }
 
 /**
- * Detall d'un esmorzar: lectura, editar i eliminar (amb confirmació).
+ * Detalle de un almuerzo: lectura, edición y borrado (con confirmación).
  */
 export function AlmuerzoDetail() {
   const { id } = useParams()
@@ -206,7 +206,7 @@ export function AlmuerzoDetail() {
         const data = await getAlmuerzo(id)
         if (!cancelled) {
           setRow(data)
-          setError(data ? null : 'No hem trobat aquest esmorzar.')
+          setError(data ? null : 'No hemos encontrado ese almuerzo.')
         }
       } catch (e) {
         if (!cancelled) {
@@ -225,7 +225,7 @@ export function AlmuerzoDetail() {
   async function handleDelete() {
     if (!id || !row) return
     const ok = window.confirm(
-      'Segur que vols eliminar aquest esmorzar? Aquesta acció no es pot desfer.',
+      '¿Seguro que quieres eliminar este almuerzo? Esta acción no se puede deshacer.',
     )
     if (!ok) return
 
@@ -244,8 +244,8 @@ export function AlmuerzoDetail() {
   if (!hasSupabaseConfig()) {
     return (
       <main className="page">
-        <p className="banner banner-warn">Falta configurar el fitxer .env amb Supabase.</p>
-        <Link to="/">← Tornar</Link>
+        <p className="banner banner-warn">Falta configurar el archivo .env con Supabase.</p>
+        <Link to="/">← Volver</Link>
       </main>
     )
   }
@@ -255,7 +255,7 @@ export function AlmuerzoDetail() {
       <main className="page detail-page">
         <div className="loading-block" aria-busy="true">
           <span className="spinner" aria-hidden />
-          <span className="muted">Carregant…</span>
+          <span className="muted">Cargando…</span>
         </div>
       </main>
     )
@@ -264,9 +264,9 @@ export function AlmuerzoDetail() {
   if (error || !row) {
     return (
       <main className="page">
-        <p className="banner banner-error">{error ?? 'No trobat'}</p>
+        <p className="banner banner-error">{error ?? 'No encontrado'}</p>
         <Link to="/" className="back-link">
-          ← Tornar al llistat
+          ← Volver al listado
         </Link>
       </main>
     )
@@ -295,7 +295,7 @@ export function AlmuerzoDetail() {
           <div className="detail-pad">
             <header className="detail-header-editorial">
               <div className="detail-header-x-row">
-                <Link to="/" className="detail-close" aria-label="Tancar">
+                <Link to="/" className="detail-close" aria-label="Cerrar">
                   ×
                 </Link>
               </div>
@@ -324,12 +324,12 @@ export function AlmuerzoDetail() {
           </div>
 
           <div className="detail-pad detail-stack">
-            <section className="detail-static-root" aria-label="Detalls de l'esmorzar">
+            <section className="detail-static-root" aria-label="Detalles del almuerzo">
               <header className="detail-static-head">
-                <span className="detail-static-title">Detalls de l&apos;esmorzar</span>
+                <span className="detail-static-title">Detalles del almuerzo</span>
                 {hasPrice && row.price != null && (
                   <span className="detail-static-price">
-                    <span className="detail-static-price-label">Preu:</span>{' '}
+                    <span className="detail-static-price-label">Precio:</span>{' '}
                     <span className="detail-static-price-value">{formatPrecioPill(row.price)} €</span>
                   </span>
                 )}
@@ -337,7 +337,7 @@ export function AlmuerzoDetail() {
 
               <div className="detail-static-section">
                 <h3 className="detail-static-label">Bocadillo</h3>
-                <p className="detail-static-boc-text">{bocText || 'No registrat'}</p>
+                <p className="detail-static-boc-text">{bocText || 'No registrado'}</p>
               </div>
 
               <div className="detail-static-section">
@@ -351,18 +351,18 @@ export function AlmuerzoDetail() {
                     ))}
                   </div>
                 ) : (
-                  <p className="detail-empty-val">No registrat</p>
+                  <p className="detail-empty-val">No registrado</p>
                 )}
               </div>
 
               <div className={`detail-static-drink-coffee ${dualCols ? 'is-dual' : ''}`}>
                 {(dualCols || hasDrink) && (
                   <div className="detail-static-section">
-                    <h3 className="detail-static-label">Beguda</h3>
+                    <h3 className="detail-static-label">Bebida</h3>
                     {hasDrink ? (
                       <span className="detail-static-chip">{drinkText}</span>
                     ) : (
-                      <p className="detail-empty-val">No registrat</p>
+                      <p className="detail-empty-val">No registrado</p>
                     )}
                   </div>
                 )}
@@ -372,7 +372,7 @@ export function AlmuerzoDetail() {
                     {hasCoffee ? (
                       <span className="detail-static-chip">{coffeeText}</span>
                     ) : (
-                      <p className="detail-empty-val">No registrat</p>
+                      <p className="detail-empty-val">No registrado</p>
                     )}
                   </div>
                 )}
@@ -389,11 +389,11 @@ export function AlmuerzoDetail() {
               onClick={handleDelete}
               disabled={deleting}
             >
-              {deleting ? 'Eliminant…' : 'Eliminar'}
+              {deleting ? 'Eliminando…' : 'Eliminar'}
             </button>
             <Link to={`/almuerzo/${id}/editar`} className="detail-btn-edit">
               <IconPencil className="detail-btn-edit-icon" aria-hidden />
-              Editar esmorzar
+              Editar almuerzo
             </Link>
           </div>
         </footer>

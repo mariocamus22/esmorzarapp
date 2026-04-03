@@ -21,8 +21,8 @@ type Props = {
 }
 
 /**
- * Camp de cerca de bar: amb clau de Google, Autocomplete (Places + Maps JS);
- * sense clau, input de text normal.
+ * Campo de búsqueda de bar: con clave de Google, Autocomplete (Places + Maps JS);
+ * sin clave, input de texto normal.
  */
 export function BarPlaceSearch({
   id,
@@ -34,7 +34,7 @@ export function BarPlaceSearch({
   placeholder = 'Busca un bar…',
   disabled = false,
 }: Props) {
-  /** Ref estable per al callback de React; l’efecte depèn de `inputNode` per evitar `ref.current === null` al primer useEffect. */
+  /** Ref estable para el callback de React; el efecto depende de `inputNode` para evitar `ref.current === null` en el primer useEffect. */
   const [inputNode, setInputNode] = useState<HTMLInputElement | null>(null)
   const setInputRef = useCallback((el: HTMLInputElement | null) => {
     setInputNode(el)
@@ -53,7 +53,7 @@ export function BarPlaceSearch({
   useEffect(() => {
     if (!trimmedKey) {
       console.info(
-        '[Esmorzapp] Sense VITE_GOOGLE_MAPS_API_KEY en aquest build: el camp Bar és només text. A Vercel, afegeix la variable (Production + Preview) i Redeploy.',
+        '[Esmorzapp] Sin VITE_GOOGLE_MAPS_API_KEY en este build: el campo Bar es solo texto. En Vercel, añade la variable (Production + Preview) y vuelve a desplegar.',
       )
     }
   }, [trimmedKey])
@@ -66,7 +66,7 @@ export function BarPlaceSearch({
 
     ;(async () => {
       try {
-        setOptions({ key: trimmedKey, v: 'weekly', language: 'ca', region: 'ES' })
+        setOptions({ key: trimmedKey, v: 'weekly', language: 'es', region: 'ES' })
         await importLibrary('maps')
         const { Autocomplete } = await importLibrary('places')
         if (cancelled || !inputNode.isConnected) return
@@ -102,7 +102,7 @@ export function BarPlaceSearch({
         })
       } catch (e) {
         console.warn(
-          '[Esmorzapp] No s’ha pogut carregar Google Places (Maps JS). Revisa la clau VITE_GOOGLE_MAPS_API_KEY al build de Vercel i les APIs/referents a Google Cloud.',
+          '[Esmorzapp] No se pudo cargar Google Places (Maps JS). Revisa la clave VITE_GOOGLE_MAPS_API_KEY en el build de Vercel y las APIs/referentes en Google Cloud.',
           e,
         )
       }
@@ -126,9 +126,9 @@ export function BarPlaceSearch({
   )
 
   /**
-   * Amb Autocomplete de Google, un input **controlat** (`value` + `onChange`) fa que React
-   * torne a pintar el valor a cada tecla i el desplegable de suggerències no funcioni o quede buit.
-   * Sense clau, seguim controlats per mantenir el comportament anterior.
+   * Con Autocomplete de Google, un input **controlado** (`value` + `onChange`) hace que React
+   * vuelva a pintar el valor en cada tecla y el desplegable de sugerencias no funcione o quede vacío.
+   * Sin clave, seguimos controlados para mantener el comportamiento anterior.
    */
   if (trimmedKey) {
     return (

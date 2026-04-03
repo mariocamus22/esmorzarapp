@@ -2,6 +2,7 @@ import { supabase } from './supabaseClient'
 import type {
   Almuerzo,
   AlmuerzoInput,
+  LevelRow,
   MealOptionRef,
   MealOptionRow,
   UserProfile,
@@ -177,6 +178,25 @@ export async function fetchProfile(userId: string): Promise<UserProfile | null> 
   if (error) throw error
   if (!data) return null
   return rowToProfile(data as Record<string, unknown>)
+}
+
+/** Umbrales de niveles (público, ordenados por min_meals ascendente). */
+export async function listLevels(): Promise<LevelRow[]> {
+  const { data, error } = await supabase
+    .from('levels')
+    .select('id, code, label, min_meals')
+    .order('min_meals', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []).map((r) => {
+    const row = r as Record<string, unknown>
+    return {
+      id: Number(row.id),
+      code: String(row.code),
+      label: String(row.label),
+      min_meals: Number(row.min_meals),
+    }
+  })
 }
 
 export async function listAlmuerzos(): Promise<Almuerzo[]> {

@@ -12,7 +12,7 @@ export type Almuerzo = {
   /** Propietario (Supabase Auth) */
   user_id: string
   bar_name: string
-  /** Google Place ID si l'usuari va triar un lloc a Places */
+  /** Google Place ID si el usuario eligió un lugar en Places */
   google_place_id: string | null
   bar_formatted_address: string | null
   bar_lat: number | null

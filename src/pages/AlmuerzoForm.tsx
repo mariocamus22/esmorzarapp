@@ -35,25 +35,23 @@ type Props = {
   mode: FormMode
 }
 
-const CA_MONTHS = [
-  'gener',
-  'febrer',
-  'març',
+const ES_MONTHS = [
+  'enero',
+  'febrero',
+  'marzo',
   'abril',
-  'maig',
-  'juny',
-  'juliol',
-  'agost',
-  'setembre',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
   'octubre',
-  'novembre',
-  'desembre',
+  'noviembre',
+  'diciembre',
 ] as const
 
-function caMonthDeMonth(monthIndex: number): string {
-  const m = CA_MONTHS[monthIndex]
-  if (m === 'abril' || m === 'agost' || m === 'octubre') return `d'${m}`
-  return `de ${m}`
+function esMonthPhrase(monthIndex: number): string {
+  return `de ${ES_MONTHS[monthIndex]}`
 }
 
 function mealDateChipLabel(iso: string): string {
@@ -67,8 +65,8 @@ function mealDateChipLabel(iso: string): string {
     d.getMonth() === now.getMonth() &&
     d.getFullYear() === now.getFullYear()
   const day = d.getDate()
-  const inner = `${day} ${caMonthDeMonth(d.getMonth())}`
-  return isToday ? `Hui (${inner})` : inner
+  const inner = `${day} ${esMonthPhrase(d.getMonth())}`
+  return isToday ? `Hoy (${inner})` : inner
 }
 
 function todayISO(): string {
@@ -274,7 +272,7 @@ function FormSteps234Shell({
         </Link>
       </header>
 
-      <nav className="form-mid-tabs" aria-label="Pasos del esmorzar">
+      <nav className="form-mid-tabs" aria-label="Pasos del almuerzo">
         <button
           type="button"
           className={`form-mid-tab ${step === 2 ? 'is-active' : ''}`}
@@ -333,7 +331,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const [step, setStep] = useState(1)
 
   const [barName, setBarName] = useState('')
-  /** Nom retornat per Places en l'última selecció; si l'usuari edita el text, es netegen metadades. */
+  /** Nombre devuelto por Places en la última selección; si el usuario edita el texto, se limpian metadatos. */
   const [barNameFromPlace, setBarNameFromPlace] = useState<string | null>(null)
   const [googlePlaceId, setGooglePlaceId] = useState<string | null>(null)
   const [barFormattedAddress, setBarFormattedAddress] = useState<string | null>(null)
@@ -407,7 +405,7 @@ export function AlmuerzoForm({ mode }: Props) {
         setLoadingEdit(true)
         const row = await getAlmuerzo(id)
         if (cancelled || !row) {
-          if (!cancelled && !row) setError('No hem trobat aquest esmorzar.')
+          if (!cancelled && !row) setError('No hemos encontrado ese almuerzo.')
           return
         }
         setBarName(row.bar_name)
@@ -544,7 +542,7 @@ export function AlmuerzoForm({ mode }: Props) {
   function handleStep1Next() {
     setError(null)
     if (!barName.trim()) {
-      setError('El nom del bar és obligatori.')
+      setError('El nombre del bar es obligatorio.')
       return
     }
     setStep(2)
@@ -563,7 +561,7 @@ export function AlmuerzoForm({ mode }: Props) {
     }
     if (s === 3) {
       if (!step2Complete()) {
-        setError('Ompli el nom del bocadillo abans de continuar.')
+        setError('Completa el nombre del bocadillo antes de continuar.')
         return
       }
       setStep(3)
@@ -571,11 +569,11 @@ export function AlmuerzoForm({ mode }: Props) {
     }
     if (s === 4) {
       if (!step2Complete()) {
-        setError('Ompli el nom del bocadillo abans de continuar.')
+        setError('Completa el nombre del bocadillo antes de continuar.')
         return
       }
       if (!step3Complete()) {
-        setError('Tria una beguda abans de continuar.')
+        setError('Elige una bebida antes de continuar.')
         return
       }
       setStep(4)
@@ -593,19 +591,19 @@ export function AlmuerzoForm({ mode }: Props) {
     setError(null)
     if (step === 2) {
       if (!step2Complete()) {
-        setError('Ompli el nom del bocadillo abans de continuar.')
+        setError('Completa el nombre del bocadillo antes de continuar.')
         return
       }
       setStep(3)
     } else if (step === 3) {
       if (!step3Complete()) {
-        setError('Tria una beguda abans de continuar.')
+        setError('Elige una bebida antes de continuar.')
         return
       }
       setStep(4)
     } else if (step === 4) {
       if (!step4Complete()) {
-        setError('Tria un cafè abans de continuar.')
+        setError('Elige un café antes de continuar.')
         return
       }
       setStep(5)
@@ -621,7 +619,7 @@ export function AlmuerzoForm({ mode }: Props) {
       return
     }
     if (!step2Complete() || !step3Complete() || !step4Complete()) {
-      setError('Falten dades obligatòries (bocadillo, beguda o cafè).')
+      setError('Faltan datos obligatorios (bocadillo, bebida o café).')
       return
     }
 
@@ -662,9 +660,9 @@ export function AlmuerzoForm({ mode }: Props) {
   if (!hasSupabaseConfig()) {
     return (
       <main className="page">
-        <p className="banner banner-warn">Configura primer el fitxer .env amb Supabase.</p>
+        <p className="banner banner-warn">Configura primero el archivo .env con Supabase.</p>
         <Link to="/" className="back-link">
-          ← Tornar
+          ← Volver
         </Link>
       </main>
     )
@@ -675,7 +673,7 @@ export function AlmuerzoForm({ mode }: Props) {
       <main className="page">
         <div className="loading-block" aria-busy="true">
           <span className="spinner" aria-hidden />
-          <span className="muted">Carregant formulari…</span>
+          <span className="muted">Cargando formulario…</span>
         </div>
       </main>
     )
@@ -715,12 +713,12 @@ export function AlmuerzoForm({ mode }: Props) {
       {step === 1 && (
         <>
           <div className="form-step1-header-row">
-            <Link to={closeHref} className="form-step1-close" aria-label="Tancar">
+            <Link to={closeHref} className="form-step1-close" aria-label="Cerrar">
               ×
             </Link>
           </div>
 
-          <h1 className="form-step1-title">¿On has esmorzat hui?</h1>
+          <h1 className="form-step1-title">¿Dónde has almorzado hoy?</h1>
 
           {mapsDebug && <MapsStepDiagnostics apiKey={mapsApiKey} />}
 
@@ -748,13 +746,13 @@ export function AlmuerzoForm({ mode }: Props) {
                 tabIndex={-1}
                 value={mealDate}
                 onChange={(e) => setMealDate(e.target.value)}
-                aria-label="Data de l'esmorzar"
+                aria-label="Fecha del almuerzo"
               />
               <button
                 type="button"
                 className="form-step1-date-btn"
                 onClick={openDatePicker}
-                aria-label="Obrir selector de data"
+                aria-label="Abrir selector de fecha"
               >
                 <IconCalendar />
                 <span>{mealDateChipLabel(mealDate)}</span>
@@ -765,7 +763,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
           <div className="form-step1-cta">
             <button type="button" className="btn btn-primary" onClick={handleStep1Next}>
-              Següent
+              Siguiente
             </button>
           </div>
         </>
@@ -832,7 +830,7 @@ export function AlmuerzoForm({ mode }: Props) {
         >
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">Bebida</h3>
-            <div className="form-drink-card-grid" role="group" aria-label="Trie la beguda">
+            <div className="form-drink-card-grid" role="group" aria-label="Elige la bebida">
               {bebidaOpts.map((opt) => {
                 const selected = bebidaOptionId === opt.id
                 return (
@@ -869,7 +867,7 @@ export function AlmuerzoForm({ mode }: Props) {
         >
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">Café</h3>
-            <div className="form-cafe-row-list" role="listbox" aria-label="Trie el cafè">
+            <div className="form-cafe-row-list" role="listbox" aria-label="Elige el café">
               {cafeOpts.map((opt) => {
                 const selected = cafeOptionId === opt.id
                 return (
@@ -896,7 +894,7 @@ export function AlmuerzoForm({ mode }: Props) {
       {step === 5 && (
         <>
           <div className="form-step5-header-row">
-            <Link to={closeHref} className="form-step1-close" aria-label="Tancar">
+            <Link to={closeHref} className="form-step1-close" aria-label="Cerrar">
               ×
             </Link>
           </div>
@@ -1025,7 +1023,7 @@ export function AlmuerzoForm({ mode }: Props) {
                 Atrás
               </button>
               <button type="submit" className="form-mid-btn-siguiente" disabled={saving}>
-                {saving ? 'Guardant…' : 'Guardar esmorzar'}
+                {saving ? 'Guardando…' : 'Guardar almuerzo'}
                 {!saving && (
                   <span className="form-mid-btn-arrow" aria-hidden>
                     →

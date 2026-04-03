@@ -57,7 +57,7 @@ export function LoginPage() {
     if (isAutoLoginEmail(trimmed) && !shared) {
       setSubmitting(false)
       setErr(
-        'Este correo usa accés directe: afegeix VITE_AUTO_LOGIN_SHARED_PASSWORD al fitxer .env (veure .env.example).',
+        'Este correo usa acceso directo: añade VITE_AUTO_LOGIN_SHARED_PASSWORD al archivo .env (ver .env.example).',
       )
       return
     }
@@ -98,7 +98,7 @@ export function LoginPage() {
         <h1>Iniciar sesión</h1>
         <p className="muted">
           {isAutoLoginEmail(email) && autoLoginSharedPassword()
-            ? 'Amb aquest correu entres directament (sense correu ni contrasenya a pantalla).'
+            ? 'Con este correo entras directamente (sin correo ni contraseña en pantalla).'
             : allowPassword
               ? 'Con contraseña entras sin correo (ideal para pruebas). Déjala vacía para el enlace mágico.'
               : 'Te enviaremos un enlace mágico a tu correo (sin contraseña).'}
@@ -108,7 +108,7 @@ export function LoginPage() {
       {sent ? (
         <div className="banner banner-warn" role="status">
           <p>
-            Revisa tu bandeja de entrada (y spam). Abre el enlace del correo para entrar en Esmorzar.
+            Revisa tu bandeja de entrada (y spam). Abre el enlace del correo para entrar en Esmorzapp.
           </p>
           <p className="small muted login-hint">Puedes cerrar esta pestaña después.</p>
         </div>
