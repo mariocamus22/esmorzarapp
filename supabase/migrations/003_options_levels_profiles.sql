@@ -77,6 +77,7 @@ cross join lateral (
     ('cafe', 'Café con leche', 60),
     ('cafe', 'Descafeinado', 70),
     ('cafe', 'Americano', 80),
+    ('cafe', 'Infusión (manzanilla, poleo, té...)', 85),
     ('cafe', 'Sin café', 90)
 ) as v(cat_code, label, ord)
 where c.code = v.cat_code
