@@ -8,8 +8,6 @@ import { barLocationLine } from '../lib/barLocation'
 import { hasSupabaseConfig } from '../lib/env'
 import type { Almuerzo, LevelRow, UserProfile } from '../types/almuerzo'
 
-const RECENT_PREVIEW = 5
-
 function formatFechaLarga(isoDate: string): string {
   const d = new Date(`${isoDate}T12:00:00`)
   return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -317,7 +315,6 @@ export function HomeList() {
   const [items, setItems] = useState<Almuerzo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [showAllRecents, setShowAllRecents] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [levels, setLevels] = useState<LevelRow[]>([])
   const [levelsReady, setLevelsReady] = useState(false)
@@ -376,10 +373,6 @@ export function HomeList() {
     }
   }, [])
 
-  useEffect(() => {
-    if (items.length <= RECENT_PREVIEW) setShowAllRecents(false)
-  }, [items.length])
-
   const sinConfig = !hasSupabaseConfig()
   const nom = firstName(user)
   /** Contador de almuerzos: misma fuente que la lista (evita desfase con `profile.total_meals`). */
@@ -390,13 +383,6 @@ export function HomeList() {
     [items],
   )
   const nivell = profile?.level?.label ?? '…'
-
-  const displayedRecents = useMemo(() => {
-    if (showAllRecents || items.length <= RECENT_PREVIEW) return items
-    return items.slice(0, RECENT_PREVIEW)
-  }, [items, showAllRecents])
-
-  const showVeureTots = !loading && items.length > RECENT_PREVIEW
 
   const statEsmorzars = loading ? '—' : String(esmorzarCount)
   const statBars = loading ? '—' : String(uniqueBars)
@@ -492,15 +478,6 @@ export function HomeList() {
           <h2 id="home-recent-heading" className="home-recent-title">
             Últimos almuerzos
           </h2>
-          {showVeureTots && (
-            <button
-              type="button"
-              className="home-link-all"
-              onClick={() => setShowAllRecents((v) => !v)}
-            >
-              {showAllRecents ? 'Mostrar menos' : 'Ver todos →'}
-            </button>
-          )}
         </div>
 
         {loading && (
@@ -524,7 +501,7 @@ export function HomeList() {
 
         {!loading && items.length > 0 && (
           <ul className="home-recent-list">
-            {displayedRecents.map((a) => {
+            {items.map((a) => {
               const firstPhoto = a.photo_paths?.[0] ?? null
               return (
                 <li key={a.id}>

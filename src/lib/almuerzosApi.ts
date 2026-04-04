@@ -204,6 +204,7 @@ export async function listAlmuerzos(): Promise<Almuerzo[]> {
     .from(TABLE)
     .select(ALMUERZO_SELECT)
     .order('meal_date', { ascending: false })
+    .order('created_at', { ascending: false })
 
   if (error) throw error
   return (data ?? []).map((r) => rowToAlmuerzo(r as Record<string, unknown>))
