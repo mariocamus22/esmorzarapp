@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { RequireAuth } from './components/RequireAuth'
+import { ScrollToTopOnRoute } from './components/ScrollToTopOnRoute'
 import { AuthProvider } from './contexts/AuthProvider'
 import { HomeList } from './pages/HomeList'
 import { AlmuerzoForm } from './pages/AlmuerzoForm'
@@ -14,6 +15,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTopOnRoute />
         <div className="app-shell">
           <Routes>
             <Route path="/login" element={<LoginPage />} />

@@ -3,6 +3,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -21,6 +22,7 @@ import { DrinkOptionEmoji } from '../components/DrinkOptionEmoji'
 import { MapsStepDiagnostics } from '../components/MapsStepDiagnostics'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
+import { scrollAppViewportToTop } from '../lib/scrollAppViewport'
 import { barLocationLine } from '../lib/barLocation'
 import { hasSupabaseConfig } from '../lib/env'
 import {
@@ -449,6 +451,10 @@ export function AlmuerzoForm({ mode }: Props) {
       }
       setStep1BarDocked(false)
     }
+  }, [step])
+
+  useLayoutEffect(() => {
+    scrollAppViewportToTop()
   }, [step])
 
   useEffect(() => {
