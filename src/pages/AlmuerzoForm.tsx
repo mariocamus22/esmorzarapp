@@ -20,6 +20,7 @@ import {
 import { BarPlaceSearch, type BarPlaceResolved } from '../components/BarPlaceSearch'
 import { DrinkOptionEmoji } from '../components/DrinkOptionEmoji'
 import { IconEsmorzar } from '../components/IconEsmorzar'
+import { AlmuerzoSaveSplash } from '../components/AlmuerzoSaveSplash'
 import { MapsStepDiagnostics } from '../components/MapsStepDiagnostics'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
@@ -790,6 +791,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
   return (
     <main className={mainClass}>
+      <AlmuerzoSaveSplash visible={saving} />
       {error && (
         <p className="banner banner-error" role="alert">
           {error}
