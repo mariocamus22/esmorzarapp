@@ -954,6 +954,23 @@
   background: rgba(0, 0, 0, 0.03);
 }
 
+a.home-meal-cal-cell {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease;
+}
+
+a.home-meal-cal-cell:hover {
+  filter: brightness(1.04);
+}
+
+a.home-meal-cal-cell:active {
+  transform: scale(0.96);
+}
+
 @media (prefers-color-scheme: dark) {
   .home-meal-cal-cell {
     background: rgba(255, 255, 255, 0.05);

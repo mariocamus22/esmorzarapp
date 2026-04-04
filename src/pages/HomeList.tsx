@@ -351,6 +351,14 @@ function mealsGroupedByDate(items: Almuerzo[]): Map<string, Almuerzo[]> {
   return m
 }
 
+/** Primer almuerzo del día según el orden de `items` (fecha ↓, creación ↓). */
+function firstAlmuerzoForDateKey(items: Almuerzo[], dateKey: string): Almuerzo | null {
+  for (const a of items) {
+    if (dateKeyFromAlmuerzo(a) === dateKey) return a
+  }
+  return null
+}
+
 /** Primer día de la semana = lunes (índice 0..6). */
 function mondayIndexFromDate(d: Date): number {
   const sun = d.getDay()
@@ -426,10 +434,33 @@ function HomeMealCalendar({ items, year, month, onPrevMonth, onNextMonth }: Home
             return <div key={`e-${idx}`} className="home-meal-cal-cell home-meal-cal-cell--empty" />
           }
           const count = c.key ? byDate.get(c.key)?.length ?? 0 : 0
+          const cellClass = `home-meal-cal-cell${c.hasMeal ? ' home-meal-cal-cell--has-meal' : ''}${c.isToday ? ' home-meal-cal-cell--today' : ''}`
+
+          if (c.hasMeal && c.key) {
+            const first = firstAlmuerzoForDateKey(items, c.key)
+            if (first) {
+              const ariaDay =
+                count > 1
+                  ? `${c.day}: ${count} almuerzos, abrir el más reciente`
+                  : `${c.day}: 1 almuerzo, ver detalle`
+              return (
+                <Link
+                  key={c.key}
+                  to={`/almuerzo/${first.id}`}
+                  className={cellClass}
+                  role="gridcell"
+                  aria-label={ariaDay}
+                >
+                  <span className="home-meal-cal-day-num">{c.day}</span>
+                </Link>
+              )
+            }
+          }
+
           return (
             <div
               key={c.key}
-              className={`home-meal-cal-cell${c.hasMeal ? ' home-meal-cal-cell--has-meal' : ''}${c.isToday ? ' home-meal-cal-cell--today' : ''}`}
+              className={cellClass}
               role="gridcell"
               aria-label={
                 c.hasMeal
@@ -444,7 +475,7 @@ function HomeMealCalendar({ items, year, month, onPrevMonth, onNextMonth }: Home
       </div>
       <p className="home-meal-cal-legend">
         <span className="home-meal-cal-legend-dot" aria-hidden />
-        Día con almuerzo registrado
+        Día con almuerzo: pulsa para abrir la ficha (si hay varios, el más reciente)
       </p>
     </div>
   )
