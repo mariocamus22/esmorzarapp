@@ -246,12 +246,15 @@ type MidStep = 2 | 3 | 4
 
 const FORM_HISTORY_STATE_KEY = 'almuerzoFormStep' as const
 
+const FORM_EXIT_CONFIRM_MSG =
+  '¿Seguro que quieres salir? Los cambios que has hecho en el formulario no se guardarán.'
+
 function FormSteps234Shell({
   step,
   mealDate,
   barName,
   barSubtitle,
-  closeHref,
+  onCloseClick,
   onTab,
   onAtras,
   onSiguiente,
@@ -262,7 +265,7 @@ function FormSteps234Shell({
   mealDate: string
   barName: string
   barSubtitle: string
-  closeHref: string
+  onCloseClick: () => void
   onTab: (s: MidStep) => void
   onAtras: () => void
   onSiguiente: () => void
@@ -283,9 +286,14 @@ function FormSteps234Shell({
             <span className="form-mid-head-loc-text">{barSubtitle}</span>
           </div>
         </div>
-        <Link to={closeHref} className="form-step1-close" aria-label="Cerrar">
+        <button
+          type="button"
+          className="form-step1-close"
+          aria-label="Cerrar"
+          onClick={onCloseClick}
+        >
           ×
-        </Link>
+        </button>
       </header>
 
       <nav className="form-mid-tabs" aria-label="Pasos del almuerzo">
@@ -587,6 +595,12 @@ export function AlmuerzoForm({ mode }: Props) {
 
   const closeHref = mode === 'create' ? '/' : `/almuerzo/${id}`
 
+  const confirmCloseForm = useCallback(() => {
+    if (window.confirm(FORM_EXIT_CONFIRM_MSG)) {
+      navigate(closeHref)
+    }
+  }, [closeHref, navigate])
+
   const pushFormHistory = useCallback((next: 2 | 3 | 4 | 5) => {
     window.history.pushState({ [FORM_HISTORY_STATE_KEY]: next }, '', window.location.href)
   }, [])
@@ -812,9 +826,14 @@ export function AlmuerzoForm({ mode }: Props) {
       {step === 1 && (
         <>
           <div className="form-step1-header-row">
-            <Link to={closeHref} className="form-step1-close" aria-label="Cerrar">
+            <button
+              type="button"
+              className="form-step1-close"
+              aria-label="Cerrar"
+              onClick={confirmCloseForm}
+            >
               ×
-            </Link>
+            </button>
           </div>
 
           <div className="form-step1-center">
@@ -894,7 +913,7 @@ export function AlmuerzoForm({ mode }: Props) {
           mealDate={mealDate}
           barName={barName}
           barSubtitle={barMidSubtitle}
-          closeHref={closeHref}
+          onCloseClick={confirmCloseForm}
           onTab={handleMidTab}
           onAtras={handleMidAtras}
           onSiguiente={handleMidSiguiente}
@@ -950,7 +969,7 @@ export function AlmuerzoForm({ mode }: Props) {
           mealDate={mealDate}
           barName={barName}
           barSubtitle={barMidSubtitle}
-          closeHref={closeHref}
+          onCloseClick={confirmCloseForm}
           onTab={handleMidTab}
           onAtras={handleMidAtras}
           onSiguiente={handleMidSiguiente}
@@ -987,7 +1006,7 @@ export function AlmuerzoForm({ mode }: Props) {
           mealDate={mealDate}
           barName={barName}
           barSubtitle={barMidSubtitle}
-          closeHref={closeHref}
+          onCloseClick={confirmCloseForm}
           onTab={handleMidTab}
           onAtras={handleMidAtras}
           onSiguiente={handleMidSiguiente}
@@ -1022,9 +1041,14 @@ export function AlmuerzoForm({ mode }: Props) {
       {step === 5 && (
         <>
           <div className="form-step5-header-row">
-            <Link to={closeHref} className="form-step1-close" aria-label="Cerrar">
+            <button
+              type="button"
+              className="form-step1-close"
+              aria-label="Cerrar"
+              onClick={confirmCloseForm}
+            >
               ×
-            </Link>
+            </button>
           </div>
 
           <form className="form-step5" onSubmit={onSubmit}>
