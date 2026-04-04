@@ -750,6 +750,222 @@
   color: var(--color-muted);
 }
 
+/* ——— Primer almuerzo: celebración (home) ——— */
+.first-almuerzo-celebration-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.first-almuerzo-celebration-lottie-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.first-almuerzo-celebration__lottie {
+  width: min(140vw, 1200px);
+  height: min(140vh, 1200px);
+  max-width: none;
+}
+
+.first-almuerzo-celebration__lottie > svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.first-almuerzo-celebration__confetti-fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.first-almuerzo-celebration__confetti-bit {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.9;
+}
+
+.first-almuerzo-celebration__confetti-bit--1 {
+  left: 12%;
+  top: -8%;
+  background: #e85d4c;
+  animation: first-almuerzo-confetti-fall 4.2s ease-in infinite;
+  animation-delay: 0s;
+}
+
+.first-almuerzo-celebration__confetti-bit--2 {
+  left: 28%;
+  top: -12%;
+  background: #f5a623;
+  animation: first-almuerzo-confetti-fall 3.6s ease-in infinite;
+  animation-delay: 0.4s;
+}
+
+.first-almuerzo-celebration__confetti-bit--3 {
+  left: 52%;
+  top: -6%;
+  background: #4a90d9;
+  animation: first-almuerzo-confetti-fall 4.8s ease-in infinite;
+  animation-delay: 0.2s;
+}
+
+.first-almuerzo-celebration__confetti-bit--4 {
+  left: 72%;
+  top: -10%;
+  background: #7cb342;
+  animation: first-almuerzo-confetti-fall 3.9s ease-in infinite;
+  animation-delay: 0.65s;
+}
+
+.first-almuerzo-celebration__confetti-bit--5 {
+  left: 88%;
+  top: -14%;
+  background: #ab47bc;
+  animation: first-almuerzo-confetti-fall 4.4s ease-in infinite;
+  animation-delay: 0.1s;
+}
+
+.first-almuerzo-celebration__confetti-bit--6 {
+  left: 42%;
+  top: -16%;
+  background: #ffd54f;
+  animation: first-almuerzo-confetti-fall 3.3s ease-in infinite;
+  animation-delay: 0.85s;
+}
+
+@keyframes first-almuerzo-confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .first-almuerzo-celebration__confetti-bit {
+    animation: none;
+    top: 18%;
+    opacity: 0.75;
+  }
+}
+
+.first-almuerzo-celebration-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(26, 26, 26, 0.42);
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .first-almuerzo-celebration-backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.first-almuerzo-celebration-dialog {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border-radius: 1.4rem;
+  box-shadow: var(--home-card-shadow);
+  padding: 1.35rem 1.25rem 1.2rem;
+  border: 1px solid var(--app-border, #d6d3cc);
+  font-size: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .first-almuerzo-celebration-dialog {
+    border-color: var(--color-border);
+  }
+}
+
+.first-almuerzo-celebration-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+.first-almuerzo-celebration-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.first-almuerzo-celebration-desc {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--home-label);
+}
+
+.first-almuerzo-celebration-level {
+  color: var(--home-orange);
+  font-weight: 700;
+}
+
+.first-almuerzo-celebration-close {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--app-fill, #eceae4);
+  color: var(--color-text);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+
+.first-almuerzo-celebration-close:hover {
+  background: var(--color-border);
+}
+
+.first-almuerzo-celebration-close:focus-visible {
+  outline: 2px solid var(--home-orange);
+  outline-offset: 2px;
+}
+
+.first-almuerzo-celebration-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.first-almuerzo-celebration-btn {
+  min-height: 2.65rem;
+  padding: 0.55rem 1.35rem;
+}
+
 .home-cta {
   width: 100%;
   padding: 1.02rem 1.3rem;

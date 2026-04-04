@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
@@ -7,6 +7,7 @@ import { getFotoPublicUrl, listAlmuerzos, listLevels } from '../lib/almuerzosApi
 import { barLocationLine } from '../lib/barLocation'
 import { hasSupabaseConfig } from '../lib/env'
 import type { Almuerzo, LevelRow, UserProfile } from '../types/almuerzo'
+import { FirstAlmuerzoCelebrationModal } from '../components/FirstAlmuerzoCelebrationModal'
 import { IconEsmorzar } from '../components/IconEsmorzar'
 
 function formatFechaLarga(isoDate: string): string {
@@ -504,7 +505,9 @@ function HistoryCardAvatar({ photoPath }: { photoPath: string | null }) {
  * Pantalla principal: resumen, estadísticas y últimos almuerzos.
  */
 export function HomeList() {
-  const { user, signOut, profile, profileLoading } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { user, signOut, profile, profileLoading, refreshProfile } = useAuth()
   const [items, setItems] = useState<Almuerzo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -516,6 +519,20 @@ export function HomeList() {
     const d = new Date()
     return { year: d.getFullYear(), month: d.getMonth() + 1 }
   })
+
+  const celebrateFirstAlmuerzo = useMemo(() => {
+    const s = location.state as { celebrateFirstAlmuerzo?: boolean } | null
+    return Boolean(s?.celebrateFirstAlmuerzo)
+  }, [location.state])
+
+  const dismissFirstAlmuerzoCelebration = useCallback(() => {
+    navigate('.', { replace: true, state: {} })
+  }, [navigate])
+
+  useEffect(() => {
+    if (!celebrateFirstAlmuerzo) return
+    void refreshProfile()
+  }, [celebrateFirstAlmuerzo, refreshProfile])
 
   const persistRecentView = useCallback((mode: RecentViewMode) => {
     setRecentViewMode(mode)
@@ -624,6 +641,11 @@ export function HomeList() {
 
   return (
     <main className="page home-page">
+      <FirstAlmuerzoCelebrationModal
+        open={celebrateFirstAlmuerzo}
+        onClose={dismissFirstAlmuerzoCelebration}
+        levelLabel={profile?.level?.label}
+      />
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
       <header className="home-top-bar">

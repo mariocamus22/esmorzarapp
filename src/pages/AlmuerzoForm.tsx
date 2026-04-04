@@ -11,6 +11,7 @@ import {
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   createAlmuerzo,
+  fetchProfile,
   getAlmuerzo,
   getFotoPublicUrl,
   listAllMealOptions,
@@ -325,7 +326,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const mapsDebug = searchParams.get('mapsDebug') === '1'
   const mapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   const navigate = useNavigate()
-  const { refreshProfile } = useAuth()
+  const { refreshProfile, profile, user } = useAuth()
   const dateInputRef = useRef<HTMLInputElement>(null)
   const barSearchInputRef = useRef<HTMLInputElement>(null)
   const step1BlurTimerRef = useRef<number | null>(null)
@@ -735,8 +736,18 @@ export function AlmuerzoForm({ mode }: Props) {
       setSaveSplashKey((k) => k + 1)
       setSaving(true)
       if (mode === 'create') {
+        let celebrateFirstAlmuerzo = false
+        if (user?.id) {
+          const p = profile ?? (await fetchProfile(user.id))
+          celebrateFirstAlmuerzo = (p?.total_meals ?? -1) === 0
+        }
         await createAlmuerzo(input, newFiles)
-        navigate('/', { replace: true })
+        navigate(
+          '/',
+          celebrateFirstAlmuerzo
+            ? { replace: true, state: { celebrateFirstAlmuerzo: true } }
+            : { replace: true },
+        )
         void refreshProfile()
       } else if (id) {
         await updateAlmuerzo(id, input, keepPaths, newFiles)
