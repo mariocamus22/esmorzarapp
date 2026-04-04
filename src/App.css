@@ -1103,31 +1103,31 @@
 }
 
 /*
- * Google Places Autocomplete — tokens Esmorzapp (index.css).
+ * Google Places Autocomplete — mismo layout que antes; solo tipografía más grande para leer mejor.
  * El contenedor va al body; hace falta !important por encima de estilos inline de Google.
  */
 .pac-container {
   z-index: 10000 !important;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
-  font-size: 1.0625rem !important;
-  line-height: 1.45 !important;
+  font-size: 1.125rem !important;
+  line-height: 1.42 !important;
   color: var(--app-text) !important;
   background: var(--app-surface) !important;
   border: 1px solid var(--app-border) !important;
   border-radius: 16px !important;
   box-shadow: var(--home-card-shadow, 0 4px 24px rgba(26, 26, 26, 0.1)) !important;
   margin-top: 6px !important;
-  padding: 0.45rem 0 !important;
+  padding: 0.35rem 0 !important;
   overflow: hidden;
-  max-height: min(58vh, 22rem);
+  max-height: min(55vh, 20rem);
   box-sizing: border-box !important;
 }
 
 .pac-item {
   display: flex !important;
   align-items: center !important;
-  gap: 0.75rem !important;
-  padding: 0.85rem 1.1rem 0.85rem 1rem !important;
+  gap: 0.65rem !important;
+  padding: 0.65rem 1rem 0.65rem 0.85rem !important;
   margin: 0 !important;
   border: none !important;
   border-top: 1px solid transparent !important;
@@ -1147,9 +1147,9 @@
 }
 
 .pac-icon {
-  width: 1.35rem !important;
-  height: 1.35rem !important;
-  min-width: 1.35rem !important;
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  min-width: 1.1rem !important;
   margin: 0 !important;
   margin-top: 0 !important;
   flex-shrink: 0;
@@ -1169,7 +1169,7 @@
 
 /* “Powered by Google”: visible (ToS), to suau amb la paleta */
 .pac-logo {
-  padding: 0.45rem 0.85rem 0.5rem !important;
+  padding: 0.35rem 0.75rem 0.45rem !important;
   margin-top: 0 !important;
   border-top: 1px solid var(--app-border) !important;
   background: var(--app-fill) !important;
