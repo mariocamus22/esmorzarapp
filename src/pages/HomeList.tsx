@@ -276,6 +276,180 @@ function IconHistoryCalendar({ className }: { className?: string }) {
   )
 }
 
+/** Icono modo lista (historial en filas). */
+function IconViewList({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M8 7h13M8 12h13M8 17h13"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <circle cx="5" cy="7" r="1.35" fill="currentColor" />
+      <circle cx="5" cy="12" r="1.35" fill="currentColor" />
+      <circle cx="5" cy="17" r="1.35" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** Icono modo calendario (con rejilla de días). */
+function IconViewCalendar({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M3 9.5h18M8 2.5v4M16 2.5v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="8.25" cy="13.5" r="1.1" fill="currentColor" />
+      <circle cx="12" cy="13.5" r="1.1" fill="currentColor" />
+      <circle cx="15.75" cy="13.5" r="1.1" fill="currentColor" />
+      <circle cx="8.25" cy="17.25" r="1.1" fill="currentColor" />
+      <circle cx="12" cy="17.25" r="1.1" fill="currentColor" />
+    </svg>
+  )
+}
+
+const HOME_RECENT_VIEW_KEY = 'esmorzapp-home-recent-view'
+
+type RecentViewMode = 'list' | 'calendar'
+
+function readStoredRecentView(): RecentViewMode {
+  try {
+    const v = localStorage.getItem(HOME_RECENT_VIEW_KEY)
+    if (v === 'list' || v === 'calendar') return v
+  } catch {
+    /* ignore */
+  }
+  return 'list'
+}
+
+function monthFromLatestMeal(items: Almuerzo[]): { year: number; month: number } {
+  if (items.length === 0) {
+    const d = new Date()
+    return { year: d.getFullYear(), month: d.getMonth() + 1 }
+  }
+  const iso = items[0].meal_date.slice(0, 10)
+  const [y, m] = iso.split('-').map(Number)
+  if (!Number.isFinite(y) || !Number.isFinite(m)) {
+    const d = new Date()
+    return { year: d.getFullYear(), month: d.getMonth() + 1 }
+  }
+  return { year: y, month: m }
+}
+
+function dateKeyFromAlmuerzo(a: Almuerzo): string {
+  return a.meal_date.slice(0, 10)
+}
+
+function mealsGroupedByDate(items: Almuerzo[]): Map<string, Almuerzo[]> {
+  const m = new Map<string, Almuerzo[]>()
+  for (const a of items) {
+    const k = dateKeyFromAlmuerzo(a)
+    const arr = m.get(k) ?? []
+    arr.push(a)
+    m.set(k, arr)
+  }
+  return m
+}
+
+/** Primer día de la semana = lunes (índice 0..6). */
+function mondayIndexFromDate(d: Date): number {
+  const sun = d.getDay()
+  return sun === 0 ? 6 : sun - 1
+}
+
+const WEEKDAY_LABELS_ES = ['L', 'M', 'X', 'J', 'V', 'S', 'D'] as const
+
+type HomeMealCalendarProps = {
+  items: Almuerzo[]
+  year: number
+  month: number
+  onPrevMonth: () => void
+  onNextMonth: () => void
+}
+
+function HomeMealCalendar({ items, year, month, onPrevMonth, onNextMonth }: HomeMealCalendarProps) {
+  const byDate = useMemo(() => mealsGroupedByDate(items), [items])
+
+  const { title, cells } = useMemo(() => {
+    const first = new Date(year, month - 1, 1)
+    const startPad = mondayIndexFromDate(first)
+    const daysInM = new Date(year, month, 0).getDate()
+    const totalCells = Math.ceil((startPad + daysInM) / 7) * 7
+    const out: { day: number | null; key: string | null; hasMeal: boolean; isToday: boolean }[] = []
+
+    const today = new Date()
+    const isThisMonth =
+      today.getFullYear() === year && today.getMonth() + 1 === month
+    const todayNum = isThisMonth ? today.getDate() : -1
+
+    for (let i = 0; i < totalCells; i++) {
+      const dayNum = i - startPad + 1
+      if (dayNum < 1 || dayNum > daysInM) {
+        out.push({ day: null, key: null, hasMeal: false, isToday: false })
+        continue
+      }
+      const key = `${year}-${String(month).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`
+      const hasMeal = (byDate.get(key)?.length ?? 0) > 0
+      out.push({
+        day: dayNum,
+        key,
+        hasMeal,
+        isToday: dayNum === todayNum,
+      })
+    }
+
+    const title = first.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+    return { title, cells: out }
+  }, [year, month, byDate])
+
+  return (
+    <div className="home-meal-calendar">
+      <div className="home-meal-cal-nav">
+        <button type="button" className="home-meal-cal-nav-btn" onClick={onPrevMonth} aria-label="Mes anterior">
+          ‹
+        </button>
+        <span className="home-meal-cal-title">{title}</span>
+        <button type="button" className="home-meal-cal-nav-btn" onClick={onNextMonth} aria-label="Mes siguiente">
+          ›
+        </button>
+      </div>
+      <div className="home-meal-cal-weekdays" aria-hidden>
+        {WEEKDAY_LABELS_ES.map((l, i) => (
+          <span key={`wd-${i}`} className="home-meal-cal-weekday">
+            {l}
+          </span>
+        ))}
+      </div>
+      <div className="home-meal-cal-grid" role="grid" aria-label="Días con almuerzos registrados">
+        {cells.map((c, idx) => {
+          if (c.day == null) {
+            return <div key={`e-${idx}`} className="home-meal-cal-cell home-meal-cal-cell--empty" />
+          }
+          const count = c.key ? byDate.get(c.key)?.length ?? 0 : 0
+          return (
+            <div
+              key={c.key}
+              className={`home-meal-cal-cell${c.hasMeal ? ' home-meal-cal-cell--has-meal' : ''}${c.isToday ? ' home-meal-cal-cell--today' : ''}`}
+              role="gridcell"
+              aria-label={
+                c.hasMeal
+                  ? `${c.day}: ${count} almuerzo${count === 1 ? '' : 's'}`
+                  : `${c.day}: sin almuerzos`
+              }
+            >
+              <span className="home-meal-cal-day-num">{c.day}</span>
+            </div>
+          )
+        })}
+      </div>
+      <p className="home-meal-cal-legend">
+        <span className="home-meal-cal-legend-dot" aria-hidden />
+        Día con almuerzo registrado
+      </p>
+    </div>
+  )
+}
+
 function IconHistoryBurger({ className }: { className?: string }) {
   return (
     <svg className={className} width={16} height={16} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -318,6 +492,34 @@ export function HomeList() {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [levels, setLevels] = useState<LevelRow[]>([])
   const [levelsReady, setLevelsReady] = useState(false)
+  const [recentViewMode, setRecentViewMode] = useState<RecentViewMode>(() => readStoredRecentView())
+  const [calMonth, setCalMonth] = useState<{ year: number; month: number }>(() => {
+    const d = new Date()
+    return { year: d.getFullYear(), month: d.getMonth() + 1 }
+  })
+
+  const persistRecentView = useCallback((mode: RecentViewMode) => {
+    setRecentViewMode(mode)
+    try {
+      localStorage.setItem(HOME_RECENT_VIEW_KEY, mode)
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  const goCalPrev = useCallback(() => {
+    setCalMonth((prev) => {
+      if (prev.month <= 1) return { year: prev.year - 1, month: 12 }
+      return { year: prev.year, month: prev.month - 1 }
+    })
+  }, [])
+
+  const goCalNext = useCallback(() => {
+    setCalMonth((prev) => {
+      if (prev.month >= 12) return { year: prev.year + 1, month: 1 }
+      return { year: prev.year, month: prev.month + 1 }
+    })
+  }, [])
 
   useEffect(() => {
     if (!hasSupabaseConfig() || !user?.id) {
@@ -374,6 +576,7 @@ export function HomeList() {
   }, [])
 
   const sinConfig = !hasSupabaseConfig()
+  const showRecentViewToggle = !sinConfig && !loading && !error && items.length > 0
   const nom = firstName(user)
   /** Contador de almuerzos: misma fuente que la lista (evita desfase con `profile.total_meals`). */
   const esmorzarCount = items.length
@@ -478,6 +681,33 @@ export function HomeList() {
           <h2 id="home-recent-heading" className="home-recent-title">
             Últimos almuerzos
           </h2>
+          {showRecentViewToggle && (
+            <div className="home-recent-view-toggle" role="group" aria-label="Vista del listado de bares">
+              <button
+                type="button"
+                className={`home-recent-view-btn${recentViewMode === 'list' ? ' home-recent-view-btn--active' : ''}`}
+                onClick={() => persistRecentView('list')}
+                aria-pressed={recentViewMode === 'list'}
+                aria-label="Vista en lista"
+                title="Lista"
+              >
+                <IconViewList />
+              </button>
+              <button
+                type="button"
+                className={`home-recent-view-btn${recentViewMode === 'calendar' ? ' home-recent-view-btn--active' : ''}`}
+                onClick={() => {
+                  setCalMonth(monthFromLatestMeal(items))
+                  persistRecentView('calendar')
+                }}
+                aria-pressed={recentViewMode === 'calendar'}
+                aria-label="Vista en calendario"
+                title="Calendario"
+              >
+                <IconViewCalendar />
+              </button>
+            </div>
+          )}
         </div>
 
         {loading && (
@@ -499,7 +729,17 @@ export function HomeList() {
           </div>
         )}
 
-        {!loading && items.length > 0 && (
+        {!loading && items.length > 0 && recentViewMode === 'calendar' && (
+          <HomeMealCalendar
+            items={items}
+            year={calMonth.year}
+            month={calMonth.month}
+            onPrevMonth={goCalPrev}
+            onNextMonth={goCalNext}
+          />
+        )}
+
+        {!loading && items.length > 0 && recentViewMode === 'list' && (
           <ul className="home-recent-list">
             {items.map((a) => {
               const firstPhoto = a.photo_paths?.[0] ?? null

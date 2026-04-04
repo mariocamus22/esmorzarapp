@@ -804,6 +804,210 @@
   color: var(--app-text, var(--color-text));
 }
 
+.home-recent-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--app-border, #d6d3cc);
+  flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-recent-view-toggle {
+    border-color: var(--color-border);
+  }
+}
+
+.home-recent-view-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--home-label, var(--color-muted));
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.home-recent-view-btn:hover {
+  color: var(--app-text, var(--color-text));
+  background: rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-recent-view-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.home-recent-view-btn--active {
+  color: var(--home-orange);
+  background: rgba(245, 166, 35, 0.14);
+}
+
+.home-recent-view-btn:focus-visible {
+  outline: 2px solid var(--home-orange);
+  outline-offset: 2px;
+}
+
+.home-meal-calendar {
+  margin-top: 0.15rem;
+  padding: 1rem 1rem 1.1rem;
+  background: var(--color-surface);
+  border-radius: 1.25rem;
+  box-shadow: var(--home-card-shadow);
+  border: 1px solid var(--app-border, #d6d3cc);
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-meal-calendar {
+    border-color: var(--color-border);
+  }
+}
+
+.home-meal-cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.home-meal-cal-nav-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--app-text, var(--color-text));
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.home-meal-cal-nav-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-meal-cal-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.home-meal-cal-nav-btn:focus-visible {
+  outline: 2px solid var(--home-orange);
+  outline-offset: 2px;
+}
+
+.home-meal-cal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  color: var(--app-text, var(--color-text));
+  text-align: center;
+  flex: 1;
+}
+
+.home-meal-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.home-meal-cal-weekday {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--home-label, var(--color-muted));
+  letter-spacing: 0.02em;
+}
+
+.home-meal-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.home-meal-cal-cell {
+  aspect-ratio: 1;
+  max-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--app-text, var(--color-text));
+  background: rgba(0, 0, 0, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-meal-cal-cell {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.home-meal-cal-cell--empty {
+  background: transparent;
+  pointer-events: none;
+}
+
+.home-meal-cal-cell--today:not(.home-meal-cal-cell--has-meal) {
+  box-shadow: inset 0 0 0 2px var(--home-orange);
+}
+
+.home-meal-cal-cell--has-meal {
+  background: rgba(245, 166, 35, 0.35);
+  color: #3d2a0a;
+  box-shadow: inset 0 0 0 2px var(--home-orange);
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-meal-cal-cell--has-meal {
+    color: #fde7c1;
+    background: rgba(245, 166, 35, 0.22);
+  }
+}
+
+.home-meal-cal-cell--has-meal.home-meal-cal-cell--today {
+  box-shadow: inset 0 0 0 2px rgba(180, 100, 0, 0.85);
+}
+
+.home-meal-cal-day-num {
+  line-height: 1;
+}
+
+.home-meal-cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.9rem 0 0;
+  font-size: 0.8rem;
+  color: var(--home-label, var(--color-muted));
+}
+
+.home-meal-cal-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: rgba(245, 166, 35, 0.45);
+  box-shadow: inset 0 0 0 2px var(--home-orange);
+}
+
 .home-link-all {
   padding: 0;
   border: none;
