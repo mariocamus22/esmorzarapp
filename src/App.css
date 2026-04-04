@@ -1774,19 +1774,19 @@ button.form-flow-back:hover {
 
 .form-drink-card {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
+  justify-content: center;
+  gap: 8px;
   min-height: 0;
-  padding: 10px 12px;
+  padding: 18px 12px;
   border-radius: 14px;
   border: 1px solid #e8e5df;
   background: #ffffff;
   color: var(--app-text, #1a1a1a);
   font: inherit;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   transition:
     border-color 0.15s ease,
     background 0.15s ease,
@@ -1795,7 +1795,7 @@ button.form-flow-back:hover {
 
 .form-drink-card-emoji {
   flex-shrink: 0;
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   line-height: 1;
   white-space: nowrap;
   display: inline-flex;
@@ -1812,9 +1812,10 @@ button.form-flow-back:hover {
 }
 
 .form-drink-card-label--full {
-  text-align: left;
+  text-align: center;
   word-break: break-word;
   hyphens: auto;
+  width: 100%;
 }
 
 .form-drink-card.is-selected {
