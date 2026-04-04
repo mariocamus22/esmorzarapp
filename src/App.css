@@ -2221,9 +2221,7 @@ button.form-flow-back:hover {
   min-height: calc(100dvh - 3.5rem);
   display: flex;
   flex-direction: column;
-  margin-inline: -1.25rem;
-  padding: 0.15rem max(0.5rem, env(safe-area-inset-left)) 0
-    max(0.5rem, env(safe-area-inset-right));
+  padding: 0.2rem 0 0;
   box-sizing: border-box;
 }
 
@@ -2255,7 +2253,7 @@ button.form-flow-back:hover {
 .form-summary-card {
   background: #ffffff;
   border-radius: 20px;
-  padding: 1.2rem 1rem 1.25rem;
+  padding: 1.2rem 1.15rem 1.25rem;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
