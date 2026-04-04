@@ -731,13 +731,13 @@ export function AlmuerzoForm({ mode }: Props) {
     try {
       setSaving(true)
       if (mode === 'create') {
-        const row = await createAlmuerzo(input, newFiles)
+        await createAlmuerzo(input, newFiles)
         await refreshProfile()
-        navigate(`/almuerzo/${row.id}`, { replace: true })
+        navigate('/', { replace: true })
       } else if (id) {
         await updateAlmuerzo(id, input, keepPaths, newFiles)
         await refreshProfile()
-        navigate(`/almuerzo/${id}`, { replace: true })
+        navigate('/', { replace: true })
       }
     } catch (err) {
       setError(formatSupabaseError(err))
