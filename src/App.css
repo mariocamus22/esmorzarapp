@@ -1772,12 +1772,6 @@ button.form-flow-back:hover {
   gap: 8px;
 }
 
-@media (min-width: 380px) {
-  .form-drink-card-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 .form-drink-card {
   display: flex;
   flex-direction: row;
@@ -1799,11 +1793,15 @@ button.form-flow-back:hover {
     box-shadow 0.15s ease;
 }
 
-.form-drink-card-icon {
+.form-drink-card-emoji {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  color: var(--app-accent, #f5a623);
+  font-size: 1.35rem;
+  line-height: 1;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35em;
 }
 
 .form-drink-card-label {
@@ -1838,10 +1836,6 @@ button.form-flow-back:hover {
 
   .form-drink-card-label {
     color: var(--app-text, #f5f3ee);
-  }
-
-  .form-drink-card-icon {
-    color: var(--app-accent, #f5a623);
   }
 }
 

@@ -17,7 +17,7 @@ import {
   updateAlmuerzo,
 } from '../lib/almuerzosApi'
 import { BarPlaceSearch, type BarPlaceResolved } from '../components/BarPlaceSearch'
-import { DrinkOptionIcon } from '../components/DrinkOptionIcon'
+import { DrinkOptionEmoji } from '../components/DrinkOptionEmoji'
 import { MapsStepDiagnostics } from '../components/MapsStepDiagnostics'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
@@ -949,7 +949,7 @@ export function AlmuerzoForm({ mode }: Props) {
                       setBebidaOptionId((prev) => (prev === opt.id ? '' : opt.id))
                     }
                   >
-                    <DrinkOptionIcon label={opt.label} className="form-drink-card-icon" />
+                    <DrinkOptionEmoji label={opt.label} className="form-drink-card-emoji" />
                     <span className="form-drink-card-label form-drink-card-label--full">
                       {beverageSelectLabel(opt.label)}
                     </span>

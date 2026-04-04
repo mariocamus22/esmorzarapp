@@ -23,6 +23,21 @@ export function beverageSelectLabel(label: string): string {
   return stripLeadingEmojisFromLabel(label)
 }
 
+/** Emoji mostrado en la tarjeta de bebida según la etiqueta de `meal_options`. */
+export function drinkEmojiForLabel(label: string): string {
+  const plain = stripLeadingEmojisFromLabel(label).toLowerCase().trim()
+
+  if (plain.includes('sin bebida')) return '🚫'
+  if (plain.includes('vino') && plain.includes('gaseosa')) return '🍷🫧'
+  if (plain.includes('cerveza')) return '🍺'
+  if (plain.includes('vino')) return '🍷'
+  if (plain.includes('refresco')) return '🥤'
+  if (plain.includes('agua')) return '💧'
+  if (plain.includes('zumo') || plain.includes('bebida natural')) return '🧃'
+
+  return '🥤'
+}
+
 function rowHasLeadingEmoji(r: MealOptionRow): boolean {
   return r.label.trim() !== stripLeadingEmojisFromLabel(r.label)
 }
