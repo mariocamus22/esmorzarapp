@@ -3,6 +3,8 @@
  * Referència: fons #F5F3EE, acent #F5A623, text #1A1A1A, placeholders #9E9E9E.
  */
 :root {
+  color-scheme: light;
+
   --app-bg: #f5f3ee;
   --app-surface: #ffffff;
   --app-fill: #eceae4;
@@ -34,21 +36,27 @@
   -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --app-bg: #1f1e1b;
-    --app-surface: #2a2926;
-    --app-fill: #3d3b36;
-    --app-accent: #f5a623;
-    --app-accent-hover: #ffc14d;
-    --app-accent-soft: rgba(245, 166, 35, 0.22);
-    --app-text: #f5f3ee;
-    --app-text-muted: #a3a39a;
-    --app-border: #4a4843;
-    --color-link: #fdba74;
-    --home-label: #c4bfb6;
-    --home-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  }
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --app-bg: #1f1e1b;
+  --app-surface: #2a2926;
+  --app-fill: #3d3b36;
+  --app-accent: #f5a623;
+  --app-accent-hover: #ffc14d;
+  --app-accent-soft: rgba(245, 166, 35, 0.22);
+  --app-text: #f5f3ee;
+  --app-text-muted: #a3a39a;
+  --app-border: #4a4843;
+  --color-bg: var(--app-bg);
+  --color-text: var(--app-text);
+  --color-muted: var(--app-text-muted);
+  --color-surface: var(--app-surface);
+  --color-border: var(--app-border);
+  --color-accent: var(--app-accent);
+  --color-link: #fdba74;
+  --home-label: #c4bfb6;
+  --home-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
 *,

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 import { useAuth } from '../hooks/useAuth'
+import { useTheme } from '../hooks/useTheme'
 import { formatSupabaseError } from '../lib/errors'
 import { getFotoPublicUrl, listAlmuerzos, listLevels } from '../lib/almuerzosApi'
 import { barLocationLine } from '../lib/barLocation'
@@ -508,6 +509,7 @@ export function HomeList() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, signOut, profile, profileLoading, refreshProfile } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const [items, setItems] = useState<Almuerzo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -653,15 +655,30 @@ export function HomeList() {
           <IconCroissant />
           <span className="home-brand-name">Esmorzapp</span>
         </div>
-        <button
-          type="button"
-          className="home-feedback-btn"
-          onClick={() => setFeedbackOpen(true)}
-          aria-label="Enviar opiniones o informar de un problema"
-          title="Tu opinión nos ayuda a mejorar"
-        >
-          <IconFeedback />
-        </button>
+        <div className="home-top-actions">
+          <button
+            type="button"
+            className="home-theme-toggle"
+            role="switch"
+            aria-checked={theme === 'dark'}
+            aria-label="Modo oscuro"
+            title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            onClick={toggleTheme}
+          >
+            <span className="home-theme-toggle-track" aria-hidden>
+              <span className="home-theme-toggle-thumb" />
+            </span>
+          </button>
+          <button
+            type="button"
+            className="home-feedback-btn"
+            onClick={() => setFeedbackOpen(true)}
+            aria-label="Enviar opiniones o informar de un problema"
+            title="Tu opinión nos ayuda a mejorar"
+          >
+            <IconFeedback />
+          </button>
+        </div>
       </header>
 
       <h1 className="home-greeting">¿Dónde toca almorzar hoy, {nom}?</h1>
