@@ -1,4 +1,12 @@
-import { type TouchEvent, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import {
+  type PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { barLocationLine } from '../lib/barLocation'
@@ -84,15 +92,269 @@ function IconPencil({ className }: { className?: string }) {
   )
 }
 
-const SWIPE_MIN_PX = 48
+const TAP_MOVE_MAX_PX = 14
+const DOUBLE_TAP_MS = 380
+const DOUBLE_TAP_DIST_PX = 36
+const ZOOM_SCALE = 2.25
+
+function readCarouselIndex(el: HTMLDivElement | null, n: number): number {
+  if (!el || n <= 0) return 0
+  const w = el.clientWidth
+  if (w <= 0) return 0
+  return Math.min(Math.max(0, Math.round(el.scrollLeft / w)), n - 1)
+}
+
+type TapRef = { t: number; x: number; y: number } | null
+
+type DetailPhotoLightboxProps = {
+  paths: string[]
+  startIndex: number
+  onClose: () => void
+}
+
+function DetailPhotoLightbox({ paths, startIndex, onClose }: DetailPhotoLightboxProps) {
+  const stripRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const innerRefs = useRef<Map<number, HTMLDivElement>>(new Map())
+  const lastTapRef = useRef<TapRef>(null)
+  const gestureRef = useRef<{
+    slide: number
+    x0: number
+    y0: number
+    moved: boolean
+  } | null>(null)
+
+  const n = paths.length
+  const [i, setI] = useState(() => Math.min(Math.max(0, startIndex), Math.max(0, n - 1)))
+  const [zoomed, setZoomed] = useState(false)
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
+
+  useLayoutEffect(() => {
+    const el = stripRef.current
+    if (!el || n === 0) return
+    const idx = Math.min(Math.max(0, startIndex), n - 1)
+    lastTapRef.current = null
+
+    const applyScroll = () => {
+      const w = el.clientWidth
+      if (w > 0) el.scrollLeft = idx * w
+      else requestAnimationFrame(applyScroll)
+    }
+    applyScroll()
+  }, [startIndex, n])
+
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    queueMicrotask(() => closeRef.current?.focus())
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  const syncIndexFromStrip = useCallback(() => {
+    if (zoomed) return
+    setI(readCarouselIndex(stripRef.current, n))
+  }, [n, zoomed])
+
+  useEffect(() => {
+    const el = stripRef.current
+    if (!el || n <= 1) return
+    const onScrollEnd = () => syncIndexFromStrip()
+    el.addEventListener('scrollend', onScrollEnd)
+    let t: ReturnType<typeof setTimeout>
+    const onScroll = () => {
+      window.clearTimeout(t)
+      t = window.setTimeout(onScrollEnd, 70)
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      el.removeEventListener('scrollend', onScrollEnd)
+      el.removeEventListener('scroll', onScroll)
+      window.clearTimeout(t)
+    }
+  }, [n, syncIndexFromStrip])
+
+  useEffect(() => {
+    if (!zoomed) syncIndexFromStrip()
+  }, [zoomed, syncIndexFromStrip])
+
+  const goDot = (idx: number) => {
+    const el = stripRef.current
+    if (!el) return
+    setZoomed(false)
+    setZoomOrigin({ x: 50, y: 50 })
+    el.scrollTo({ left: idx * el.clientWidth, behavior: 'smooth' })
+    setI(idx)
+  }
+
+  const onSlidePointerDown = (slideIndex: number, e: ReactPointerEvent) => {
+    gestureRef.current = {
+      slide: slideIndex,
+      x0: e.clientX,
+      y0: e.clientY,
+      moved: false,
+    }
+  }
+
+  const onSlidePointerMove = (e: ReactPointerEvent) => {
+    const g = gestureRef.current
+    if (!g || e.buttons === 0) return
+    if (Math.hypot(e.clientX - g.x0, e.clientY - g.y0) > TAP_MOVE_MAX_PX) g.moved = true
+  }
+
+  const onSlidePointerUp = (slideIndex: number, e: ReactPointerEvent) => {
+    const g = gestureRef.current
+    gestureRef.current = null
+    if (!g || g.slide !== slideIndex) return
+
+    if (g.moved || Math.hypot(e.clientX - g.x0, e.clientY - g.y0) > TAP_MOVE_MAX_PX) {
+      lastTapRef.current = null
+      return
+    }
+
+    const inner = innerRefs.current.get(slideIndex)
+    if (!inner) return
+
+    const now = e.timeStamp
+    const x = e.clientX
+    const y = e.clientY
+    const prev = lastTapRef.current
+
+    if (!prev || now - prev.t > DOUBLE_TAP_MS || Math.hypot(x - prev.x, y - prev.y) > DOUBLE_TAP_DIST_PX) {
+      lastTapRef.current = { t: now, x, y }
+      return
+    }
+
+    lastTapRef.current = null
+    e.preventDefault()
+
+    if (zoomed && slideIndex === i) {
+      setZoomed(false)
+      setZoomOrigin({ x: 50, y: 50 })
+      return
+    }
+
+    if (!zoomed) {
+      const rect = inner.getBoundingClientRect()
+      const w = rect.width || 1
+      const h = rect.height || 1
+      setZoomOrigin({
+        x: Math.min(100, Math.max(0, ((x - rect.left) / w) * 100)),
+        y: Math.min(100, Math.max(0, ((y - rect.top) / h) * 100)),
+      })
+      setZoomed(true)
+    }
+  }
+
+  const safeI = n === 0 ? 0 : Math.min(i, n - 1)
+
+  return createPortal(
+    <div className="detail-photo-lightbox" role="dialog" aria-modal="true" aria-label="Galería de fotos">
+      <div className="detail-photo-lightbox-top">
+        <p className="detail-photo-lightbox-hint">Desliza entre fotos · doble toque para ampliar</p>
+        <button ref={closeRef} type="button" className="detail-photo-lightbox-close" onClick={onClose}>
+          Cerrar
+        </button>
+      </div>
+      <div
+        ref={stripRef}
+        className={`detail-photo-lightbox-strip${zoomed ? ' is-zoomed' : ''}`}
+        aria-label="Carrusel de fotos"
+      >
+        {paths.map((p, idx) => (
+          <div
+            key={`${p}-lb-${idx}`}
+            className={`detail-photo-lightbox-slide${zoomed && idx === safeI ? ' is-zoomed' : ''}`}
+            onPointerDown={(e) => onSlidePointerDown(idx, e)}
+            onPointerMove={onSlidePointerMove}
+            onPointerUp={(e) => onSlidePointerUp(idx, e)}
+            onPointerCancel={() => {
+              gestureRef.current = null
+            }}
+          >
+            <div className="detail-photo-lightbox-zoom-wrap">
+              <div
+                ref={(el) => {
+                  if (el) innerRefs.current.set(idx, el)
+                  else innerRefs.current.delete(idx)
+                }}
+                className={`detail-photo-lightbox-zoom-inner${zoomed && idx === safeI ? ' is-zoomed' : ''}`}
+                style={{
+                  transform: zoomed && idx === safeI ? `scale(${ZOOM_SCALE})` : 'scale(1)',
+                  transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
+                }}
+              >
+                <img
+                  className="detail-photo-lightbox-img"
+                  src={getFotoPublicUrl(p)}
+                  alt={`Foto ${idx + 1} de ${n}`}
+                  draggable={false}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {n > 1 && (
+        <div className="detail-photo-lightbox-dots" role="tablist" aria-label="Seleccionar foto">
+          {paths.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              role="tab"
+              aria-selected={idx === safeI}
+              className={`detail-photo-lightbox-dot ${idx === safeI ? 'is-active' : ''}`}
+              onClick={() => goDot(idx)}
+              aria-label={`Foto ${idx + 1} de ${n}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>,
+    document.body,
+  )
+}
 
 function DetailHero({ paths }: { paths: string[] }) {
+  const viewportRef = useRef<HTMLDivElement>(null)
   const [i, setI] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxStart, setLightboxStart] = useState(0)
+  const gestureRef = useRef<{ x0: number; y0: number; moved: boolean } | null>(null)
+
   const n = paths.length
-  const touchStartX = useRef<number | null>(null)
-  const touchLastX = useRef<number | null>(null)
-  /** Evita índice fuera de rango si cambia el número de fotos sin remontar */
   const safeI = n === 0 ? 0 : Math.min(i, n - 1)
+
+  const syncIndexFromViewport = useCallback(() => {
+    setI(readCarouselIndex(viewportRef.current, n))
+  }, [n])
+
+  useEffect(() => {
+    const el = viewportRef.current
+    if (!el || n <= 1) return
+    const onScrollEnd = () => syncIndexFromViewport()
+    el.addEventListener('scrollend', onScrollEnd)
+    let t: ReturnType<typeof setTimeout>
+    const onScroll = () => {
+      window.clearTimeout(t)
+      t = window.setTimeout(onScrollEnd, 70)
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      el.removeEventListener('scrollend', onScrollEnd)
+      el.removeEventListener('scroll', onScroll)
+      window.clearTimeout(t)
+    }
+  }, [n, syncIndexFromViewport])
 
   if (n === 0) {
     return (
@@ -102,81 +364,82 @@ function DetailHero({ paths }: { paths: string[] }) {
     )
   }
 
-  function goNext() {
-    setI((prev) => Math.min(prev + 1, n - 1))
+  const openLightbox = (idx: number) => {
+    setLightboxStart(Math.min(Math.max(0, idx), n - 1))
+    setLightboxOpen(true)
   }
 
-  function goPrev() {
-    setI((prev) => Math.max(prev - 1, 0))
+  const onHeroPointerDown = (e: ReactPointerEvent) => {
+    gestureRef.current = { x0: e.clientX, y0: e.clientY, moved: false }
   }
 
-  function onTouchStart(e: TouchEvent) {
-    if (n <= 1) return
-    touchStartX.current = e.touches[0].clientX
-    touchLastX.current = e.touches[0].clientX
+  const onHeroPointerMove = (e: ReactPointerEvent) => {
+    const g = gestureRef.current
+    if (!g || e.buttons === 0) return
+    if (Math.hypot(e.clientX - g.x0, e.clientY - g.y0) > TAP_MOVE_MAX_PX) g.moved = true
   }
 
-  function onTouchMove(e: TouchEvent) {
-    touchLastX.current = e.touches[0].clientX
+  const onHeroPointerUp = (idx: number, e: ReactPointerEvent) => {
+    const g = gestureRef.current
+    gestureRef.current = null
+    if (!g) return
+    if (g.moved || Math.hypot(e.clientX - g.x0, e.clientY - g.y0) > TAP_MOVE_MAX_PX) return
+    openLightbox(idx)
   }
-
-  function onTouchEnd() {
-    if (n <= 1) return
-    const start = touchStartX.current
-    const end = touchLastX.current
-    touchStartX.current = null
-    touchLastX.current = null
-    if (start == null || end == null) return
-    const dx = start - end
-    if (dx > SWIPE_MIN_PX) goNext()
-    else if (dx < -SWIPE_MIN_PX) goPrev()
-  }
-
-  const translatePct = n > 0 ? (safeI / n) * 100 : 0
 
   return (
-    <div className="detail-hero">
-      <div
-        className="detail-hero-viewport"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-        onTouchCancel={onTouchEnd}
-      >
-        <div
-          className="detail-hero-track"
-          style={{
-            width: `${n * 100}%`,
-            transform: `translateX(-${translatePct}%)`,
-          }}
-        >
+    <>
+      <div className="detail-hero">
+        <div ref={viewportRef} className="detail-hero-viewport" aria-label="Carrusel de fotos">
           {paths.map((p, idx) => (
             <div
               key={`${p}-${idx}`}
-              className="detail-hero-slide"
-              style={{ width: `${100 / n}%` }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Foto ${idx + 1} de ${n}. Pulsa para ver en grande`}
+              className="detail-hero-slide detail-hero-slide--tap"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  openLightbox(idx)
+                }
+              }}
+              onPointerDown={onHeroPointerDown}
+              onPointerMove={onHeroPointerMove}
+              onPointerUp={(e) => onHeroPointerUp(idx, e)}
+              onPointerCancel={() => {
+                gestureRef.current = null
+              }}
             >
-              <img src={getFotoPublicUrl(p)} alt="" draggable={false} />
+              <img src={getFotoPublicUrl(p)} alt="" draggable={false} loading={idx === 0 ? 'eager' : 'lazy'} />
             </div>
           ))}
         </div>
+        {n > 1 && (
+          <div className="detail-hero-dots-row" role="tablist" aria-label="Seleccionar foto">
+            {paths.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                role="tab"
+                aria-selected={idx === safeI}
+                className={`detail-hero-dot ${idx === safeI ? 'is-active' : ''}`}
+                onClick={() => {
+                  const el = viewportRef.current
+                  if (!el) return
+                  el.scrollTo({ left: idx * el.clientWidth, behavior: 'smooth' })
+                  setI(idx)
+                }}
+                aria-label={`Foto ${idx + 1} de ${n}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
-      {n > 1 && (
-        <div className="detail-hero-dots-row" role="tablist" aria-label="Seleccionar foto">
-          {paths.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              role="tab"
-              aria-selected={idx === safeI}
-              className={`detail-hero-dot ${idx === safeI ? 'is-active' : ''}`}
-              onClick={() => setI(idx)}
-              aria-label={`Foto ${idx + 1} de ${n}`}
-            />
-          ))}
-        </div>
+      {lightboxOpen && (
+        <DetailPhotoLightbox paths={paths} startIndex={lightboxStart} onClose={() => setLightboxOpen(false)} />
       )}
-    </div>
+    </>
   )
 }
 

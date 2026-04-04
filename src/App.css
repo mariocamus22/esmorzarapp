@@ -2423,6 +2423,8 @@ button.form-flow-back:hover {
   display: flex;
   flex-direction: column;
   min-height: calc(100dvh - 5.25rem);
+  max-width: 100%;
+  overflow-x: hidden;
   padding-left: 0;
   padding-right: 0;
   padding-bottom: 0;
@@ -2438,6 +2440,7 @@ button.form-flow-back:hover {
 .detail-scroll {
   flex: 1;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 0.5rem;
@@ -2542,35 +2545,50 @@ button.form-flow-back:hover {
 }
 
 .detail-hero-wrap {
-  width: calc(100% + 2.5rem);
-  margin-left: -1.25rem;
-  margin-right: -1.25rem;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   margin-bottom: 1rem;
 }
 
 .detail-hero {
   position: relative;
   width: 100%;
+  max-width: 100%;
 }
 
 .detail-hero-viewport {
   position: relative;
-  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
   aspect-ratio: 4 / 3;
   background: #eceae4;
   touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
 }
 
-.detail-hero-track {
-  display: flex;
-  height: 100%;
-  transition: transform 0.35s ease;
-  will-change: transform;
+@media (prefers-reduced-motion: reduce) {
+  .detail-hero-viewport {
+    scroll-behavior: auto;
+  }
 }
 
 .detail-hero-slide {
-  flex-shrink: 0;
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;
   height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .detail-hero-slide img {
@@ -2578,6 +2596,17 @@ button.form-flow-back:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.detail-hero-slide--tap {
+  cursor: zoom-in;
+}
+
+.detail-hero-slide--tap:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: -2px;
 }
 
 .detail-hero-dots-row {
@@ -2631,6 +2660,187 @@ button.form-flow-back:hover {
 .detail-hero-empty-icon {
   color: var(--app-accent, #f5a623);
   opacity: 0.45;
+}
+
+/* Lightbox fotos (detalle): carrusel + zoom */
+.detail-photo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 8, 6, 0.94);
+  touch-action: none;
+}
+
+.detail-photo-lightbox-top {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: max(0.5rem, env(safe-area-inset-top)) 0.75rem 0.5rem 1rem;
+}
+
+.detail-photo-lightbox-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.detail-photo-lightbox-close {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0.35rem 0.65rem;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.detail-photo-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.detail-photo-lightbox-close:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 2px;
+}
+
+.detail-photo-lightbox-strip {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+
+.detail-photo-lightbox-strip.is-zoomed {
+  overflow-x: hidden;
+  touch-action: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-photo-lightbox-strip {
+    scroll-behavior: auto;
+  }
+}
+
+.detail-photo-lightbox-slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem max(0.75rem, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.detail-photo-lightbox-zoom-wrap {
+  width: 100%;
+  height: 100%;
+  max-height: calc(100dvh - 7rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-photo-lightbox-strip.is-zoomed .detail-photo-lightbox-zoom-wrap {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.detail-photo-lightbox-zoom-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: min-content;
+  min-height: min-content;
+  transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-photo-lightbox-zoom-inner {
+    transition: none;
+  }
+}
+
+.detail-photo-lightbox-zoom-inner.is-zoomed {
+  cursor: zoom-out;
+}
+
+.detail-photo-lightbox-img {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  max-height: calc(100dvh - 7.5rem);
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  border-radius: 6px;
+}
+
+.detail-photo-lightbox-dots {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.35rem 1rem max(0.65rem, env(safe-area-inset-bottom));
+}
+
+.detail-photo-lightbox-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition:
+    width 0.28s ease,
+    height 0.28s ease,
+    background 0.2s ease;
+}
+
+.detail-photo-lightbox-dot.is-active {
+  width: 18px;
+  height: 6px;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.detail-photo-lightbox-dot:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 2px;
 }
 
 /* Bloc de detalls sota el carrusel — sense card, sobre el beix (#f5f3ee al .detail-scroll) */
