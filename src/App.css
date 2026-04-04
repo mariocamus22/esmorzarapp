@@ -1596,6 +1596,10 @@ button.form-flow-back:hover {
   margin: 0;
 }
 
+.form-mid-section--cafe .form-mid-section-title {
+  text-align: center;
+}
+
 .form-mid-section-title {
   margin: 0 0 0.65rem;
   font-size: 1.125rem;
@@ -1878,6 +1882,7 @@ button.form-flow-back:hover {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   width: 100%;
   min-height: 64px;
@@ -1887,7 +1892,7 @@ button.form-flow-back:hover {
   background: #ffffff;
   color: var(--app-text, #1a1a1a);
   font: inherit;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   transition:
     border-color 0.15s ease,

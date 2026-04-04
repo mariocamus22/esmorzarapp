@@ -978,7 +978,7 @@ export function AlmuerzoForm({ mode }: Props) {
           onSiguiente={handleMidSiguiente}
           accionPrincipalLabel="Finalizar"
         >
-          <section className="form-mid-section">
+          <section className="form-mid-section form-mid-section--cafe">
             <h3 className="form-mid-section-title">Café</h3>
             <div className="form-cafe-row-list" role="listbox" aria-label="Elige el café">
               {cafeOpts.map((opt) => {
