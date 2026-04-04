@@ -142,21 +142,23 @@ function IconChevronDown(props: { className?: string }) {
   )
 }
 
-/** Bocadillo / sándwich (vista lateral), no menú hamburguesa */
+/** Icono bocadillo (asset esmorzar.svg) */
 function IconSandwich(props: { className?: string }) {
   return (
-    <svg className={props.className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg
+      className={props.className}
+      width={22}
+      height={22}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
       <path
-        d="M5.5 9h13a2 2 0 012 2v.5H3.5V11a2 2 0 012-2z"
+        d="M4.838 10.405C4.000 9.000 6.000 7.000 7.038 6.595C9.500 5.500 17.500 12.000 19.162 13.595C19.000 15.000 17.500 18.000 16.962 17.405C12.000 19.000 6.000 11.000 4.838 10.405Z M10.302 8.941C10.822 9.241 7.982 11.759 8.502 12.059 M12.900 10.441C13.420 10.741 10.580 13.259 11.100 13.559 M15.498 11.941C16.018 12.241 13.178 14.759 13.698 15.059"
         stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
-      />
-      <path d="M4 13.25h16M4 15h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path
-        d="M5.5 19h13a2 2 0 002-2v-.5H3.5v.5a2 2 0 002 2z"
-        stroke="currentColor"
-        strokeWidth="1.75"
+        strokeWidth={2}
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
     </svg>
