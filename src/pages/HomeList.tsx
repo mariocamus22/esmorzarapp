@@ -7,6 +7,7 @@ import { getFotoPublicUrl, listAlmuerzos, listLevels } from '../lib/almuerzosApi
 import { barLocationLine } from '../lib/barLocation'
 import { hasSupabaseConfig } from '../lib/env'
 import type { Almuerzo, LevelRow, UserProfile } from '../types/almuerzo'
+import { IconEsmorzar } from '../components/IconEsmorzar'
 
 function formatFechaLarga(isoDate: string): string {
   const d = new Date(`${isoDate}T12:00:00`)
@@ -481,19 +482,6 @@ function HomeMealCalendar({ items, year, month, onPrevMonth, onNextMonth }: Home
   )
 }
 
-function IconHistoryBurger({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={16} height={16} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M5 7h14M5 12h14M5 17h10"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
 function HistoryCardAvatar({ photoPath }: { photoPath: string | null }) {
   if (photoPath) {
     return (
@@ -507,7 +495,7 @@ function HistoryCardAvatar({ photoPath }: { photoPath: string | null }) {
   }
   return (
     <div className="home-history-avatar-placeholder" aria-hidden>
-      <IconHistoryBurger className="home-history-avatar-placeholder-icon" />
+      <IconEsmorzar className="home-history-avatar-placeholder-icon" />
     </div>
   )
 }
@@ -793,7 +781,7 @@ export function HomeList() {
                       <span className="home-history-divider" />
                     </div>
                     <div className="home-history-summary">
-                      <IconHistoryBurger className="home-history-burger-icon" />
+                      <IconEsmorzar className="home-history-burger-icon" width={16} height={16} />
                       <p className="home-history-summary-text">{nomBocadilloResum(a)}</p>
                     </div>
                   </Link>

@@ -19,6 +19,7 @@ import {
 } from '../lib/almuerzosApi'
 import { BarPlaceSearch, type BarPlaceResolved } from '../components/BarPlaceSearch'
 import { DrinkOptionEmoji } from '../components/DrinkOptionEmoji'
+import { IconEsmorzar } from '../components/IconEsmorzar'
 import { MapsStepDiagnostics } from '../components/MapsStepDiagnostics'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
@@ -146,29 +147,6 @@ function IconChevronDown(props: { className?: string }) {
   return (
     <svg className={props.className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
       <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-/** Icono bocadillo (asset esmorzar.svg) */
-function IconSandwich(props: { className?: string }) {
-  return (
-    <svg
-      className={props.className}
-      width={22}
-      height={22}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <path
-        d="M4.838 10.405C4.000 9.000 6.000 7.000 7.038 6.595C9.500 5.500 17.500 12.000 19.162 13.595C19.000 15.000 17.500 18.000 16.962 17.405C12.000 19.000 6.000 11.000 4.838 10.405Z M10.302 8.941C10.822 9.241 7.982 11.759 8.502 12.059 M12.900 10.441C13.420 10.741 10.580 13.259 11.100 13.559 M15.498 11.941C16.018 12.241 13.178 14.759 13.698 15.059"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
     </svg>
   )
 }
@@ -302,7 +280,7 @@ function FormSteps234Shell({
           className={`form-mid-tab ${step === 2 ? 'is-active' : ''}`}
           onClick={() => onTab(2)}
         >
-          <IconSandwich className="form-mid-tab-icon" />
+          <IconEsmorzar className="form-mid-tab-icon" />
           <span className="form-mid-tab-text">Bocadillo y Gasto</span>
         </button>
         <button
@@ -921,7 +899,7 @@ export function AlmuerzoForm({ mode }: Props) {
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">Bocadillo</h3>
             <div className="form-boc-pill-wrap">
-              <IconSandwich className="form-boc-pill-icon" />
+              <IconEsmorzar className="form-boc-pill-icon" />
               <input
                 id="form-step2-boc"
                 className="form-boc-pill-input"

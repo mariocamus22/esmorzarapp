@@ -1,0 +1,23 @@
+/** Icono bocadillo / esmorzar — mismo dibujo que `src/assets/esmorzar.svg`. */
+export function IconEsmorzar(props: { className?: string; width?: number; height?: number }) {
+  const { className, width = 22, height = 22 } = props
+  return (
+    <svg
+      className={className}
+      width={width}
+      height={height}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <path
+        d="M4.838 10.405C4.000 9.000 6.000 7.000 7.038 6.595C9.500 5.500 17.500 12.000 19.162 13.595C19.000 15.000 17.500 18.000 16.962 17.405C12.000 19.000 6.000 11.000 4.838 10.405Z M10.302 8.941C10.822 9.241 7.982 11.759 8.502 12.059 M12.900 10.441C13.420 10.741 10.580 13.259 11.100 13.559 M15.498 11.941C16.018 12.241 13.178 14.759 13.698 15.059"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
