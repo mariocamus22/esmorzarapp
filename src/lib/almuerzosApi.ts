@@ -200,9 +200,11 @@ export async function listLevels(): Promise<LevelRow[]> {
 }
 
 export async function listAlmuerzos(): Promise<Almuerzo[]> {
+  const userId = await getUserIdOrThrow()
   const { data, error } = await supabase
     .from(TABLE)
     .select(ALMUERZO_SELECT)
+    .eq('user_id', userId)
     .order('meal_date', { ascending: false })
     .order('created_at', { ascending: false })
 
@@ -211,10 +213,12 @@ export async function listAlmuerzos(): Promise<Almuerzo[]> {
 }
 
 export async function getAlmuerzo(id: string): Promise<Almuerzo | null> {
+  const userId = await getUserIdOrThrow()
   const { data, error } = await supabase
     .from(TABLE)
     .select(ALMUERZO_SELECT)
     .eq('id', id)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (error) throw error
@@ -311,7 +315,7 @@ export async function createAlmuerzo(input: AlmuerzoInput, newFiles: File[]): Pr
 
     if (upErr) throw upErr
   } catch (e) {
-    await supabase.from(TABLE).delete().eq('id', almuerzoId)
+    await supabase.from(TABLE).delete().eq('id', almuerzoId).eq('user_id', userId)
     throw e
   }
 }
@@ -329,6 +333,7 @@ export async function updateAlmuerzo(
     .from(TABLE)
     .select('photo_paths')
     .eq('id', id)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (existingErr) throw existingErr
@@ -368,7 +373,7 @@ export async function updateAlmuerzo(
     photo_paths,
   }
 
-  const { error } = await supabase.from(TABLE).update(payload).eq('id', id)
+  const { error } = await supabase.from(TABLE).update(payload).eq('id', id).eq('user_id', userId)
 
   if (error) throw error
 }
