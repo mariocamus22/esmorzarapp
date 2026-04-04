@@ -1768,26 +1768,31 @@ button.form-flow-back:hover {
 /* Pas 3 — grid de cards de beguda (selecció) */
 .form-drink-card-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (min-width: 380px) {
+  .form-drink-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .form-drink-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  min-height: 150px;
-  aspect-ratio: 1;
-  padding: 24px;
-  border-radius: 20px;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
   border: 1px solid #e8e5df;
   background: #ffffff;
   color: var(--app-text, #1a1a1a);
   font: inherit;
   cursor: pointer;
-  text-align: center;
+  text-align: left;
   transition:
     border-color 0.15s ease,
     background 0.15s ease,
@@ -1796,18 +1801,20 @@ button.form-flow-back:hover {
 
 .form-drink-card-icon {
   flex-shrink: 0;
-  color: var(--app-text, #1a1a1a);
+  width: 22px;
+  height: 22px;
+  color: var(--app-accent, #f5a623);
 }
 
 .form-drink-card-label {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.2;
   color: var(--app-text, #1a1a1a);
 }
 
 .form-drink-card-label--full {
-  text-align: center;
+  text-align: left;
   word-break: break-word;
   hyphens: auto;
 }
@@ -1829,9 +1836,12 @@ button.form-flow-back:hover {
     border-color: var(--app-border, #4a4843);
   }
 
-  .form-drink-card-label,
-  .form-drink-card-icon {
+  .form-drink-card-label {
     color: var(--app-text, #f5f3ee);
+  }
+
+  .form-drink-card-icon {
+    color: var(--app-accent, #f5a623);
   }
 }
 

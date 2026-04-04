@@ -17,6 +17,7 @@ import {
   updateAlmuerzo,
 } from '../lib/almuerzosApi'
 import { BarPlaceSearch, type BarPlaceResolved } from '../components/BarPlaceSearch'
+import { DrinkOptionIcon } from '../components/DrinkOptionIcon'
 import { MapsStepDiagnostics } from '../components/MapsStepDiagnostics'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
@@ -213,21 +214,6 @@ function IconCoffeeTab(props: { className?: string }) {
     <svg className={props.className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M6 6h12v6a4 4 0 01-4 4H10a4 4 0 01-4-4V6zM18 9h1.5a2.5 2.5 0 010 5H18M8 20h8"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-/** Icono genérico para cards de bebida (las opciones vienen de Supabase) */
-function IconCardBeer({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={32} height={32} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M7 5h8v9a3 3 0 01-3 3h-2a3 3 0 01-3-3V5zM15 7h2.2a2.3 2.3 0 011.3 4.2L17 12M6 20h10"
         stroke="currentColor"
         strokeWidth="1.75"
         strokeLinecap="round"
@@ -963,7 +949,7 @@ export function AlmuerzoForm({ mode }: Props) {
                       setBebidaOptionId((prev) => (prev === opt.id ? '' : opt.id))
                     }
                   >
-                    <IconCardBeer className="form-drink-card-icon" aria-hidden />
+                    <DrinkOptionIcon label={opt.label} className="form-drink-card-icon" />
                     <span className="form-drink-card-label form-drink-card-label--full">
                       {beverageSelectLabel(opt.label)}
                     </span>

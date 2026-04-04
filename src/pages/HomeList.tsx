@@ -154,9 +154,14 @@ function FeedbackModal({ open, onClose }: FeedbackModalProps) {
 
   useEffect(() => {
     if (!open) return
-    setText('')
-    const t = window.setTimeout(() => taRef.current?.focus(), 50)
-    return () => window.clearTimeout(t)
+    const t1 = window.setTimeout(() => {
+      setText('')
+    }, 0)
+    const t2 = window.setTimeout(() => taRef.current?.focus(), 50)
+    return () => {
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
+    }
   }, [open])
 
   useEffect(() => {
