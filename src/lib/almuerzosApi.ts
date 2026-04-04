@@ -223,19 +223,19 @@ export async function getAlmuerzo(id: string): Promise<Almuerzo | null> {
 }
 
 async function uploadFotos(userId: string, almuerzoId: string, files: File[]): Promise<string[]> {
-  const paths: string[] = []
-  for (const file of files) {
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-    const safe = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ? ext : 'jpg'
-    const path = `${userId}/${almuerzoId}/${uniqueFileId()}.${safe}`
-    const { error } = await supabase.storage.from(BUCKET_FOTOS).upload(path, file, {
-      cacheControl: '3600',
-      upsert: false,
-    })
-    if (error) throw error
-    paths.push(path)
-  }
-  return paths
+  return Promise.all(
+    files.map(async (file) => {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      const safe = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ? ext : 'jpg'
+      const path = `${userId}/${almuerzoId}/${uniqueFileId()}.${safe}`
+      const { error } = await supabase.storage.from(BUCKET_FOTOS).upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+      })
+      if (error) throw error
+      return path
+    }),
+  )
 }
 
 async function deleteFotosFromStorage(paths: string[]): Promise<void> {
@@ -259,10 +259,7 @@ async function replaceGastoSelections(almuerzoId: string, optionIds: string[]): 
   if (insErr) throw insErr
 }
 
-export async function createAlmuerzo(
-  input: AlmuerzoInput,
-  newFiles: File[],
-): Promise<Almuerzo> {
+export async function createAlmuerzo(input: AlmuerzoInput, newFiles: File[]): Promise<void> {
   if (newFiles.length > MAX_FOTOS_ALMUERZO) {
     throw new Error(`Máximo ${MAX_FOTOS_ALMUERZO} fotos`)
   }
@@ -297,24 +294,22 @@ export async function createAlmuerzo(
   const almuerzoId = String(row.id)
 
   try {
-    await replaceGastoSelections(almuerzoId, input.gasto_option_ids)
-
     if (newFiles.length === 0) {
-      const full = await getAlmuerzo(almuerzoId)
-      if (!full) throw new Error('No se pudo cargar el almuerzo creado.')
-      return full
+      await replaceGastoSelections(almuerzoId, input.gasto_option_ids)
+      return
     }
 
-    const paths = await uploadFotos(userId, almuerzoId, newFiles)
+    const [, paths] = await Promise.all([
+      replaceGastoSelections(almuerzoId, input.gasto_option_ids),
+      uploadFotos(userId, almuerzoId, newFiles),
+    ])
+
     const { error: upErr } = await supabase
       .from(TABLE)
       .update({ photo_paths: paths })
       .eq('id', almuerzoId)
 
     if (upErr) throw upErr
-    const full = await getAlmuerzo(almuerzoId)
-    if (!full) throw new Error('No se pudo cargar el almuerzo creado.')
-    return full
   } catch (e) {
     await supabase.from(TABLE).delete().eq('id', almuerzoId)
     throw e
@@ -327,13 +322,22 @@ export async function updateAlmuerzo(
   /** Rutas que se mantienen (las que el usuario no ha quitado) */
   keepPaths: string[],
   newFiles: File[],
-): Promise<Almuerzo> {
-  await getUserIdOrThrow()
+): Promise<void> {
+  const userId = await getUserIdOrThrow()
 
-  const existing = await getAlmuerzo(id)
-  if (!existing) throw new Error('Almuerzo no encontrado')
+  const { data: existingRow, error: existingErr } = await supabase
+    .from(TABLE)
+    .select('photo_paths')
+    .eq('id', id)
+    .maybeSingle()
 
-  const removed = existing.photo_paths.filter((p) => !keepPaths.includes(p))
+  if (existingErr) throw existingErr
+  if (!existingRow) throw new Error('Almuerzo no encontrado')
+
+  const rec = existingRow as Record<string, unknown>
+  const prevPaths = Array.isArray(rec.photo_paths) ? (rec.photo_paths as string[]) : []
+
+  const removed = prevPaths.filter((p) => !keepPaths.includes(p))
   if (removed.length > 0) {
     await deleteFotosFromStorage(removed)
   }
@@ -342,11 +346,11 @@ export async function updateAlmuerzo(
     throw new Error(`Máximo ${MAX_FOTOS_ALMUERZO} fotos en total`)
   }
 
-  const userId = await getUserIdOrThrow()
-  const uploaded = newFiles.length > 0 ? await uploadFotos(userId, id, newFiles) : []
+  const [uploaded] = await Promise.all([
+    newFiles.length > 0 ? uploadFotos(userId, id, newFiles) : Promise.resolve<string[]>([]),
+    replaceGastoSelections(id, input.gasto_option_ids),
+  ])
   const photo_paths = [...keepPaths, ...uploaded]
-
-  await replaceGastoSelections(id, input.gasto_option_ids)
 
   const payload = {
     bar_name: input.bar_name,
@@ -367,9 +371,6 @@ export async function updateAlmuerzo(
   const { error } = await supabase.from(TABLE).update(payload).eq('id', id)
 
   if (error) throw error
-  const full = await getAlmuerzo(id)
-  if (!full) throw new Error('Almuerzo no encontrado tras actualizar.')
-  return full
 }
 
 export async function deleteAlmuerzo(id: string): Promise<void> {
