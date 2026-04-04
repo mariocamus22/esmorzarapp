@@ -1378,15 +1378,9 @@
   font-weight: 400;
 }
 
-.form-step1-search-input::placeholder {
-  color: var(--app-text-muted, #9e9e9e);
-  font-weight: 400;
-  font-size: 0.8125rem;
-  line-height: 1.35;
-}
-
 .form-step1-search-input:focus {
   outline: none;
+  border-style: solid;
   border-color: var(--app-accent, #f5a623);
   box-shadow: 0 0 0 2px var(--app-accent-soft, rgba(245, 166, 35, 0.2));
 }
@@ -1503,25 +1497,56 @@ button.form-flow-back:hover {
   text-align: center;
   min-width: 0;
   padding: 0 0.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.form-mid-head-date {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: #f5a623;
 }
 
 .form-mid-bar-title {
-  margin: 0 0 0.2rem;
-  font-size: 1.125rem;
+  margin: 0;
+  font-size: clamp(1.2rem, 5vw, 1.45rem);
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   color: var(--app-text, #1a1a1a);
   word-break: break-word;
 }
 
-.form-mid-bar-subtitle {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.35;
-  color: var(--app-text-muted, #9e9e9e);
+.form-mid-head-loc {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 0.1rem;
+  min-width: 0;
+  width: 100%;
+  text-align: left;
+}
+
+.form-mid-head-pin {
+  flex-shrink: 0;
+  color: #f5a623;
+  margin-top: 0.2em;
+}
+
+.form-mid-head-loc-text {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #555048;
   overflow-wrap: anywhere;
   word-break: break-word;
+  min-width: 0;
 }
 
 .form-mid-tabs {
@@ -1628,14 +1653,50 @@ button.form-flow-back:hover {
   font-weight: 400;
 }
 
-.form-boc-pill-input::placeholder {
-  color: var(--app-text-muted, #9e9e9e);
-}
-
 .form-boc-pill-input:focus {
   outline: none;
+  border-style: solid;
   border-color: var(--app-accent, #f5a623);
   box-shadow: 0 0 0 2px var(--app-accent-soft, rgba(245, 166, 35, 0.2));
+}
+
+/* Placeholders y estado “sin rellenar” unificados (formulario almuerzo) */
+.form-step1-search-input::placeholder,
+.form-boc-pill-input::placeholder,
+.form-step5-review-textarea::placeholder,
+.form-step5-price-input::placeholder,
+.form-drink-other-input::placeholder {
+  color: var(--app-text-muted, #8a8478);
+  opacity: 0.55;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.form-step1-search-input:placeholder-shown:not(:focus),
+.form-boc-pill-input:placeholder-shown:not(:focus) {
+  border-style: dashed;
+  border-width: 1px;
+  border-color: rgba(138, 132, 120, 0.38);
+  background: rgba(245, 243, 238, 0.62);
+}
+
+.form-step5-review-textarea:placeholder-shown:not(:focus) {
+  border-style: dashed;
+  border-color: rgba(138, 132, 120, 0.42);
+  background: rgba(245, 243, 238, 0.65);
+}
+
+.form-step5-price-input:placeholder-shown:not(:focus) {
+  border-style: dashed;
+  border-color: rgba(138, 132, 120, 0.42);
+  background: rgba(245, 243, 238, 0.65);
+}
+
+.form-drink-other-input:placeholder-shown:not(:focus) {
+  border-style: dashed;
+  border-width: 1px;
+  border-color: rgba(138, 132, 120, 0.38);
+  background: rgba(245, 243, 238, 0.62);
 }
 
 .form-gasto-grid {
@@ -1857,12 +1918,9 @@ button.form-flow-back:hover {
   font-weight: 400;
 }
 
-.form-drink-other-input::placeholder {
-  color: var(--app-text-muted, #9e9e9e);
-}
-
 .form-drink-other-input:focus {
   outline: none;
+  border-style: solid;
   border-color: var(--app-accent, #f5a623);
   box-shadow: 0 0 0 2px var(--app-accent-soft, rgba(245, 166, 35, 0.2));
 }
@@ -1973,49 +2031,66 @@ button.form-flow-back:hover {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
-.form-summary-bar {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--app-text, #2c2419);
-  word-break: break-word;
-}
-
 .form-summary-header {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
+  align-items: stretch;
 }
 
-.form-summary-city {
+.form-summary-head-date {
   margin: 0;
   font-size: 0.8125rem;
   font-weight: 500;
+  line-height: 1.3;
   letter-spacing: 0.01em;
-  color: var(--home-orange, #f5a623);
-  line-height: 1.35;
-  overflow-wrap: anywhere;
+  color: #f5a623;
+}
+
+.form-summary-head-title {
+  margin: 0.2rem 0 0;
+  font-size: clamp(1.35rem, 6vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #1a0f08;
   word-break: break-word;
 }
 
-.form-summary-date {
+.form-summary-head-loc {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.35rem;
-  margin-top: 0.15rem;
+  margin-top: 0.45rem;
+  min-width: 0;
 }
 
-.form-summary-date-icon {
+.form-summary-head-pin {
   flex-shrink: 0;
-  color: var(--home-orange, #f5a623);
+  color: #f5a623;
+  margin-top: 0.2em;
 }
 
-.form-summary-date-text {
+.form-summary-head-loc-text {
   font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.3;
-  color: #4a4540;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #555048;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.form-summary-drink-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.form-summary-drink-chip-emoji {
+  flex-shrink: 0;
+  font-size: 1.125rem;
+  line-height: 1;
 }
 
 .form-summary-divider-wrap {
@@ -2115,12 +2190,9 @@ button.form-flow-back:hover {
     box-shadow 0.15s ease;
 }
 
-.form-step5-review-textarea::placeholder {
-  color: var(--app-text-muted, #9e9e9e);
-}
-
 .form-step5-review-textarea:focus {
   outline: none;
+  border-style: solid;
   border-color: var(--app-accent, #f5a623);
   box-shadow: 0 0 0 2px var(--app-accent-soft, rgba(245, 166, 35, 0.2));
 }
@@ -2157,20 +2229,6 @@ button.form-flow-back:hover {
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease;
-}
-
-.form-step5-price-input::placeholder {
-  color: var(--app-text-muted, #8a8478);
-  opacity: 0.55;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.form-step5-price-input:placeholder-shown {
-  border-style: dashed;
-  border-color: rgba(138, 132, 120, 0.42);
-  background: rgba(245, 243, 238, 0.65);
-  color: var(--app-text, #1a1a1a);
 }
 
 .form-step5-price-input:focus {
@@ -2277,19 +2335,23 @@ button.form-flow-back:hover {
     box-shadow: none;
   }
 
-  .form-summary-bar {
+  .form-summary-head-title {
     color: var(--app-text, #f5f3ee);
   }
 
-  .form-summary-city {
-    color: #f5a623;
-  }
-
-  .form-summary-date-text {
-    color: var(--color-muted, #c9c4bc);
+  .form-summary-head-loc-text {
+    color: var(--color-muted, #b8b3ab);
   }
 
   .form-summary-boc-name {
+    color: var(--app-text, #f5f3ee);
+  }
+
+  .form-mid-head-loc-text {
+    color: var(--color-muted, #b8b3ab);
+  }
+
+  .form-mid-bar-title {
     color: var(--app-text, #f5f3ee);
   }
 
@@ -2310,13 +2372,25 @@ button.form-flow-back:hover {
     color: var(--app-text, #f5f3ee);
   }
 
-  .form-step5-price-input:placeholder-shown {
+  .form-step1-search-input:placeholder-shown:not(:focus),
+  .form-boc-pill-input:placeholder-shown:not(:focus) {
+    background: rgba(0, 0, 0, 0.18);
+    border-color: var(--app-border, #5c5a54);
+  }
+
+  .form-step5-review-textarea:placeholder-shown:not(:focus),
+  .form-step5-price-input:placeholder-shown:not(:focus) {
     background: rgba(0, 0, 0, 0.2);
     border-color: var(--app-border, #5c5a54);
   }
 
   .form-step5-price-input:focus:placeholder-shown {
     background: var(--app-surface, #2a2926);
+  }
+
+  .form-drink-other-input:placeholder-shown:not(:focus) {
+    background: rgba(0, 0, 0, 0.18);
+    border-color: var(--app-border, #5c5a54);
   }
 
   .form-step5-photo-add {

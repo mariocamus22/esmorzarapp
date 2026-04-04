@@ -201,11 +201,16 @@ function IconDrinkTab(props: { className?: string }) {
   )
 }
 
-function IconHistoryCalendar({ className }: { className?: string }) {
+function IconLocationPin({ className }: { className?: string }) {
   return (
-    <svg className={className} width={15} height={15} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
-      <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg className={className} width={12} height={12} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 21c0 0 7-4.55 7-10a7 7 0 10-14 0c0 5.45 7 10 7 10z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="11" r="2.25" stroke="currentColor" strokeWidth="2" />
     </svg>
   )
 }
@@ -243,6 +248,7 @@ const FORM_HISTORY_STATE_KEY = 'almuerzoFormStep' as const
 
 function FormSteps234Shell({
   step,
+  mealDate,
   barName,
   barSubtitle,
   closeHref,
@@ -253,6 +259,7 @@ function FormSteps234Shell({
   children,
 }: {
   step: MidStep
+  mealDate: string
   barName: string
   barSubtitle: string
   closeHref: string
@@ -267,8 +274,14 @@ function FormSteps234Shell({
       <header className="form-mid-shell-header">
         <span className="form-mid-header-spacer" aria-hidden />
         <div className="form-mid-head-center">
+          <time className="form-mid-head-date" dateTime={mealDate}>
+            {formatFechaLarga(mealDate)}
+          </time>
           <h2 className="form-mid-bar-title">{barName.trim() || 'Bar'}</h2>
-          <p className="form-mid-bar-subtitle">{barSubtitle}</p>
+          <div className="form-mid-head-loc">
+            <IconLocationPin className="form-mid-head-pin" />
+            <span className="form-mid-head-loc-text">{barSubtitle}</span>
+          </div>
         </div>
         <Link to={closeHref} className="form-step1-close" aria-label="Cerrar">
           ×
@@ -778,8 +791,9 @@ export function AlmuerzoForm({ mode }: Props) {
   const gastoSummaryLabels = gastoOptionIds
     .map((id) => labelByOptionId(mealOptions, id))
     .filter(Boolean)
-  const drinkRawLabel = labelByOptionId(mealOptions, bebidaOptionId)
-  const drinkChipText = drinkRawLabel ? beverageSelectLabel(drinkRawLabel) : '—'
+  const bebidaRowSummary = mealOptions.find((r) => r.id === bebidaOptionId.trim())
+  const drinkRawLabel = bebidaRowSummary?.label ?? ''
+  const drinkChipPlain = drinkRawLabel ? beverageSelectLabel(drinkRawLabel) : '—'
   const coffeeChipText = labelByOptionId(mealOptions, cafeOptionId) || '—'
 
   return (
@@ -877,6 +891,7 @@ export function AlmuerzoForm({ mode }: Props) {
       {step === 2 && (
         <FormSteps234Shell
           step={2}
+          mealDate={mealDate}
           barName={barName}
           barSubtitle={barMidSubtitle}
           closeHref={closeHref}
@@ -932,6 +947,7 @@ export function AlmuerzoForm({ mode }: Props) {
       {step === 3 && (
         <FormSteps234Shell
           step={3}
+          mealDate={mealDate}
           barName={barName}
           barSubtitle={barMidSubtitle}
           closeHref={closeHref}
@@ -968,6 +984,7 @@ export function AlmuerzoForm({ mode }: Props) {
       {step === 4 && (
         <FormSteps234Shell
           step={4}
+          mealDate={mealDate}
           barName={barName}
           barSubtitle={barMidSubtitle}
           closeHref={closeHref}
@@ -1014,13 +1031,13 @@ export function AlmuerzoForm({ mode }: Props) {
             <div className="form-step5-body">
               <div className="form-summary-card">
                 <div className="form-summary-header">
-                  <h2 className="form-summary-bar">{barName.trim() || '—'}</h2>
-                  <p className="form-summary-city">{barMidSubtitle.trim() || '—'}</p>
-                  <div className="form-summary-date">
-                    <IconHistoryCalendar className="form-summary-date-icon" />
-                    <time className="form-summary-date-text" dateTime={mealDate}>
-                      {formatFechaLarga(mealDate)}
-                    </time>
+                  <time className="form-summary-head-date" dateTime={mealDate}>
+                    {formatFechaLarga(mealDate)}
+                  </time>
+                  <h2 className="form-summary-head-title">{barName.trim() || '—'}</h2>
+                  <div className="form-summary-head-loc">
+                    <IconLocationPin className="form-summary-head-pin" />
+                    <span className="form-summary-head-loc-text">{barMidSubtitle}</span>
                   </div>
                 </div>
                 <div className="form-summary-divider-wrap" aria-hidden>
@@ -1044,7 +1061,16 @@ export function AlmuerzoForm({ mode }: Props) {
                 <div className="form-summary-drink-coffee">
                   <div className="form-summary-drink-coffee-col">
                     <h3 className="detail-static-label">Bebida</h3>
-                    <span className="detail-static-chip">{drinkChipText}</span>
+                    <span className="detail-static-chip form-summary-drink-chip">
+                      {drinkRawLabel ? (
+                        <>
+                          <DrinkOptionEmoji label={drinkRawLabel} className="form-summary-drink-chip-emoji" />
+                          <span>{drinkChipPlain}</span>
+                        </>
+                      ) : (
+                        drinkChipPlain
+                      )}
+                    </span>
                   </div>
                   <div className="form-summary-drink-coffee-col">
                     <h3 className="detail-static-label">Café</h3>
@@ -1062,7 +1088,12 @@ export function AlmuerzoForm({ mode }: Props) {
                   id="form-step5-review"
                   className="form-step5-review-textarea"
                   value={review}
-                  onChange={(e) => setReview(e.target.value)}
+                  onChange={(e) => {
+                    const raw = e.target.value
+                    const next =
+                      raw.length > 0 ? raw.charAt(0).toLocaleUpperCase('es') + raw.slice(1) : raw
+                    setReview(next)
+                  }}
                   rows={4}
                   placeholder="El pan estaba un poco duro y de cantidad más bien pobre"
                 />
