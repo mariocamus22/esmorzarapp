@@ -37,6 +37,8 @@ type Props = {
 
 const BAR_SEARCH_PLACEHOLDER = 'Busca un bar… (ej. La Mesedora, Algemesí)'
 
+const BOCADILLO_NAME_PLACEHOLDER = 'Ej: Chivito, Tortilla francesa con longanizas...'
+
 const ES_MONTHS = [
   'enero',
   'febrero',
@@ -140,14 +142,22 @@ function IconChevronDown(props: { className?: string }) {
   )
 }
 
-function IconBurger(props: { className?: string }) {
+/** Bocadillo / sándwich (vista lateral), no menú hamburguesa */
+function IconSandwich(props: { className?: string }) {
   return (
     <svg className={props.className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
-        d="M5 7h14M5 12h14M5 17h10"
+        d="M5.5 9h13a2 2 0 012 2v.5H3.5V11a2 2 0 012-2z"
         stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+      <path d="M4 13.25h16M4 15h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M5.5 19h13a2 2 0 002-2v-.5H3.5v.5a2 2 0 002 2z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
       />
     </svg>
   )
@@ -240,6 +250,8 @@ function labelByOptionId(rows: MealOptionRow[], id: string): string {
 
 type MidStep = 2 | 3 | 4
 
+const FORM_HISTORY_STATE_KEY = 'almuerzoFormStep' as const
+
 function FormSteps234Shell({
   step,
   barName,
@@ -269,7 +281,7 @@ function FormSteps234Shell({
           <h2 className="form-mid-bar-title">{barName.trim() || 'Bar'}</h2>
           <p className="form-mid-bar-subtitle">{barSubtitle}</p>
         </div>
-        <Link to={closeHref} className="form-mid-close-x" aria-label="Cerrar">
+        <Link to={closeHref} className="form-step1-close" aria-label="Cerrar">
           ×
         </Link>
       </header>
@@ -280,11 +292,8 @@ function FormSteps234Shell({
           className={`form-mid-tab ${step === 2 ? 'is-active' : ''}`}
           onClick={() => onTab(2)}
         >
-          <IconBurger className="form-mid-tab-icon" />
-          <span className="form-mid-tab-text form-mid-tab-text--stack">
-            <span>Bocadillo</span>
-            <span>gasto opcional</span>
-          </span>
+          <IconSandwich className="form-mid-tab-icon" />
+          <span className="form-mid-tab-text">Bocadillo y Gasto</span>
         </button>
         <button
           type="button"
@@ -572,6 +581,23 @@ export function AlmuerzoForm({ mode }: Props) {
 
   const closeHref = mode === 'create' ? '/' : `/almuerzo/${id}`
 
+  const pushFormHistory = useCallback((next: 2 | 3 | 4 | 5) => {
+    window.history.pushState({ [FORM_HISTORY_STATE_KEY]: next }, '', window.location.href)
+  }, [])
+
+  useEffect(() => {
+    function onPopState(e: PopStateEvent) {
+      const v = (e.state as Record<string, unknown> | null)?.[FORM_HISTORY_STATE_KEY]
+      if (typeof v === 'number' && v >= 1 && v <= 5) {
+        setStep(v)
+      } else {
+        setStep(1)
+      }
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
   function openDatePicker() {
     const el = dateInputRef.current
     if (!el) return
@@ -605,6 +631,7 @@ export function AlmuerzoForm({ mode }: Props) {
       setError('El nombre del bar es obligatorio.')
       return
     }
+    pushFormHistory(2)
     setStep(2)
   }
 
@@ -615,15 +642,17 @@ export function AlmuerzoForm({ mode }: Props) {
 
   function handleMidTab(s: MidStep) {
     setError(null)
-    if (s <= step) {
-      setStep(s)
+    if (s < step) {
+      window.history.go(s - step)
       return
     }
+    if (s === step) return
     if (s === 3) {
       if (!step2Complete()) {
         setError('Completa el nombre del bocadillo antes de continuar.')
         return
       }
+      pushFormHistory(3)
       setStep(3)
       return
     }
@@ -636,15 +665,14 @@ export function AlmuerzoForm({ mode }: Props) {
         setError('Elige una bebida antes de continuar.')
         return
       }
+      pushFormHistory(4)
       setStep(4)
     }
   }
 
   function handleMidAtras() {
     setError(null)
-    if (step === 2) setStep(1)
-    else if (step === 3) setStep(2)
-    else if (step === 4) setStep(3)
+    window.history.back()
   }
 
   function handleMidSiguiente() {
@@ -654,18 +682,21 @@ export function AlmuerzoForm({ mode }: Props) {
         setError('Completa el nombre del bocadillo antes de continuar.')
         return
       }
+      pushFormHistory(3)
       setStep(3)
     } else if (step === 3) {
       if (!step3Complete()) {
         setError('Elige una bebida antes de continuar.')
         return
       }
+      pushFormHistory(4)
       setStep(4)
     } else if (step === 4) {
       if (!step4Complete()) {
         setError('Elige un café antes de continuar.')
         return
       }
+      pushFormHistory(5)
       setStep(5)
     }
   }
@@ -864,22 +895,28 @@ export function AlmuerzoForm({ mode }: Props) {
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">Bocadillo</h3>
             <div className="form-boc-pill-wrap">
-              <IconBurger className="form-boc-pill-icon" />
+              <IconSandwich className="form-boc-pill-icon" />
               <input
                 id="form-step2-boc"
                 className="form-boc-pill-input"
                 type="text"
                 value={bocName}
-                onChange={(e) => setBocName(e.target.value)}
+                onChange={(e) => {
+                  const raw = e.target.value
+                  const next =
+                    raw.length > 0 ? raw.charAt(0).toLocaleUpperCase('es') + raw.slice(1) : raw
+                  setBocName(next)
+                }}
                 autoComplete="off"
-                placeholder="Joselito, Chipirones con cebolla…"
+                autoCapitalize="sentences"
+                placeholder={BOCADILLO_NAME_PLACEHOLDER}
               />
             </div>
           </section>
 
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">
-              Gasto <span className="muted">(opcional, múltiple)</span>
+              Gasto <span className="muted">(opcional)</span>
             </h3>
             <div className="form-gasto-grid" role="group" aria-label="Gasto en el bar (opcional)">
               {gastoOpts.map((opt) => {
@@ -988,7 +1025,7 @@ export function AlmuerzoForm({ mode }: Props) {
                 <p className="form-summary-loc">{barMidSubtitle}</p>
                 <div className="form-summary-rows">
                   <div className="form-summary-row">
-                    <IconBurger className="form-summary-icon" />
+                    <IconSandwich className="form-summary-icon" />
                     <p className="form-summary-text">{bocSummaryText}</p>
                   </div>
                   <div className="form-summary-row">
@@ -1101,7 +1138,7 @@ export function AlmuerzoForm({ mode }: Props) {
             </div>
 
             <footer className="form-mid-footer-row form-step5-footer">
-              <button type="button" className="form-step5-btn-atras" onClick={() => setStep(4)}>
+              <button type="button" className="form-step5-btn-atras" onClick={() => window.history.back()}>
                 Atrás
               </button>
               <button type="submit" className="form-mid-btn-siguiente" disabled={saving}>
