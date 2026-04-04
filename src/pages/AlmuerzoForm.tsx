@@ -1,6 +1,8 @@
 import {
   type FormEvent,
   type ReactNode,
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -20,7 +22,9 @@ import {
 import { BarPlaceSearch, type BarPlaceResolved } from '../components/BarPlaceSearch'
 import { DrinkOptionEmoji } from '../components/DrinkOptionEmoji'
 import { IconEsmorzar } from '../components/IconEsmorzar'
-import { AlmuerzoSaveSplash } from '../components/AlmuerzoSaveSplash'
+import { AlmuerzoSaveSplashFallback } from '../components/AlmuerzoSaveSplashFallback'
+
+const AlmuerzoSaveSplashLazy = lazy(() => import('../components/AlmuerzoSaveSplash'))
 import { MapsStepDiagnostics } from '../components/MapsStepDiagnostics'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
@@ -359,6 +363,8 @@ export function AlmuerzoForm({ mode }: Props) {
 
   const [loadingEdit, setLoadingEdit] = useState(mode === 'edit')
   const [saving, setSaving] = useState(false)
+  /** Remonta la splash de guardado para reiniciar mensajes y animaciones en cada envío. */
+  const [saveSplashKey, setSaveSplashKey] = useState(0)
   const [error, setError] = useState<string | null>(null)
   /** Remonta el input con Places (uncontrolled) al limpiar el bar para vaciar el DOM. */
   const [barFieldKey, setBarFieldKey] = useState(0)
@@ -373,6 +379,12 @@ export function AlmuerzoForm({ mode }: Props) {
       newPreviewUrls.forEach((u) => URL.revokeObjectURL(u))
     }
   }, [newPreviewUrls])
+
+  /** Precarga el chunk Lottie antes de pulsar «Guardar» (paso resumen). */
+  useEffect(() => {
+    if (step !== 5) return
+    void import('../components/AlmuerzoSaveSplash')
+  }, [step])
 
   useEffect(() => {
     if (!hasSupabaseConfig()) {
@@ -730,6 +742,7 @@ export function AlmuerzoForm({ mode }: Props) {
     )
 
     try {
+      setSaveSplashKey((k) => k + 1)
       setSaving(true)
       if (mode === 'create') {
         await createAlmuerzo(input, newFiles)
@@ -791,7 +804,11 @@ export function AlmuerzoForm({ mode }: Props) {
 
   return (
     <main className={mainClass}>
-      <AlmuerzoSaveSplash visible={saving} />
+      {saving && (
+        <Suspense fallback={<AlmuerzoSaveSplashFallback />}>
+          <AlmuerzoSaveSplashLazy key={saveSplashKey} visible />
+        </Suspense>
+      )}
       {error && (
         <p className="banner banner-error" role="alert">
           {error}
