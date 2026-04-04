@@ -1527,14 +1527,14 @@ button.form-flow-back:hover {
 }
 
 .form-mid-head-loc {
-  display: flex;
+  display: inline-flex;
   align-items: flex-start;
   justify-content: center;
   gap: 0.35rem;
   margin-top: 0.1rem;
   min-width: 0;
-  width: 100%;
-  text-align: left;
+  max-width: 100%;
+  text-align: center;
 }
 
 .form-mid-head-pin {
@@ -1544,13 +1544,14 @@ button.form-flow-back:hover {
 }
 
 .form-mid-head-loc-text {
+  min-width: 0;
+  text-align: center;
   font-size: 0.8125rem;
   font-weight: 400;
   line-height: 1.4;
   color: #555048;
   overflow-wrap: anywhere;
   word-break: break-word;
-  min-width: 0;
 }
 
 .form-mid-tabs {
@@ -2068,14 +2069,14 @@ button.form-flow-back:hover {
 }
 
 .form-summary-head-loc {
-  display: flex;
+  display: inline-flex;
   align-items: flex-start;
   justify-content: center;
   gap: 0.35rem;
   margin-top: 0.45rem;
   min-width: 0;
-  width: 100%;
-  text-align: left;
+  max-width: 100%;
+  text-align: center;
 }
 
 .form-summary-head-pin {
@@ -2085,13 +2086,14 @@ button.form-flow-back:hover {
 }
 
 .form-summary-head-loc-text {
+  min-width: 0;
+  text-align: center;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.4;
   color: #555048;
   overflow-wrap: anywhere;
   word-break: break-word;
-  min-width: 0;
 }
 
 .form-summary-drink-chip {
