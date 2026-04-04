@@ -95,7 +95,24 @@ function IconPencil({ className }: { className?: string }) {
 const TAP_MOVE_MAX_PX = 14
 const DOUBLE_TAP_MS = 380
 const DOUBLE_TAP_DIST_PX = 36
+const SINGLE_TAP_CLOSE_DELAY_MS = DOUBLE_TAP_MS + 50
 const ZOOM_SCALE = 2.25
+
+const PHOTO_LIGHTBOX_HISTORY_KEY = 'esmorzarPhotoLightbox' as const
+
+function IconChevronPhoto({ dir, className }: { dir: 'left' | 'right'; className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" width={24} height={24} fill="none" aria-hidden>
+      <path
+        d={dir === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'}
+        stroke="currentColor"
+        strokeWidth="2.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
 
 function readCarouselIndex(el: HTMLDivElement | null, n: number): number {
   if (!el || n <= 0) return 0
@@ -117,6 +134,8 @@ function DetailPhotoLightbox({ paths, startIndex, onClose }: DetailPhotoLightbox
   const closeRef = useRef<HTMLButtonElement>(null)
   const innerRefs = useRef<Map<number, HTMLDivElement>>(new Map())
   const lastTapRef = useRef<TapRef>(null)
+  const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const zoomedRef = useRef(false)
   const gestureRef = useRef<{
     slide: number
     x0: number
@@ -128,6 +147,21 @@ function DetailPhotoLightbox({ paths, startIndex, onClose }: DetailPhotoLightbox
   const [i, setI] = useState(() => Math.min(Math.max(0, startIndex), Math.max(0, n - 1)))
   const [zoomed, setZoomed] = useState(false)
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
+
+  useEffect(() => {
+    zoomedRef.current = zoomed
+  }, [zoomed])
+
+  const clearSingleTapTimer = useCallback(() => {
+    if (singleTapTimerRef.current != null) {
+      window.clearTimeout(singleTapTimerRef.current)
+      singleTapTimerRef.current = null
+    }
+  }, [])
+
+  const closeViaHistory = useCallback(() => {
+    window.history.back()
+  }, [])
 
   useLayoutEffect(() => {
     const el = stripRef.current
@@ -153,12 +187,35 @@ function DetailPhotoLightbox({ paths, startIndex, onClose }: DetailPhotoLightbox
   }, [])
 
   useEffect(() => {
+    let active = true
+    window.history.pushState({ [PHOTO_LIGHTBOX_HISTORY_KEY]: true }, '')
+
+    const onPop = () => {
+      if (active) onClose()
+    }
+    window.addEventListener('popstate', onPop)
+
+    return () => {
+      active = false
+      window.removeEventListener('popstate', onPop)
+      const st = window.history.state as Record<string, unknown> | null
+      if (st?.[PHOTO_LIGHTBOX_HISTORY_KEY] === true) {
+        window.history.back()
+      }
+    }
+  }, [onClose])
+
+  useEffect(() => {
+    return () => clearSingleTapTimer()
+  }, [clearSingleTapTimer])
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') closeViaHistory()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [closeViaHistory])
 
   const syncIndexFromStrip = useCallback(() => {
     if (zoomed) return
@@ -190,6 +247,8 @@ function DetailPhotoLightbox({ paths, startIndex, onClose }: DetailPhotoLightbox
   const goDot = (idx: number) => {
     const el = stripRef.current
     if (!el) return
+    clearSingleTapTimer()
+    lastTapRef.current = null
     setZoomed(false)
     setZoomOrigin({ x: 50, y: 50 })
     el.scrollTo({ left: idx * el.clientWidth, behavior: 'smooth' })
@@ -217,6 +276,7 @@ function DetailPhotoLightbox({ paths, startIndex, onClose }: DetailPhotoLightbox
     if (!g || g.slide !== slideIndex) return
 
     if (g.moved || Math.hypot(e.clientX - g.x0, e.clientY - g.y0) > TAP_MOVE_MAX_PX) {
+      clearSingleTapTimer()
       lastTapRef.current = null
       return
     }
@@ -229,80 +289,133 @@ function DetailPhotoLightbox({ paths, startIndex, onClose }: DetailPhotoLightbox
     const y = e.clientY
     const prev = lastTapRef.current
 
-    if (!prev || now - prev.t > DOUBLE_TAP_MS || Math.hypot(x - prev.x, y - prev.y) > DOUBLE_TAP_DIST_PX) {
-      lastTapRef.current = { t: now, x, y }
+    if (
+      prev &&
+      now - prev.t <= DOUBLE_TAP_MS &&
+      Math.hypot(x - prev.x, y - prev.y) <= DOUBLE_TAP_DIST_PX
+    ) {
+      clearSingleTapTimer()
+      lastTapRef.current = null
+      e.preventDefault()
+
+      if (zoomedRef.current && slideIndex === i) {
+        setZoomed(false)
+        setZoomOrigin({ x: 50, y: 50 })
+        return
+      }
+
+      if (!zoomedRef.current) {
+        const rect = inner.getBoundingClientRect()
+        const w = rect.width || 1
+        const h = rect.height || 1
+        setZoomOrigin({
+          x: Math.min(100, Math.max(0, ((x - rect.left) / w) * 100)),
+          y: Math.min(100, Math.max(0, ((y - rect.top) / h) * 100)),
+        })
+        setZoomed(true)
+      }
+
       return
     }
 
-    lastTapRef.current = null
-    e.preventDefault()
+    lastTapRef.current = { t: now, x, y }
 
-    if (zoomed && slideIndex === i) {
-      setZoomed(false)
-      setZoomOrigin({ x: 50, y: 50 })
-      return
-    }
-
-    if (!zoomed) {
-      const rect = inner.getBoundingClientRect()
-      const w = rect.width || 1
-      const h = rect.height || 1
-      setZoomOrigin({
-        x: Math.min(100, Math.max(0, ((x - rect.left) / w) * 100)),
-        y: Math.min(100, Math.max(0, ((y - rect.top) / h) * 100)),
-      })
-      setZoomed(true)
-    }
+    clearSingleTapTimer()
+    singleTapTimerRef.current = window.setTimeout(() => {
+      singleTapTimerRef.current = null
+      lastTapRef.current = null
+      if (zoomedRef.current) {
+        setZoomed(false)
+        setZoomOrigin({ x: 50, y: 50 })
+      } else {
+        closeViaHistory()
+      }
+    }, SINGLE_TAP_CLOSE_DELAY_MS)
   }
 
   const safeI = n === 0 ? 0 : Math.min(i, n - 1)
+  const showArrows = n > 1 && !zoomed
 
   return createPortal(
     <div className="detail-photo-lightbox" role="dialog" aria-modal="true" aria-label="Galería de fotos">
       <div className="detail-photo-lightbox-top">
-        <p className="detail-photo-lightbox-hint">Desliza entre fotos · doble toque para ampliar</p>
-        <button ref={closeRef} type="button" className="detail-photo-lightbox-close" onClick={onClose}>
-          Cerrar
+        <button
+          ref={closeRef}
+          type="button"
+          className="detail-photo-lightbox-close"
+          onClick={closeViaHistory}
+          aria-label="Cerrar"
+        >
+          ×
         </button>
       </div>
-      <div
-        ref={stripRef}
-        className={`detail-photo-lightbox-strip${zoomed ? ' is-zoomed' : ''}`}
-        aria-label="Carrusel de fotos"
-      >
-        {paths.map((p, idx) => (
-          <div
-            key={`${p}-lb-${idx}`}
-            className={`detail-photo-lightbox-slide${zoomed && idx === safeI ? ' is-zoomed' : ''}`}
-            onPointerDown={(e) => onSlidePointerDown(idx, e)}
-            onPointerMove={onSlidePointerMove}
-            onPointerUp={(e) => onSlidePointerUp(idx, e)}
-            onPointerCancel={() => {
-              gestureRef.current = null
-            }}
+      <p className="detail-photo-lightbox-hint detail-photo-lightbox-hint--below">
+        {n > 1
+          ? 'Flechas o desliza para más fotos · un toque para salir · doble toque para ampliar'
+          : 'Un toque en la foto o × para salir · doble toque para ampliar'}
+      </p>
+      <div className="detail-photo-lightbox-main">
+        {showArrows && (
+          <button
+            type="button"
+            className="detail-photo-lightbox-arrow detail-photo-lightbox-arrow--prev"
+            onClick={() => goDot(safeI - 1)}
+            disabled={safeI <= 0}
+            aria-label="Foto anterior"
           >
-            <div className="detail-photo-lightbox-zoom-wrap">
-              <div
-                ref={(el) => {
-                  if (el) innerRefs.current.set(idx, el)
-                  else innerRefs.current.delete(idx)
-                }}
-                className={`detail-photo-lightbox-zoom-inner${zoomed && idx === safeI ? ' is-zoomed' : ''}`}
-                style={{
-                  transform: zoomed && idx === safeI ? `scale(${ZOOM_SCALE})` : 'scale(1)',
-                  transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
-                }}
-              >
-                <img
-                  className="detail-photo-lightbox-img"
-                  src={getFotoPublicUrl(p)}
-                  alt={`Foto ${idx + 1} de ${n}`}
-                  draggable={false}
-                />
+            <IconChevronPhoto dir="left" className="detail-photo-lightbox-arrow-icon" />
+          </button>
+        )}
+        <div
+          ref={stripRef}
+          className={`detail-photo-lightbox-strip${zoomed ? ' is-zoomed' : ''}`}
+          aria-label="Carrusel de fotos"
+        >
+          {paths.map((p, idx) => (
+            <div
+              key={`${p}-lb-${idx}`}
+              className={`detail-photo-lightbox-slide${zoomed && idx === safeI ? ' is-zoomed' : ''}`}
+              onPointerDown={(e) => onSlidePointerDown(idx, e)}
+              onPointerMove={onSlidePointerMove}
+              onPointerUp={(e) => onSlidePointerUp(idx, e)}
+              onPointerCancel={() => {
+                gestureRef.current = null
+              }}
+            >
+              <div className="detail-photo-lightbox-zoom-wrap">
+                <div
+                  ref={(el) => {
+                    if (el) innerRefs.current.set(idx, el)
+                    else innerRefs.current.delete(idx)
+                  }}
+                  className={`detail-photo-lightbox-zoom-inner${zoomed && idx === safeI ? ' is-zoomed' : ''}`}
+                  style={{
+                    transform: zoomed && idx === safeI ? `scale(${ZOOM_SCALE})` : 'scale(1)',
+                    transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
+                  }}
+                >
+                  <img
+                    className="detail-photo-lightbox-img"
+                    src={getFotoPublicUrl(p)}
+                    alt={`Foto ${idx + 1} de ${n}`}
+                    draggable={false}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        {showArrows && (
+          <button
+            type="button"
+            className="detail-photo-lightbox-arrow detail-photo-lightbox-arrow--next"
+            onClick={() => goDot(safeI + 1)}
+            disabled={safeI >= n - 1}
+            aria-label="Foto siguiente"
+          >
+            <IconChevronPhoto dir="right" className="detail-photo-lightbox-arrow-icon" />
+          </button>
+        )}
       </div>
       {n > 1 && (
         <div className="detail-photo-lightbox-dots" role="tablist" aria-label="Seleccionar foto">
