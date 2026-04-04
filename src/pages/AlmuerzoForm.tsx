@@ -80,6 +80,11 @@ function todayISO(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
+function formatFechaLarga(isoDate: string): string {
+  const d = new Date(`${isoDate}T12:00:00`)
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
 function buildInput(
   barName: string,
   googlePlaceId: string | null,
@@ -168,21 +173,6 @@ function IconSandwich(props: { className?: string }) {
   )
 }
 
-function IconSummaryGasto({ className }: { className?: string }) {
-  return (
-    <svg className={className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M9 5h11l-1 14H8L7 5zM7 5V4a2 2 0 012-2h2a2 2 0 012 2v1"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="M5 9h18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 function IconCameraPlus({ className }: { className?: string }) {
   return (
     <svg className={className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -207,6 +197,15 @@ function IconDrinkTab(props: { className?: string }) {
         strokeWidth="1.75"
         strokeLinejoin="round"
       />
+    </svg>
+  )
+}
+
+function IconHistoryCalendar({ className }: { className?: string }) {
+  return (
+    <svg className={className} width={15} height={15} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   )
 }
@@ -775,14 +774,13 @@ export function AlmuerzoForm({ mode }: Props) {
     .filter(Boolean)
     .join(' ')
 
-  const bocSummaryText = [bocName.trim(), bocIng.trim()].filter(Boolean).join('\n\n') || '—'
-  const gastoSummaryText =
-    gastoOptionIds.length === 0
-      ? '—'
-      : gastoOptionIds.map((id) => labelByOptionId(mealOptions, id)).filter(Boolean).join(', ') ||
-        '—'
-  const drinkSummaryText = labelByOptionId(mealOptions, bebidaOptionId) || '—'
-  const coffeeSummaryText = labelByOptionId(mealOptions, cafeOptionId) || '—'
+  const bocNameSummary = bocName.trim() || '—'
+  const gastoSummaryLabels = gastoOptionIds
+    .map((id) => labelByOptionId(mealOptions, id))
+    .filter(Boolean)
+  const drinkRawLabel = labelByOptionId(mealOptions, bebidaOptionId)
+  const drinkChipText = drinkRawLabel ? beverageSelectLabel(drinkRawLabel) : '—'
+  const coffeeChipText = labelByOptionId(mealOptions, cafeOptionId) || '—'
 
   return (
     <main className={mainClass}>
@@ -1015,33 +1013,49 @@ export function AlmuerzoForm({ mode }: Props) {
           <form className="form-step5" onSubmit={onSubmit}>
             <div className="form-step5-body">
               <div className="form-summary-card">
-                <h2 className="form-summary-bar">{barName.trim() || '—'}</h2>
-                <p className="form-summary-loc">{barMidSubtitle}</p>
-                <div className="form-summary-rows">
-                  <div className="form-summary-row">
-                    <IconSandwich className="form-summary-icon" />
-                    <p className="form-summary-text">{bocSummaryText}</p>
+                <div className="form-summary-header">
+                  <h2 className="form-summary-bar">{barName.trim() || '—'}</h2>
+                  <p className="form-summary-city">{barMidSubtitle.trim() || '—'}</p>
+                  <div className="form-summary-date">
+                    <IconHistoryCalendar className="form-summary-date-icon" />
+                    <time className="form-summary-date-text" dateTime={mealDate}>
+                      {formatFechaLarga(mealDate)}
+                    </time>
                   </div>
-                  <div className="form-summary-row">
-                    <IconSummaryGasto className="form-summary-icon" />
-                    <p className="form-summary-text">{gastoSummaryText}</p>
+                </div>
+                <div className="form-summary-divider-wrap" aria-hidden>
+                  <span className="form-summary-divider" />
+                </div>
+                <div className="form-summary-section">
+                  <h3 className="detail-static-label">Bocadillo y Gasto</h3>
+                  <p className="form-summary-boc-name">{bocNameSummary}</p>
+                  {gastoSummaryLabels.length > 0 ? (
+                    <div className="detail-static-chip-row form-summary-gasto-chips">
+                      {gastoSummaryLabels.map((label, i) => (
+                        <span key={`${label}-${i}`} className="detail-static-chip">
+                          {label}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="detail-empty-val form-summary-gasto-empty">Sin indicar</p>
+                  )}
+                </div>
+                <div className="form-summary-drink-coffee">
+                  <div className="form-summary-drink-coffee-col">
+                    <h3 className="detail-static-label">Bebida</h3>
+                    <span className="detail-static-chip">{drinkChipText}</span>
                   </div>
-                  <div className="form-summary-row form-summary-row--inline">
-                    <span className="form-summary-inline-item">
-                      <IconDrinkTab className="form-summary-icon" />
-                      <span className="form-summary-text form-summary-text--inline">{drinkSummaryText}</span>
-                    </span>
-                    <span className="form-summary-inline-item">
-                      <IconCoffeeTab className="form-summary-icon" />
-                      <span className="form-summary-text form-summary-text--inline">{coffeeSummaryText}</span>
-                    </span>
+                  <div className="form-summary-drink-coffee-col">
+                    <h3 className="detail-static-label">Café</h3>
+                    <span className="detail-static-chip">{coffeeChipText}</span>
                   </div>
                 </div>
               </div>
 
               <div className="form-step5-review-block">
                 <label className="form-step5-review-label" htmlFor="form-step5-review">
-                  Nota personal / Reseña (opcional)
+                  Nota personal <span className="muted">(opcional)</span>
                 </label>
                 <p className="form-step5-review-hint">Este comentario es privado y solo lo podrás ver tú.</p>
                 <textarea
@@ -1050,17 +1064,14 @@ export function AlmuerzoForm({ mode }: Props) {
                   value={review}
                   onChange={(e) => setReview(e.target.value)}
                   rows={4}
-                  placeholder="El bocadillo de calamares estaba espectacular…"
+                  placeholder="El pan estaba un poco duro y de cantidad más bien pobre"
                 />
               </div>
 
               <div className="form-step5-price-block">
-                <div className="form-step5-price-head">
-                  <span className="form-step5-price-title">Precio (€)</span>
-                  <span id="form-step5-price-optional-note" className="form-step5-price-optional">
-                    Opcional
-                  </span>
-                </div>
+                <label className="form-step5-review-label" htmlFor="form-step5-price">
+                  Precio (€) <span className="muted">(opcional)</span>
+                </label>
                 <div className="form-step5-price-row">
                   <input
                     id="form-step5-price"
@@ -1069,8 +1080,7 @@ export function AlmuerzoForm({ mode }: Props) {
                     inputMode="decimal"
                     value={priceStr}
                     onChange={(e) => setPriceStr(e.target.value)}
-                    placeholder="9.50"
-                    aria-describedby="form-step5-price-optional-note"
+                    placeholder="Ej. 7,50"
                   />
                   <input
                     id="form-step5-files"

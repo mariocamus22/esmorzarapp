@@ -1982,61 +1982,101 @@ button.form-flow-back:hover {
   word-break: break-word;
 }
 
-.form-summary-loc {
-  margin: 0.25rem 0 1rem;
+.form-summary-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.form-summary-city {
+  margin: 0;
   font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--home-orange, #f5a623);
   line-height: 1.35;
-  color: var(--app-text-muted, #8a8478);
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-.form-summary-rows {
+.form-summary-date {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.form-summary-date-icon {
+  flex-shrink: 0;
+  color: var(--home-orange, #f5a623);
+}
+
+.form-summary-date-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #4a4540;
+}
+
+.form-summary-divider-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 0.45rem 0 0.35rem;
+}
+
+.form-summary-divider {
+  display: block;
+  width: 72%;
+  max-width: 100%;
+  height: 1px;
+  margin: 0 auto;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(44, 36, 25, 0.055) 22%,
+    rgba(44, 36, 25, 0.055) 78%,
+    transparent 100%
+  );
+}
+
+.form-summary-section {
+  padding-top: 0.2rem;
+}
+
+.form-summary-boc-name {
+  margin: 0.2rem 0 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--app-text, #2c2419);
+  word-break: break-word;
+}
+
+.form-summary-gasto-chips {
+  margin-top: 0.5rem;
+}
+
+.form-summary-gasto-empty {
+  margin-top: 0.45rem;
+}
+
+.form-summary-drink-coffee {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+  margin-top: 1rem;
+  align-items: start;
+}
+
+.form-summary-drink-coffee-col {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.form-summary-row {
-  display: flex;
-  gap: 0.65rem;
+  gap: 0.28rem;
   align-items: flex-start;
-}
-
-.form-summary-icon {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  color: var(--app-accent, #f5a623);
-}
-
-.form-summary-text {
-  margin: 0;
-  flex: 1;
-  min-width: 0;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  line-height: 1.45;
-  color: var(--app-text, #1a1a1a);
-  white-space: pre-line;
-}
-
-.form-summary-row--inline {
-  flex-wrap: wrap;
-  gap: 0.65rem 1.15rem;
-  align-items: center;
-}
-
-.form-summary-inline-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-width: 0;
-}
-
-.form-summary-text--inline {
-  flex: unset;
-  white-space: normal;
 }
 
 .form-step5-review-block {
@@ -2090,24 +2130,9 @@ button.form-flow-back:hover {
   flex-direction: column;
 }
 
-.form-step5-price-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 0.5rem;
-  margin-bottom: 0.4rem;
-}
-
-.form-step5-price-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--app-text, #1a1a1a);
-}
-
-.form-step5-price-optional {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--app-text-muted, #8a8478);
+.form-step5-price-block > .form-step5-review-label {
+  display: block;
+  margin-bottom: 0.45rem;
 }
 
 .form-step5-price-row {
@@ -2135,14 +2160,28 @@ button.form-flow-back:hover {
 }
 
 .form-step5-price-input::placeholder {
-  color: var(--app-text-muted, #9e9e9e);
+  color: var(--app-text-muted, #8a8478);
+  opacity: 0.55;
   font-weight: 500;
+  font-style: italic;
+}
+
+.form-step5-price-input:placeholder-shown {
+  border-style: dashed;
+  border-color: rgba(138, 132, 120, 0.42);
+  background: rgba(245, 243, 238, 0.65);
+  color: var(--app-text, #1a1a1a);
 }
 
 .form-step5-price-input:focus {
   outline: none;
+  border-style: solid;
   border-color: var(--app-accent, #f5a623);
   box-shadow: 0 0 0 2px var(--app-accent-soft, rgba(245, 166, 35, 0.2));
+}
+
+.form-step5-price-input:focus:placeholder-shown {
+  background: #ffffff;
 }
 
 .form-step5-photo-add {
@@ -2242,8 +2281,26 @@ button.form-flow-back:hover {
     color: var(--app-text, #f5f3ee);
   }
 
-  .form-summary-text {
+  .form-summary-city {
+    color: #f5a623;
+  }
+
+  .form-summary-date-text {
+    color: var(--color-muted, #c9c4bc);
+  }
+
+  .form-summary-boc-name {
     color: var(--app-text, #f5f3ee);
+  }
+
+  .form-summary-divider {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 18%,
+      rgba(255, 255, 255, 0.1) 82%,
+      transparent 100%
+    );
   }
 
   .form-step5-review-textarea,
@@ -2251,6 +2308,15 @@ button.form-flow-back:hover {
     background: var(--app-surface, #2a2926);
     border-color: var(--app-border, #4a4843);
     color: var(--app-text, #f5f3ee);
+  }
+
+  .form-step5-price-input:placeholder-shown {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: var(--app-border, #5c5a54);
+  }
+
+  .form-step5-price-input:focus:placeholder-shown {
+    background: var(--app-surface, #2a2926);
   }
 
   .form-step5-photo-add {
