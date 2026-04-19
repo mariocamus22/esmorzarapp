@@ -1,3 +1,4 @@
+import { getEffectiveUserIdForReads } from './effectiveUserStore'
 import { supabase } from './supabaseClient'
 import type {
   Almuerzo,
@@ -27,7 +28,7 @@ const ALMUERZO_SELECT = `
   cafe_opt:meal_options!almuerzos_cafe_option_id_fkey ( id, label )
 `
 
-async function getUserIdOrThrow(): Promise<string> {
+async function getSessionUserIdOrThrow(): Promise<string> {
   const {
     data: { user },
     error,
@@ -35,6 +36,23 @@ async function getUserIdOrThrow(): Promise<string> {
   if (error) throw error
   if (!user) throw new Error('Debes iniciar sesión para continuar.')
   return user.id
+}
+
+/** Lecturas (lista, detalle): usuario suplantado si el admin lo activó. */
+async function getEffectiveUserIdForRead(): Promise<string> {
+  const eff = getEffectiveUserIdForReads()
+  if (eff) return eff
+  return getSessionUserIdOrThrow()
+}
+
+/** Escrituras: siempre la cuenta real; bloqueado en modo suplantación. */
+async function getActorUserIdForWrite(): Promise<string> {
+  const real = await getSessionUserIdOrThrow()
+  const eff = getEffectiveUserIdForReads()
+  if (eff && eff !== real) {
+    throw new Error('No puedes crear ni editar mientras ves la app como otro usuario.')
+  }
+  return real
 }
 
 function parseMealOptionRef(v: unknown): MealOptionRef | null {
@@ -200,7 +218,7 @@ export async function listLevels(): Promise<LevelRow[]> {
 }
 
 export async function listAlmuerzos(): Promise<Almuerzo[]> {
-  const userId = await getUserIdOrThrow()
+  const userId = await getEffectiveUserIdForRead()
   const { data, error } = await supabase
     .from(TABLE)
     .select(ALMUERZO_SELECT)
@@ -213,7 +231,7 @@ export async function listAlmuerzos(): Promise<Almuerzo[]> {
 }
 
 export async function getAlmuerzo(id: string): Promise<Almuerzo | null> {
-  const userId = await getUserIdOrThrow()
+  const userId = await getEffectiveUserIdForRead()
   const { data, error } = await supabase
     .from(TABLE)
     .select(ALMUERZO_SELECT)
@@ -268,7 +286,7 @@ export async function createAlmuerzo(input: AlmuerzoInput, newFiles: File[]): Pr
     throw new Error(`Máximo ${MAX_FOTOS_ALMUERZO} fotos`)
   }
 
-  const userId = await getUserIdOrThrow()
+  const userId = await getActorUserIdForWrite()
 
   const payload = {
     user_id: userId,
@@ -327,7 +345,7 @@ export async function updateAlmuerzo(
   keepPaths: string[],
   newFiles: File[],
 ): Promise<void> {
-  const userId = await getUserIdOrThrow()
+  const userId = await getActorUserIdForWrite()
 
   const { data: existingRow, error: existingErr } = await supabase
     .from(TABLE)
@@ -379,7 +397,7 @@ export async function updateAlmuerzo(
 }
 
 export async function deleteAlmuerzo(id: string): Promise<void> {
-  await getUserIdOrThrow()
+  await getActorUserIdForWrite()
 
   const existing = await getAlmuerzo(id)
   if (!existing) return

@@ -508,7 +508,16 @@ function HistoryCardAvatar({ photoPath }: { photoPath: string | null }) {
 export function HomeList() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, signOut, profile, profileLoading, refreshProfile } = useAuth()
+  const {
+    user,
+    signOut,
+    profile,
+    profileLoading,
+    refreshProfile,
+    greetingHint,
+    effectiveUserId,
+    isImpersonating,
+  } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [items, setItems] = useState<Almuerzo[]>([])
   const [loading, setLoading] = useState(true)
@@ -560,7 +569,7 @@ export function HomeList() {
   }, [])
 
   useEffect(() => {
-    if (!hasSupabaseConfig() || !user?.id) {
+    if (!hasSupabaseConfig() || !effectiveUserId) {
       setLoading(false)
       setError(null)
       setItems([])
@@ -588,7 +597,7 @@ export function HomeList() {
     return () => {
       cancelled = true
     }
-  }, [user?.id])
+  }, [effectiveUserId])
 
   useEffect(() => {
     if (!hasSupabaseConfig()) {
@@ -615,7 +624,7 @@ export function HomeList() {
 
   const sinConfig = !hasSupabaseConfig()
   const showRecentViewToggle = !sinConfig && !loading && !error && items.length > 0
-  const nom = firstName(user)
+  const nom = greetingHint ?? firstName(user)
   /** Contador de almuerzos: misma fuente que la lista (evita desfase con `profile.total_meals`). */
   const esmorzarCount = items.length
   /** Bares distintos (nombre normalizado): solo sube cuando aparece un bar nuevo en el historial. */
@@ -727,12 +736,19 @@ export function HomeList() {
         </p>
       )}
 
-      <Link to="/nuevo" className="btn btn-primary home-cta">
-        <span className="home-cta-icon" aria-hidden>
-          +
-        </span>
-        Nuevo almuerzo
-      </Link>
+      {isImpersonating ? (
+        <p className="banner banner-warn home-cta-readonly" role="status">
+          Modo solo lectura: estás viendo la app como otro usuario. No se pueden crear ni editar
+          almuerzos.
+        </p>
+      ) : (
+        <Link to="/nuevo" className="btn btn-primary home-cta">
+          <span className="home-cta-icon" aria-hidden>
+            +
+          </span>
+          Nuevo almuerzo
+        </Link>
+      )}
 
       <section className="home-recent" aria-labelledby="home-recent-heading">
         <div className="home-recent-head">
@@ -780,9 +796,13 @@ export function HomeList() {
             <div className="home-empty-icon">
               <IconBowlEmpty />
             </div>
-            <p className="home-empty-title">Todavía no tienes ningún almuerzo</p>
+            <p className="home-empty-title">
+              {isImpersonating ? 'Este usuario no tiene almuerzos registrados' : 'Todavía no tienes ningún almuerzo'}
+            </p>
             <p className="home-empty-desc">
-              Añade el primero para empezar a llevar un registro.
+              {isImpersonating
+                ? 'Prueba con otro usuario desde la barra de administración.'
+                : 'Añade el primero para empezar a llevar un registro.'}
             </p>
           </div>
         )}

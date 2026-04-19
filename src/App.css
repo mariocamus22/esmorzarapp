@@ -4039,3 +4039,165 @@ button.form-flow-back:hover {
     opacity: 0.5;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Barra de suplantación (solo cuenta soporte en cliente)                    */
+/* -------------------------------------------------------------------------- */
+.admin-impersonation-root {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(180deg, rgba(245, 166, 35, 0.22), rgba(245, 166, 35, 0.08));
+  border-bottom: 1px solid rgba(180, 120, 40, 0.35);
+  font-size: 0.875rem;
+}
+
+html[data-theme='dark'] .admin-impersonation-root {
+  background: linear-gradient(180deg, rgba(245, 166, 35, 0.18), rgba(40, 32, 20, 0.95));
+  border-bottom-color: rgba(245, 166, 35, 0.25);
+}
+
+.admin-impersonation-active {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.admin-impersonation-active-label {
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.admin-impersonation-active-email {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  word-break: break-all;
+}
+
+.admin-impersonation-exit {
+  margin-left: auto;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border, #ccc);
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #111);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+html[data-theme='dark'] .admin-impersonation-exit {
+  background: var(--color-surface, #1e1e1e);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--color-text, #eee);
+}
+
+.admin-impersonation-controls {
+  position: relative;
+}
+
+.admin-impersonation-toggle {
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px dashed rgba(120, 80, 20, 0.45);
+  background: transparent;
+  color: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.admin-impersonation-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--color-border, #ddd);
+  background: var(--color-surface, #fff);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  max-height: min(70vh, 22rem);
+  overflow: auto;
+}
+
+html[data-theme='dark'] .admin-impersonation-panel {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+
+.admin-impersonation-panel-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.admin-impersonation-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.45rem;
+  border: 1px solid var(--color-border, #ccc);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-impersonation-muted {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.admin-impersonation-error {
+  margin: 0 0 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--color-danger, #b00020);
+}
+
+.admin-impersonation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-impersonation-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.4rem;
+  border: none;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.admin-impersonation-row:hover {
+  background: rgba(245, 166, 35, 0.12);
+}
+
+.admin-impersonation-row-email {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+}
+
+.admin-impersonation-row-name {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.home-cta-readonly {
+  margin-top: 0.25rem;
+}
+
+.detail-footer-readonly {
+  margin: 0;
+  text-align: left;
+}

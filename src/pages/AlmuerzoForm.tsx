@@ -326,7 +326,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const mapsDebug = searchParams.get('mapsDebug') === '1'
   const mapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   const navigate = useNavigate()
-  const { refreshProfile, profile, user } = useAuth()
+  const { refreshProfile, profile, user, isImpersonating } = useAuth()
   const dateInputRef = useRef<HTMLInputElement>(null)
   const barSearchInputRef = useRef<HTMLInputElement>(null)
   const step1BlurTimerRef = useRef<number | null>(null)
@@ -376,6 +376,17 @@ export function AlmuerzoForm({ mode }: Props) {
       newPreviewUrls.forEach((u) => URL.revokeObjectURL(u))
     }
   }, [newPreviewUrls])
+
+  useEffect(() => {
+    if (!isImpersonating) return
+    if (mode === 'create') {
+      navigate('/', { replace: true })
+      return
+    }
+    if (mode === 'edit' && id) {
+      navigate(`/almuerzo/${id}`, { replace: true })
+    }
+  }, [isImpersonating, mode, id, navigate])
 
   useEffect(() => {
     if (!hasSupabaseConfig()) {

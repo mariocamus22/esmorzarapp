@@ -225,7 +225,7 @@ function DetailHero({ paths }: { paths: string[] }) {
 export function AlmuerzoDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { refreshProfile } = useAuth()
+  const { refreshProfile, isImpersonating, effectiveUserId } = useAuth()
   const [row, setRow] = useState<Almuerzo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -259,7 +259,7 @@ export function AlmuerzoDetail() {
     return () => {
       cancelled = true
     }
-  }, [id])
+  }, [id, effectiveUserId])
 
   async function handleDelete() {
     if (!id || !row) return
@@ -421,20 +421,26 @@ export function AlmuerzoDetail() {
         </div>
 
         <footer className="detail-footer">
-          <div className="detail-footer-row">
-            <button
-              type="button"
-              className="detail-btn-delete"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? 'Eliminando…' : 'Eliminar'}
-            </button>
-            <Link to={`/almuerzo/${id}/editar`} className="detail-btn-edit">
-              <IconPencil className="detail-btn-edit-icon" aria-hidden />
-              Editar almuerzo
-            </Link>
-          </div>
+          {isImpersonating ? (
+            <p className="banner banner-warn detail-footer-readonly" role="status">
+              Solo lectura: no puedes editar ni eliminar en nombre de otro usuario.
+            </p>
+          ) : (
+            <div className="detail-footer-row">
+              <button
+                type="button"
+                className="detail-btn-delete"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? 'Eliminando…' : 'Eliminar'}
+              </button>
+              <Link to={`/almuerzo/${id}/editar`} className="detail-btn-edit">
+                <IconPencil className="detail-btn-edit-icon" aria-hidden />
+                Editar almuerzo
+              </Link>
+            </div>
+          )}
         </footer>
       </div>
     </main>
