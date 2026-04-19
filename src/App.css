@@ -3303,7 +3303,8 @@ button.form-flow-back:hover {
   scroll-behavior: smooth;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
+  /* pan-y permite cerrar deslizando hacia abajo sin bloquear el carrusel horizontal */
+  touch-action: pan-x pan-y;
 }
 
 .detail-photo-lightbox-strip.is-zoomed {
@@ -3356,15 +3357,9 @@ button.form-flow-back:hover {
   justify-content: center;
   min-width: min-content;
   min-height: min-content;
-  transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: none;
   transform-origin: center center;
   will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .detail-photo-lightbox-zoom-inner {
-    transition: none;
-  }
 }
 
 .detail-photo-lightbox-zoom-inner.is-zoomed {
