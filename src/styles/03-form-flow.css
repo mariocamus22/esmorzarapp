@@ -438,7 +438,6 @@ button.form-flow-back:hover {
   position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 0.35rem;
 }
 
 .form-boc-pill-icon {
@@ -450,46 +449,23 @@ button.form-flow-back:hover {
 
 .form-boc-pill-input {
   width: 100%;
-  padding: 1rem 1.1rem 1rem 2.85rem;
+  padding: 1.1rem 1.1rem 1.1rem 2.85rem;
   border-radius: 999px;
-  border: 2px solid color-mix(in srgb, var(--color-primary) 70%, #ffffff 30%);
-  background: color-mix(in srgb, var(--app-fill, #eceae4) 62%, #fff 38%);
+  border: 1.5px solid rgba(245, 166, 35, 0.42);
+  background: color-mix(in srgb, var(--app-fill, #eceae4) 76%, #fff 24%);
   color: var(--app-text, #1a1a1a);
   font: inherit;
-  font-size: 1.02rem;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.45) inset,
-    0 6px 20px rgba(245, 166, 35, 0.12);
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background 0.15s ease;
-}
-
-.form-boc-pill-input:hover {
-  border-color: var(--color-primary);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.52) inset,
-    0 8px 24px rgba(245, 166, 35, 0.16);
-}
-
-.form-boc-pill-input::placeholder {
-  color: color-mix(in srgb, var(--app-text, #1a1a1a) 55%, transparent);
-  opacity: 1;
+  font-size: 1.04rem;
   font-weight: 600;
-  font-style: normal;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
 }
 
 .form-boc-pill-input:focus {
   outline: none;
   border-style: solid;
   border-color: var(--color-primary);
-  box-shadow:
-    0 0 0 3px var(--color-primary-soft),
-    0 10px 28px rgba(245, 166, 35, 0.2);
+  box-shadow: 0 0 0 2px var(--color-primary-soft);
 }
 
 /* Placeholders y estado “sin rellenar” unificados (formulario almuerzo) */
@@ -504,18 +480,12 @@ button.form-flow-back:hover {
   font-style: italic;
 }
 
-.form-step1-search-input:placeholder-shown:not(:focus) {
+.form-step1-search-input:placeholder-shown:not(:focus),
+.form-boc-pill-input:placeholder-shown:not(:focus) {
   border-style: dashed;
   border-width: 1px;
   border-color: rgba(138, 132, 120, 0.38);
   background: rgba(245, 243, 238, 0.62);
-}
-
-.form-boc-pill-input:placeholder-shown:not(:focus) {
-  border-style: solid;
-  border-width: 2px;
-  border-color: color-mix(in srgb, var(--color-primary) 66%, #ffffff 34%);
-  background: color-mix(in srgb, var(--app-fill, #eceae4) 64%, #fff 36%);
 }
 
 .form-step5-review-textarea:placeholder-shown:not(:focus) {
@@ -1194,26 +1164,9 @@ button.form-flow-back:hover {
     color: var(--app-text, #f5f3ee);
   }
 
-  html[data-theme="dark"] .form-step1-search-input:placeholder-shown:not(:focus) {
+  html[data-theme="dark"] .form-step1-search-input:placeholder-shown:not(:focus), html[data-theme="dark"] .form-boc-pill-input:placeholder-shown:not(:focus) {
     background: rgba(0, 0, 0, 0.18);
     border-color: var(--app-border, #5c5a54);
-  }
-
-  html[data-theme="dark"] .form-boc-pill-input {
-    border-color: color-mix(in srgb, var(--color-primary) 74%, #d6b06b 26%);
-    background: color-mix(in srgb, var(--app-fill, #3d3b36) 82%, #000 18%);
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.06) inset,
-      0 10px 26px rgba(0, 0, 0, 0.36);
-  }
-
-  html[data-theme="dark"] .form-boc-pill-input::placeholder {
-    color: color-mix(in srgb, var(--app-text, #f5f3ee) 58%, transparent);
-  }
-
-  html[data-theme="dark"] .form-boc-pill-input:placeholder-shown:not(:focus) {
-    background: color-mix(in srgb, var(--app-fill, #3d3b36) 85%, #000 15%);
-    border-color: color-mix(in srgb, var(--color-primary) 68%, #c8a25f 32%);
   }
 
   html[data-theme="dark"] .form-step5-review-textarea:placeholder-shown:not(:focus), html[data-theme="dark"] .form-step5-price-input:placeholder-shown:not(:focus) {
