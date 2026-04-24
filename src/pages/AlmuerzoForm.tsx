@@ -352,19 +352,20 @@ function FormSteps234Shell({
         </button>
       </nav>
 
-      <div className="form-mid-content">{children}</div>
-
-      <footer className="form-mid-footer-row">
-        <button type="button" className="form-mid-btn-atras" onClick={onAtras}>
-          Atrás
-        </button>
-        <button type="button" className="form-mid-btn-siguiente" onClick={onSiguiente}>
-          {accionPrincipalLabel}
-          <span className="form-mid-btn-arrow" aria-hidden>
-            →
-          </span>
-        </button>
-      </footer>
+      <div className="form-mid-content">
+        {children}
+        <footer className="form-mid-footer-row form-mid-footer-row--scroll">
+          <button type="button" className="form-mid-btn-atras" onClick={onAtras}>
+            Atrás
+          </button>
+          <button type="button" className="form-mid-btn-siguiente" onClick={onSiguiente}>
+            {accionPrincipalLabel}
+            <span className="form-mid-btn-arrow" aria-hidden>
+              →
+            </span>
+          </button>
+        </footer>
+      </div>
     </>
   )
 }

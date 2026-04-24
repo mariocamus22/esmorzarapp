@@ -446,7 +446,7 @@ button.form-flow-back:hover {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-bottom: calc(6.8rem + env(safe-area-inset-bottom));
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 .form-mid-section {
@@ -649,6 +649,15 @@ button.form-flow-back:hover {
   );
   border-top: 1px solid color-mix(in srgb, var(--color-border-subtle, #d6d3cc) 72%, transparent);
   backdrop-filter: blur(6px);
+}
+
+/* Pasos 2–4: CTAs dentro del scroll para que no queden pegados al teclado al editar texto */
+.form-mid-footer-row--scroll {
+  position: relative;
+  bottom: auto;
+  z-index: 1;
+  flex-shrink: 0;
+  margin-top: auto;
 }
 
 .form-mid-btn-atras,
