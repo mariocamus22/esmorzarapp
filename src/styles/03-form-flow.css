@@ -1110,8 +1110,8 @@ button.form-flow-back:hover {
   box-sizing: border-box;
   text-align: center;
   font: inherit;
-  font-size: 0.9375rem;
-  font-weight: 400;
+  font-size: 1.125rem;
+  font-weight: 600;
   line-height: 1.45;
   padding: 0.8rem 0.45rem;
   border-radius: var(--radius-full);
@@ -1132,6 +1132,11 @@ button.form-flow-back:hover {
 
 .form-step5-price-input:focus:placeholder-shown {
   background: var(--app-fill, #eceae4);
+}
+
+.form-step5-price-input::placeholder {
+  font-size: 1.0625rem;
+  font-weight: 500;
 }
 
 .form-step5-photo-add {

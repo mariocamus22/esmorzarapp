@@ -105,7 +105,7 @@ function buildInput(
   priceStr: string,
   review: string,
 ): AlmuerzoInput {
-  const priceTrim = priceStr.trim()
+  const priceTrim = priceStr.replace(/[^\d,.-]/g, '').trim()
   let price: number | null = null
   if (priceTrim !== '') {
     const n = Number(priceTrim.replace(',', '.'))
@@ -127,6 +127,12 @@ function buildInput(
     price,
     review,
   }
+}
+
+function formatPriceInputDisplay(rawValue: string): string {
+  const numeric = rawValue.replace(/\./g, ',').replace(/[^\d,]/g, '')
+  if (numeric.trim() === '') return ''
+  return `${numeric} €`
 }
 
 function IconSearch(props: { className?: string }) {
@@ -467,7 +473,7 @@ export function AlmuerzoForm({ mode }: Props) {
         setCafeOptionId(row.cafe_option_id ?? '')
         setBocName(row.bocadillo_name ?? '')
         setBocIng(row.bocadillo_ingredients ?? '')
-        setPriceStr(row.price != null ? String(row.price) : '')
+        setPriceStr(row.price != null ? formatPriceInputDisplay(String(row.price).replace('.', ',')) : '')
         setReview(row.review ?? '')
         setKeepPaths([...row.photo_paths])
         setError(null)
@@ -1243,7 +1249,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
               <div className="form-step5-price-block">
                 <label className="form-step5-review-label" htmlFor="form-step5-price">
-                  Precio (€) <span className="muted">(opcional)</span>
+                  Precio <span className="muted">(opcional)</span>
                 </label>
                 <div ref={step5PriceRowRef} className="form-step5-price-row">
                   <input
@@ -1252,8 +1258,8 @@ export function AlmuerzoForm({ mode }: Props) {
                     type="text"
                     inputMode="decimal"
                     value={priceStr}
-                    onChange={(e) => setPriceStr(e.target.value)}
-                    placeholder="Ej: 7,50"
+                    onChange={(e) => setPriceStr(formatPriceInputDisplay(e.target.value))}
+                    placeholder="Ej: 7,50 €"
                   />
                   <input
                     id="form-step5-files"
