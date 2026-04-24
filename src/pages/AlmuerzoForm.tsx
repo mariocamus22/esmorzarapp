@@ -22,6 +22,7 @@ import {
   updateAlmuerzo,
 } from '../lib/almuerzosApi'
 import { BarPlaceSearch, type BarPlaceResolved } from '../components/BarPlaceSearch'
+import { CoffeeOptionEmoji } from '../components/CoffeeOptionEmoji'
 import { DrinkOptionEmoji } from '../components/DrinkOptionEmoji'
 import { IconEsmorzar } from '../components/IconEsmorzar'
 import { AlmuerzoSaveSplash } from '../components/AlmuerzoSaveSplash'
@@ -34,6 +35,7 @@ import { barLocationLine } from '../lib/barLocation'
 import { hasSupabaseConfig } from '../lib/env'
 import {
   beverageSelectLabel,
+  coffeeSelectLabel,
   dedupeBebidaOptions,
   stripLeadingEmojisFromLabel,
 } from '../lib/optionLabels'
@@ -1078,7 +1080,8 @@ export function AlmuerzoForm({ mode }: Props) {
   const bebidaRowSummary = mealOptions.find((r) => r.id === bebidaOptionId.trim())
   const drinkRawLabel = bebidaRowSummary?.label ?? ''
   const drinkChipPlain = drinkRawLabel ? beverageSelectLabel(drinkRawLabel) : '—'
-  const coffeeChipText = labelByOptionId(mealOptions, cafeOptionId) || '—'
+  const coffeeRawLabel = labelByOptionId(mealOptions, cafeOptionId) ?? ''
+  const coffeeChipPlain = coffeeRawLabel ? coffeeSelectLabel(coffeeRawLabel) : ''
 
   return (
     <main ref={mainFormRef} id={MAIN_CONTENT_ID} className={mainClass}>
@@ -1442,7 +1445,16 @@ export function AlmuerzoForm({ mode }: Props) {
                     </div>
                     <div className="form-summary-drink-coffee-col">
                       <h3 className="detail-static-label">Café</h3>
-                      <span className="detail-static-chip">{coffeeChipText}</span>
+                      <span className="detail-static-chip form-summary-drink-chip">
+                        {coffeeChipPlain ? (
+                          <>
+                            <CoffeeOptionEmoji label={coffeeRawLabel} className="form-summary-drink-chip-emoji" />
+                            <span>{coffeeChipPlain}</span>
+                          </>
+                        ) : (
+                          '—'
+                        )}
+                      </span>
                     </div>
                   </div>
                 </div>

@@ -38,6 +38,32 @@ export function drinkEmojiForLabel(label: string): string {
   return '🥤'
 }
 
+/** Texto del chip de café (sin emoji inicial). */
+export function coffeeSelectLabel(label: string): string {
+  return stripLeadingEmojisFromLabel(label)
+}
+
+const COFFEE_NORM = /[\u0300-\u036f]/g
+
+function coffeePlainNormalized(label: string): string {
+  return stripLeadingEmojisFromLabel(label)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(COFFEE_NORM, '')
+    .trim()
+}
+
+/**
+ * Emoji del chip de café según la etiqueta de `meal_options` (resumen / ficha).
+ * Infusión → 🍵, Sin café → ❌, resto de opciones de café → ☕️.
+ */
+export function coffeeEmojiForLabel(label: string): string {
+  const n = coffeePlainNormalized(label)
+  if (n.includes('sin cafe')) return '❌'
+  if (n.includes('infusion')) return '🍵'
+  return '☕️'
+}
+
 function rowHasLeadingEmoji(r: MealOptionRow): boolean {
   return r.label.trim() !== stripLeadingEmojisFromLabel(r.label)
 }

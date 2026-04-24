@@ -6,12 +6,14 @@ import {
   useState,
 } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { CoffeeOptionEmoji } from '../components/CoffeeOptionEmoji'
 import { DetailPhotoLightbox } from '../components/DetailPhotoLightbox'
 import { useAuth } from '../hooks/useAuth'
 import { barLocationLine } from '../lib/barLocation'
 import { formatSupabaseError } from '../lib/errors'
 import { deleteAlmuerzo, getAlmuerzo, getFotoPublicUrl } from '../lib/almuerzosApi'
 import { hasSupabaseConfig } from '../lib/env'
+import { coffeeSelectLabel } from '../lib/optionLabels'
 import { MAIN_CONTENT_ID } from '../components/SkipToMainContent'
 import type { Almuerzo } from '../types/almuerzo'
 
@@ -324,6 +326,7 @@ export function AlmuerzoDetail() {
       : gastoPartsList(row.gasto)
   const drinkText = (row.bebida_opt?.label ?? row.drink)?.trim() ?? ''
   const coffeeText = (row.cafe_opt?.label ?? row.coffee)?.trim() ?? ''
+  const coffeeChipPlain = coffeeText ? coffeeSelectLabel(coffeeText) : ''
   const hasDrink = drinkText !== ''
   const hasCoffee = coffeeText !== ''
   const dualCols = (hasDrink && hasCoffee) || (!hasDrink && !hasCoffee)
@@ -410,7 +413,10 @@ export function AlmuerzoDetail() {
                   <div className="detail-static-section">
                     <h3 className="detail-static-label detail-static-label--accent">Café</h3>
                     {hasCoffee ? (
-                      <span className="detail-static-chip">{coffeeText}</span>
+                      <span className="detail-static-chip detail-static-chip--leading-emoji">
+                        <CoffeeOptionEmoji label={coffeeText} className="detail-static-chip-emoji" />
+                        <span>{coffeeChipPlain}</span>
+                      </span>
                     ) : (
                       <p className="detail-empty-val">No registrado</p>
                     )}

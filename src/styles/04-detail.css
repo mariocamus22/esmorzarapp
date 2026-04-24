@@ -613,6 +613,16 @@
   box-sizing: border-box;
 }
 
+.detail-static-chip--leading-emoji {
+  gap: 0.4rem;
+}
+
+.detail-static-chip-emoji {
+  flex-shrink: 0;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
 .detail-static-drink-coffee {
   display: grid;
   grid-template-columns: 1fr;
