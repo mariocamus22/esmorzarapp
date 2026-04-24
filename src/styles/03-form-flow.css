@@ -449,14 +449,14 @@ button.form-flow-back:hover {
 
 .form-boc-pill-input {
   width: 100%;
-  padding: 0.95rem 1.1rem 0.95rem 2.85rem;
+  padding: 0.55rem 0.65rem 0.55rem 2.55rem;
   border-radius: 999px;
-  border: 1px solid rgba(138, 132, 120, 0.38);
-  background: rgba(250, 248, 243, 0.95);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface);
   color: var(--app-text, #1a1a1a);
   font: inherit;
-  font-size: 0.98rem;
-  font-weight: 500;
+  font-size: 0.8125rem;
+  font-weight: 600;
   line-height: 1.25;
 }
 
@@ -464,7 +464,16 @@ button.form-flow-back:hover {
   outline: none;
   border-style: solid;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-soft);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.form-boc-pill-input:hover {
+  border-color: var(--color-primary);
+}
+
+.form-boc-pill-input::placeholder {
+  opacity: 1;
+  font-style: normal;
 }
 
 /* Placeholders y estado “sin rellenar” unificados (formulario almuerzo) */
@@ -489,8 +498,8 @@ button.form-flow-back:hover {
 .form-boc-pill-input:placeholder-shown:not(:focus) {
   border-style: solid;
   border-width: 1px;
-  border-color: rgba(138, 132, 120, 0.38);
-  background: rgba(250, 248, 243, 0.95);
+  border-color: var(--color-border-subtle);
+  background: var(--color-surface);
 }
 
 .form-step5-review-textarea:placeholder-shown:not(:focus) {
@@ -1175,12 +1184,12 @@ button.form-flow-back:hover {
   }
 
   html[data-theme="dark"] .form-boc-pill-input {
-    background: color-mix(in srgb, var(--app-surface, #2a2926) 76%, #ffffff 24%);
+    background: var(--app-surface, #2a2926);
     border-color: var(--app-border, #5c5a54);
   }
 
   html[data-theme="dark"] .form-boc-pill-input:placeholder-shown:not(:focus) {
-    background: color-mix(in srgb, var(--app-surface, #2a2926) 76%, #ffffff 24%);
+    background: var(--app-surface, #2a2926);
     border-color: var(--app-border, #5c5a54);
   }
 
