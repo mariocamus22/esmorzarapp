@@ -379,6 +379,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const cafeListRef = useRef<HTMLDivElement>(null)
   const step1BlurTimerRef = useRef<number | null>(null)
   const focusBarAfterClearRef = useRef(false)
+  const mainFormRef = useRef<HTMLElement>(null)
   const step5BodyRef = useRef<HTMLDivElement>(null)
   const step5PriceRowRef = useRef<HTMLDivElement>(null)
   const step5PriceInputRef = useRef<HTMLInputElement>(null)
@@ -559,6 +560,46 @@ export function AlmuerzoForm({ mode }: Props) {
   useLayoutEffect(() => {
     scrollAppViewportToTop()
   }, [step])
+
+  /** Con teclado virtual, 100dvh no coincide con el área visible: acotamos <main> al visualViewport para poder hacer scroll hasta el resumen. */
+  useEffect(() => {
+    const mainEl = mainFormRef.current
+    if (step !== 5 || loadingEdit || optionsLoading) {
+      if (mainEl) {
+        mainEl.style.maxHeight = ''
+        mainEl.style.minHeight = ''
+      }
+      return
+    }
+    const vv = window.visualViewport
+    if (!vv || !mainEl) return
+
+    const apply = () => {
+      const m = mainFormRef.current
+      if (!m) return
+      const rect = m.getBoundingClientRect()
+      const bottomVisible = vv.offsetTop + vv.height
+      const h = Math.floor(bottomVisible - rect.top - 2)
+      const capped = Math.max(260, h)
+      m.style.maxHeight = `${capped}px`
+      m.style.minHeight = `${capped}px`
+    }
+
+    apply()
+    vv.addEventListener('resize', apply)
+    vv.addEventListener('scroll', apply)
+    window.addEventListener('resize', apply)
+    return () => {
+      vv.removeEventListener('resize', apply)
+      vv.removeEventListener('scroll', apply)
+      window.removeEventListener('resize', apply)
+      const left = mainFormRef.current
+      if (left) {
+        left.style.maxHeight = ''
+        left.style.minHeight = ''
+      }
+    }
+  }, [step, loadingEdit, optionsLoading])
 
   useEffect(() => {
     return () => {
@@ -939,7 +980,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
   if (!hasSupabaseConfig()) {
     return (
-      <main id={MAIN_CONTENT_ID} className="page">
+      <main ref={mainFormRef} id={MAIN_CONTENT_ID} className="page">
         <p className="banner banner-warn">Configura primero el archivo .env con Supabase.</p>
         <Link to="/" className="back-link">
           ← Volver
@@ -950,7 +991,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
   if (loadingEdit || optionsLoading) {
     return (
-      <main id={MAIN_CONTENT_ID} className="page">
+      <main ref={mainFormRef} id={MAIN_CONTENT_ID} className="page">
         <div className="loading-block" aria-busy="true">
           <span className="spinner" aria-hidden />
           <span className="muted">Cargando formulario…</span>
@@ -980,7 +1021,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const coffeeChipText = labelByOptionId(mealOptions, cafeOptionId) || '—'
 
   return (
-    <main id={MAIN_CONTENT_ID} className={mainClass}>
+    <main ref={mainFormRef} id={MAIN_CONTENT_ID} className={mainClass}>
       <AlmuerzoSaveSplash key={saveSplashKey} visible={saving} />
       {error && (
         <p className="banner banner-error" role="alert">

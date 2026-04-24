@@ -895,10 +895,14 @@ button.form-flow-back:hover {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overflow-anchor: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding-top: 0.35rem;
   padding-bottom: calc(6.8rem + env(safe-area-inset-bottom));
 }
 
@@ -1065,7 +1069,10 @@ button.form-flow-back:hover {
   width: 100%;
   box-sizing: border-box;
   min-height: 120px;
+  max-height: min(42vh, 16rem);
   resize: none;
+  overflow-y: auto;
+  touch-action: pan-y;
   border-radius: var(--radius-lg);
   border: 1px solid transparent;
   background: var(--app-fill, #eceae4);
@@ -1143,6 +1150,7 @@ button.form-flow-back:hover {
   background: transparent;
   color: inherit;
   transition: none;
+  touch-action: pan-y;
 }
 
 .form-step5-price-input:focus {
