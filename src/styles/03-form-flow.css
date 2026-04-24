@@ -532,6 +532,14 @@ button.form-flow-back:hover {
   box-shadow: 0 0 0 1px var(--color-primary);
 }
 
+/* Refuerzo explícito para que bebida/café queden rellenos al seleccionar */
+.form-drink-card.form-option.is-selected,
+.form-cafe-row.form-option.is-selected {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
 .form-option:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
@@ -701,6 +709,12 @@ button.form-flow-back:hover {
     border-color: var(--app-border, #4a4843);
   }
 
+  html[data-theme="dark"] .form-drink-card.form-option.is-selected {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+
   html[data-theme="dark"] .form-drink-card-label {
     color: var(--app-text, #f5f3ee);
   }
@@ -768,6 +782,12 @@ button.form-flow-back:hover {
   html[data-theme="dark"] .form-cafe-row {
     background: var(--app-surface, #2a2926);
     border-color: var(--app-border, #4a4843);
+  }
+
+  html[data-theme="dark"] .form-cafe-row.form-option.is-selected {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
   }
 
   html[data-theme="dark"] .form-cafe-row-label {
