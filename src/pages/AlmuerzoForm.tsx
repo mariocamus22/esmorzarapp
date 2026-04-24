@@ -230,7 +230,6 @@ const FORM_HISTORY_STATE_KEY = 'almuerzoFormStep' as const
 
 const FORM_EXIT_CONFIRM_MSG =
   '¿Seguro que quieres salir? Los cambios que has hecho en el formulario no se guardarán.'
-const CAFE_AUTOSCROLL_DELAY_MS = 220
 
 function FormSteps234Shell({
   formMode,
@@ -344,9 +343,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const barSearchInputRef = useRef<HTMLInputElement>(null)
   const bocNameInputRef = useRef<HTMLInputElement>(null)
   const step1BlurTimerRef = useRef<number | null>(null)
-  const cafeAutoScrollTimerRef = useRef<number | null>(null)
   const focusBarAfterClearRef = useRef(false)
-  const currentStepRef = useRef(1)
 
   const [step, setStep] = useState(1)
   const [step1BarDocked, setStep1BarDocked] = useState(false)
@@ -474,10 +471,6 @@ export function AlmuerzoForm({ mode }: Props) {
   }, [mode, id])
 
   useEffect(() => {
-    currentStepRef.current = step
-  }, [step])
-
-  useEffect(() => {
     if (step !== 1) {
       if (step1BlurTimerRef.current != null) {
         window.clearTimeout(step1BlurTimerRef.current)
@@ -500,7 +493,6 @@ export function AlmuerzoForm({ mode }: Props) {
   useEffect(() => {
     return () => {
       if (step1BlurTimerRef.current != null) window.clearTimeout(step1BlurTimerRef.current)
-      if (cafeAutoScrollTimerRef.current != null) window.clearTimeout(cafeAutoScrollTimerRef.current)
     }
   }, [])
 
@@ -692,36 +684,9 @@ export function AlmuerzoForm({ mode }: Props) {
   const step3Complete = useCallback(() => bebidaOptionId.trim() !== '', [bebidaOptionId])
   const step4Complete = useCallback(() => cafeOptionId.trim() !== '', [cafeOptionId])
 
-  const scheduleCafeAutoScroll = useCallback(() => {
-    if (cafeAutoScrollTimerRef.current != null) {
-      window.clearTimeout(cafeAutoScrollTimerRef.current)
-    }
-    cafeAutoScrollTimerRef.current = window.setTimeout(() => {
-      if (currentStepRef.current !== 4) return
-      const midContent = document.querySelector('.form-mid-content')
-      if (
-        midContent instanceof HTMLElement &&
-        midContent.scrollHeight > midContent.clientHeight + 4
-      ) {
-        midContent.scrollTo({
-          top: midContent.scrollHeight,
-          behavior: 'smooth',
-        })
-        return
-      }
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth',
-      })
-    }, CAFE_AUTOSCROLL_DELAY_MS)
-  }, [])
-
   const handleCafeOptionSelect = useCallback(
-    (optId: string) => {
-      setCafeOptionId((prev) => (prev === optId ? '' : optId))
-      scheduleCafeAutoScroll()
-    },
-    [scheduleCafeAutoScroll],
+    (optId: string) => setCafeOptionId((prev) => (prev === optId ? '' : optId)),
+    [],
   )
 
   function handleMidTab(s: MidStep) {

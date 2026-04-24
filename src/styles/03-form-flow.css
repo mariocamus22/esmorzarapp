@@ -240,7 +240,7 @@
   flex-shrink: 0;
   margin-top: auto;
   padding-top: 1rem;
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-bottom: max(1.15rem, calc(env(safe-area-inset-bottom) + 0.5rem));
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--color-bg, #f5f3ee) 0%, transparent) 0%,
@@ -293,9 +293,12 @@ button.form-flow-back:hover {
 /* Form pasos 2–4: header + tabs + contingut + footer (guia visual Esmorzapp) */
 .form-flow--mid {
   min-height: calc(100dvh - 3.5rem);
+  max-height: calc(100dvh - 3.5rem);
   display: flex;
   flex-direction: column;
   padding-top: 0.2rem;
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 .form-mid-shell-header {
@@ -441,7 +444,9 @@ button.form-flow-back:hover {
   flex-direction: column;
   gap: 1.5rem;
   min-height: 0;
-  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: calc(6.2rem + env(safe-area-inset-bottom));
 }
 
 .form-mid-section {
@@ -634,8 +639,8 @@ button.form-flow-back:hover {
   align-items: stretch;
   gap: 0.625rem;
   margin-top: auto;
-  padding-top: 1rem;
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-top: 1.1rem;
+  padding-bottom: max(1.15rem, calc(env(safe-area-inset-bottom) + 0.5rem));
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--color-bg, #f5f3ee) 0%, transparent) 0%,
@@ -861,10 +866,13 @@ button.form-flow-back:hover {
 /* Pas 5 — resum, reseña, preu opcional, fotos (sense tab bar) */
 .form-flow--step5 {
   min-height: calc(100dvh - 3.5rem);
+  max-height: calc(100dvh - 3.5rem);
   display: flex;
   flex-direction: column;
   padding: 0.2rem 0 0;
   box-sizing: border-box;
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 .form-step5-header-row {
@@ -886,10 +894,11 @@ button.form-flow-back:hover {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(6.2rem + env(safe-area-inset-bottom));
 }
 
 .form-summary-card {
