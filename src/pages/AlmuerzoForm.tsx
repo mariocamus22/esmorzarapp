@@ -155,6 +155,15 @@ function IconChevronDown(props: { className?: string }) {
   )
 }
 
+function IconScrollDown(props: { className?: string }) {
+  return (
+    <svg className={props.className} width={18} height={18} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M12 5v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M7 13l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 function IconCameraPlus({ className }: { className?: string }) {
   return (
     <svg className={className} width={22} height={22} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -344,6 +353,8 @@ export function AlmuerzoForm({ mode }: Props) {
   const bocNameInputRef = useRef<HTMLInputElement>(null)
   const step1BlurTimerRef = useRef<number | null>(null)
   const focusBarAfterClearRef = useRef(false)
+  const step5BodyRef = useRef<HTMLDivElement>(null)
+  const step5PriceRowRef = useRef<HTMLDivElement>(null)
 
   const [step, setStep] = useState(1)
   const [step1BarDocked, setStep1BarDocked] = useState(false)
@@ -379,6 +390,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const [showBocNameInlineError, setShowBocNameInlineError] = useState(false)
   /** Remonta el input con Places (uncontrolled) al limpiar el bar para vaciar el DOM. */
   const [barFieldKey, setBarFieldKey] = useState(0)
+  const [showStep5ScrollHint, setShowStep5ScrollHint] = useState(false)
 
   const newPreviewUrls = useMemo(
     () => newFiles.map((f) => URL.createObjectURL(f)),
@@ -495,6 +507,41 @@ export function AlmuerzoForm({ mode }: Props) {
       if (step1BlurTimerRef.current != null) window.clearTimeout(step1BlurTimerRef.current)
     }
   }, [])
+
+  useEffect(() => {
+    if (step !== 5) {
+      setShowStep5ScrollHint(false)
+      return
+    }
+    const container = step5BodyRef.current
+    const priceRow = step5PriceRowRef.current
+    if (!container || !priceRow) {
+      setShowStep5ScrollHint(false)
+      return
+    }
+
+    const computeHintVisibility = () => {
+      const containerRect = container.getBoundingClientRect()
+      const priceRect = priceRow.getBoundingClientRect()
+      const priceFullyVisible =
+        priceRect.top >= containerRect.top + 2 && priceRect.bottom <= containerRect.bottom - 2
+      const firstFoldHidden = priceRect.top > containerRect.bottom
+      const canScrollMore = container.scrollHeight > container.clientHeight + 4
+      setShowStep5ScrollHint(canScrollMore && firstFoldHidden && !priceFullyVisible)
+    }
+
+    computeHintVisibility()
+    container.addEventListener('scroll', computeHintVisibility, { passive: true })
+    window.addEventListener('resize', computeHintVisibility)
+    const ro = new ResizeObserver(computeHintVisibility)
+    ro.observe(container)
+    ro.observe(priceRow)
+    return () => {
+      container.removeEventListener('scroll', computeHintVisibility)
+      window.removeEventListener('resize', computeHintVisibility)
+      ro.disconnect()
+    }
+  }, [step, keepPaths.length, newFiles.length])
 
   useEffect(() => {
     if (!focusBarAfterClearRef.current) return
@@ -1115,7 +1162,7 @@ export function AlmuerzoForm({ mode }: Props) {
           </div>
 
           <form className="form-step5" onSubmit={onSubmit}>
-            <div className="form-step5-body">
+            <div ref={step5BodyRef} className="form-step5-body">
               <div className="form-summary-card">
                 <div className="form-summary-header">
                   <time className="form-summary-head-date" dateTime={mealDate}>
@@ -1131,7 +1178,7 @@ export function AlmuerzoForm({ mode }: Props) {
                   <span className="form-summary-divider" />
                 </div>
                 <div className="form-summary-section">
-                  <h3 className="detail-static-label">Bocadillo y Gasto</h3>
+                  <h3 className="detail-static-label detail-static-label--accent">Bocadillo y Gasto</h3>
                   <p className="form-summary-boc-name">{bocNameSummary}</p>
                   {gastoSummaryLabels.length > 0 ? (
                     <div className="detail-static-chip-row form-summary-gasto-chips">
@@ -1147,7 +1194,7 @@ export function AlmuerzoForm({ mode }: Props) {
                 </div>
                 <div className="form-summary-drink-coffee">
                   <div className="form-summary-drink-coffee-col">
-                    <h3 className="detail-static-label">Bebida</h3>
+                    <h3 className="detail-static-label detail-static-label--accent">Bebida</h3>
                     <span className="detail-static-chip form-summary-drink-chip">
                       {drinkRawLabel ? (
                         <>
@@ -1160,7 +1207,7 @@ export function AlmuerzoForm({ mode }: Props) {
                     </span>
                   </div>
                   <div className="form-summary-drink-coffee-col">
-                    <h3 className="detail-static-label">Café</h3>
+                    <h3 className="detail-static-label detail-static-label--accent">Café</h3>
                     <span className="detail-static-chip">{coffeeChipText}</span>
                   </div>
                 </div>
@@ -1190,7 +1237,7 @@ export function AlmuerzoForm({ mode }: Props) {
                 <label className="form-step5-review-label" htmlFor="form-step5-price">
                   Precio (€) <span className="muted">(opcional)</span>
                 </label>
-                <div className="form-step5-price-row">
+                <div ref={step5PriceRowRef} className="form-step5-price-row">
                   <input
                     id="form-step5-price"
                     className="form-step5-price-input"
@@ -1258,6 +1305,21 @@ export function AlmuerzoForm({ mode }: Props) {
                 </div>
               )}
             </div>
+
+            {showStep5ScrollHint && (
+              <button
+                type="button"
+                className="form-step5-scroll-hint"
+                onClick={() => {
+                  const bodyEl = step5BodyRef.current
+                  if (!bodyEl) return
+                  bodyEl.scrollBy({ top: Math.max(220, bodyEl.clientHeight * 0.62), behavior: 'smooth' })
+                }}
+                aria-label="Bajar para ver precio y fotos"
+              >
+                <IconScrollDown className="form-step5-scroll-hint-icon" />
+              </button>
+            )}
 
             <footer className="form-mid-footer-row form-step5-footer">
               <button type="button" className="form-step5-btn-atras" onClick={() => window.history.back()}>

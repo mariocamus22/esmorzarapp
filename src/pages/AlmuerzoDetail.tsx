@@ -376,7 +376,7 @@ export function AlmuerzoDetail() {
               </header>
 
               <div className="detail-static-section">
-                <h3 className="detail-static-label">Bocadillo</h3>
+                <h3 className="detail-static-label detail-static-label--accent">Bocadillo</h3>
                 <p className="detail-static-boc-text">{bocText || 'No registrado'}</p>
               </div>
 
@@ -398,7 +398,7 @@ export function AlmuerzoDetail() {
               <div className={`detail-static-drink-coffee ${dualCols ? 'is-dual' : ''}`}>
                 {(dualCols || hasDrink) && (
                   <div className="detail-static-section">
-                    <h3 className="detail-static-label">Bebida</h3>
+                    <h3 className="detail-static-label detail-static-label--accent">Bebida</h3>
                     {hasDrink ? (
                       <span className="detail-static-chip">{drinkText}</span>
                     ) : (
@@ -408,7 +408,7 @@ export function AlmuerzoDetail() {
                 )}
                 {(dualCols || hasCoffee) && (
                   <div className="detail-static-section">
-                    <h3 className="detail-static-label">Café</h3>
+                    <h3 className="detail-static-label detail-static-label--accent">Café</h3>
                     {hasCoffee ? (
                       <span className="detail-static-chip">{coffeeText}</span>
                     ) : (

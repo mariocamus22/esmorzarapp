@@ -885,6 +885,7 @@ button.form-flow-back:hover {
 
 .form-step5 {
   flex: 1;
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -1192,6 +1193,59 @@ button.form-flow-back:hover {
   flex-shrink: 0;
 }
 
+.form-step5-scroll-hint {
+  position: fixed;
+  left: max(1rem, calc(env(safe-area-inset-left) + 0.5rem));
+  bottom: calc(6.9rem + env(safe-area-inset-bottom));
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-bg, #f5f3ee) 82%, transparent);
+  color: var(--color-primary);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  animation: form-scroll-hint-bounce 1.35s ease-in-out infinite;
+}
+
+.form-step5-scroll-hint:hover {
+  background: color-mix(in srgb, var(--color-bg, #f5f3ee) 92%, transparent);
+}
+
+.form-step5-scroll-hint:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.form-step5-scroll-hint-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+@keyframes form-scroll-hint-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(3px);
+  }
+  68% {
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-step5-scroll-hint {
+    animation: none;
+  }
+}
+
 
   html[data-theme="dark"] .form-summary-card {
     background: var(--app-surface, #2a2926);
@@ -1297,6 +1351,12 @@ button.form-flow-back:hover {
       var(--color-bg, #1e1d1a) 100%
     );
     border-top-color: color-mix(in srgb, var(--app-border, #4a4843) 72%, transparent);
+  }
+
+  html[data-theme="dark"] .form-step5-scroll-hint {
+    background: color-mix(in srgb, var(--color-bg, #1e1d1a) 84%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
   }
 
 
