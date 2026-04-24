@@ -347,7 +347,10 @@ function FormSteps234Shell({
 export function AlmuerzoForm({ mode }: Props) {
   const bocSectionTitleId = useId()
   const bocNameInlineErrorId = useId()
+  const bebidaSectionTitleId = useId()
+  const bebidaInlineErrorId = useId()
   const cafeSectionTitleId = useId()
+  const cafeInlineErrorId = useId()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const mapsDebug = searchParams.get('mapsDebug') === '1'
@@ -357,6 +360,8 @@ export function AlmuerzoForm({ mode }: Props) {
   const dateInputRef = useRef<HTMLInputElement>(null)
   const barSearchInputRef = useRef<HTMLInputElement>(null)
   const bocNameInputRef = useRef<HTMLInputElement>(null)
+  const bebidaGridRef = useRef<HTMLDivElement>(null)
+  const cafeListRef = useRef<HTMLDivElement>(null)
   const step1BlurTimerRef = useRef<number | null>(null)
   const focusBarAfterClearRef = useRef(false)
   const step5BodyRef = useRef<HTMLDivElement>(null)
@@ -394,6 +399,8 @@ export function AlmuerzoForm({ mode }: Props) {
   const [saveSplashKey, setSaveSplashKey] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [showBocNameInlineError, setShowBocNameInlineError] = useState(false)
+  const [showBebidaInlineError, setShowBebidaInlineError] = useState(false)
+  const [showCafeInlineError, setShowCafeInlineError] = useState(false)
   /** Remonta el input con Places (uncontrolled) al limpiar el bar para vaciar el DOM. */
   const [barFieldKey, setBarFieldKey] = useState(0)
   const [showStep5ScrollHint, setShowStep5ScrollHint] = useState(false)
@@ -502,6 +509,18 @@ export function AlmuerzoForm({ mode }: Props) {
   useEffect(() => {
     if (step !== 2) {
       setShowBocNameInlineError(false)
+    }
+  }, [step])
+
+  useEffect(() => {
+    if (step !== 3) {
+      setShowBebidaInlineError(false)
+    }
+  }, [step])
+
+  useEffect(() => {
+    if (step !== 4) {
+      setShowCafeInlineError(false)
     }
   }, [step])
 
@@ -740,15 +759,32 @@ export function AlmuerzoForm({ mode }: Props) {
     window.requestAnimationFrame(focusInput)
   }
 
+  function focusBebidaForCompletion() {
+    setShowBebidaInlineError(true)
+    const grid = bebidaGridRef.current
+    const btn = grid?.querySelector('button')
+    window.requestAnimationFrame(() => btn?.focus())
+  }
+
+  function focusCafeForCompletion() {
+    setShowCafeInlineError(true)
+    const list = cafeListRef.current
+    const btn = list?.querySelector('button')
+    window.requestAnimationFrame(() => btn?.focus())
+  }
+
   const step2Complete = useCallback(() => bocName.trim() !== '', [bocName])
 
   const step3Complete = useCallback(() => bebidaOptionId.trim() !== '', [bebidaOptionId])
   const step4Complete = useCallback(() => cafeOptionId.trim() !== '', [cafeOptionId])
 
-  const handleCafeOptionSelect = useCallback(
-    (optId: string) => setCafeOptionId((prev) => (prev === optId ? '' : optId)),
-    [],
-  )
+  const handleCafeOptionSelect = useCallback((optId: string) => {
+    setCafeOptionId((prev) => {
+      const next = prev === optId ? '' : optId
+      if (next) setShowCafeInlineError(false)
+      return next
+    })
+  }, [])
 
   function handleMidTab(s: MidStep) {
     setError(null)
@@ -772,7 +808,7 @@ export function AlmuerzoForm({ mode }: Props) {
         return
       }
       if (!step3Complete()) {
-        setError('Elige una bebida antes de continuar.')
+        focusBebidaForCompletion()
         return
       }
       pushFormHistory(4)
@@ -796,14 +832,14 @@ export function AlmuerzoForm({ mode }: Props) {
       setStep(3)
     } else if (step === 3) {
       if (!step3Complete()) {
-        setError('Elige una bebida antes de continuar.')
+        focusBebidaForCompletion()
         return
       }
       pushFormHistory(4)
       setStep(4)
     } else if (step === 4) {
       if (!step4Complete()) {
-        setError('Elige un café antes de continuar.')
+        focusCafeForCompletion()
         return
       }
       pushFormHistory(5)
@@ -1093,8 +1129,21 @@ export function AlmuerzoForm({ mode }: Props) {
           onSiguiente={handleMidSiguiente}
         >
           <section className="form-mid-section">
-            <h3 className="form-mid-section-title">Bebida</h3>
-            <div className="form-drink-card-grid" role="group" aria-label="Elige la bebida">
+            <h3 id={bebidaSectionTitleId} className="form-mid-section-title">
+              Bebida
+            </h3>
+            {showBebidaInlineError && (
+              <p id={bebidaInlineErrorId} className="form-boc-inline-error" role="alert">
+                Elige una bebida para continuar.
+              </p>
+            )}
+            <div
+              ref={bebidaGridRef}
+              className="form-drink-card-grid"
+              role="group"
+              aria-labelledby={bebidaSectionTitleId}
+              aria-describedby={showBebidaInlineError ? bebidaInlineErrorId : undefined}
+            >
               {bebidaOpts.map((opt) => {
                 const selected = bebidaOptionId === opt.id
                 return (
@@ -1104,7 +1153,11 @@ export function AlmuerzoForm({ mode }: Props) {
                     className={`form-drink-card form-option ${selected ? 'is-selected' : ''}`}
                     aria-pressed={selected}
                     onClick={() =>
-                      setBebidaOptionId((prev) => (prev === opt.id ? '' : opt.id))
+                      setBebidaOptionId((prev) => {
+                        const next = prev === opt.id ? '' : opt.id
+                        if (next) setShowBebidaInlineError(false)
+                        return next
+                      })
                     }
                   >
                     <DrinkOptionEmoji label={opt.label} className="form-drink-card-emoji" />
@@ -1136,10 +1189,17 @@ export function AlmuerzoForm({ mode }: Props) {
             <h3 id={cafeSectionTitleId} className="form-mid-section-title">
               Café
             </h3>
+            {showCafeInlineError && (
+              <p id={cafeInlineErrorId} className="form-boc-inline-error" role="alert">
+                Elige un café para continuar.
+              </p>
+            )}
             <div
+              ref={cafeListRef}
               className="form-cafe-row-list"
               role="radiogroup"
               aria-labelledby={cafeSectionTitleId}
+              aria-describedby={showCafeInlineError ? cafeInlineErrorId : undefined}
             >
               {cafeOpts.map((opt) => {
                 const selected = cafeOptionId === opt.id
