@@ -282,6 +282,8 @@ function FormSteps234Shell({
   onAtras,
   onSiguiente,
   accionPrincipalLabel = 'Siguiente',
+  /** Sin teclado de texto: CTAs sticky al pie del área de scroll (p. ej. paso Café). */
+  ctaStickyBottom = false,
   children,
 }: {
   formMode: 'create' | 'edit'
@@ -294,6 +296,7 @@ function FormSteps234Shell({
   onAtras: () => void
   onSiguiente: () => void
   accionPrincipalLabel?: string
+  ctaStickyBottom?: boolean
   children: ReactNode
 }) {
   const pageTitle = formMode === 'edit' ? 'Editar almuerzo' : 'Registrar almuerzo'
@@ -352,9 +355,13 @@ function FormSteps234Shell({
         </button>
       </nav>
 
-      <div className="form-mid-content">
+      <div
+        className={`form-mid-content${ctaStickyBottom ? ' form-mid-content--sticky-mid-cta' : ''}`}
+      >
         {children}
-        <footer className="form-mid-footer-row form-mid-footer-row--scroll">
+        <footer
+          className={`form-mid-footer-row${ctaStickyBottom ? '' : ' form-mid-footer-row--scroll'}`}
+        >
           <button type="button" className="form-mid-btn-atras" onClick={onAtras}>
             Atrás
           </button>
@@ -1269,6 +1276,7 @@ export function AlmuerzoForm({ mode }: Props) {
           onAtras={handleMidAtras}
           onSiguiente={handleMidSiguiente}
           accionPrincipalLabel="Finalizar"
+          ctaStickyBottom
         >
           <section className="form-mid-section">
             <h3 id={cafeSectionTitleId} className="form-mid-section-title">

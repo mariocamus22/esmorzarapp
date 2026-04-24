@@ -660,6 +660,12 @@ button.form-flow-back:hover {
   margin-top: auto;
 }
 
+/* Paso Café: espacio para que la última opción no quede tapada al hacer scroll con CTA sticky */
+.form-mid-content--sticky-mid-cta > .form-mid-section:last-of-type {
+  margin-bottom: 0.35rem;
+  padding-bottom: max(4.75rem, calc(env(safe-area-inset-bottom) + 3.5rem));
+}
+
 .form-mid-btn-atras,
 .form-step5-btn-atras {
   flex: 0 0 26%;
