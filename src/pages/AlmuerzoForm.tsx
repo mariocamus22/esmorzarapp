@@ -935,7 +935,7 @@ export function AlmuerzoForm({ mode }: Props) {
           onAtras={handleMidAtras}
           onSiguiente={handleMidSiguiente}
         >
-          <section className="form-mid-section form-mid-section--boc-priority">
+          <section className="form-mid-section">
             <h3 id={bocSectionTitleId} className="form-mid-section-title">
               Bocadillo
             </h3>
