@@ -45,7 +45,7 @@ type Props = {
 
 const BAR_SEARCH_PLACEHOLDER = 'Busca un bar… (ej. La Mesedora, Algemesí)'
 
-const BOCADILLO_NAME_PLACEHOLDER = 'Ej: Chivito, Tortilla francesa con longanizas...'
+const BOCADILLO_NAME_PLACEHOLDER = 'Escribe el bocadillo'
 
 const ES_MONTHS = [
   'enero',
@@ -958,6 +958,7 @@ export function AlmuerzoForm({ mode }: Props) {
                 placeholder={BOCADILLO_NAME_PLACEHOLDER}
               />
             </div>
+            <p className="form-boc-subtitle">Ej: Chivito, Tortilla francesa con longanizas...</p>
           </section>
 
           <section className="form-mid-section">

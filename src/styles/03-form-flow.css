@@ -471,10 +471,17 @@ button.form-flow-back:hover {
 }
 
 .form-boc-pill-input::placeholder {
-  color: var(--app-text-muted, #8a8478);
-  opacity: 1;
+  color: color-mix(in srgb, var(--app-text-muted, #8a8478) 42%, transparent);
+  opacity: 0.55;
   font-weight: 500;
   font-style: italic;
+}
+
+.form-boc-subtitle {
+  margin: 0.45rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--app-text-muted, #8a8478);
 }
 
 /* Placeholders y estado “sin rellenar” unificados (formulario almuerzo) */
@@ -1186,6 +1193,15 @@ button.form-flow-back:hover {
   html[data-theme="dark"] .form-boc-pill-input {
     background: var(--app-fill, #3d3b36);
     border-color: transparent;
+  }
+
+  html[data-theme="dark"] .form-boc-pill-input::placeholder {
+    color: color-mix(in srgb, var(--app-text, #f5f3ee) 26%, transparent);
+    opacity: 0.6;
+  }
+
+  html[data-theme="dark"] .form-boc-subtitle {
+    color: color-mix(in srgb, var(--app-text, #f5f3ee) 58%, transparent);
   }
 
   html[data-theme="dark"] .form-boc-pill-input:placeholder-shown:not(:focus) {
