@@ -529,15 +529,18 @@ button.form-flow-back:hover {
 }
 
 /*
- * Nota personal: el placeholder no debe parecer texto ya escrito.
- * Cursiva + peso 400 + color con contraste ≥4.5:1 sobre app-fill (WCAG AA texto).
+ * Nota personal: jerarquía frente al valor (0.9375rem, color app-text).
+ * Placeholder más pequeño + cursiva + tracking + tono más apagado que el cuerpo,
+ * con contraste ≥4.5:1 sobre app-fill (WCAG AA texto normal).
  */
 .form-step5-review-textarea::placeholder {
-  color: #6b6559;
+  color: #5d574f;
   opacity: 1;
+  font-size: 0.8125rem;
   font-weight: 400;
   font-style: italic;
-  letter-spacing: 0.02em;
+  line-height: 1.45;
+  letter-spacing: 0.045em;
 }
 
 .form-step1-search-input:placeholder-shown:not(:focus) {
@@ -1532,11 +1535,13 @@ button.form-flow-back:hover {
   }
 
   html[data-theme="dark"] .form-step5-review-textarea::placeholder {
-    color: #aea69c;
+    color: #b2aaa0;
     opacity: 1;
+    font-size: 0.8125rem;
     font-weight: 400;
     font-style: italic;
-    letter-spacing: 0.02em;
+    line-height: 1.45;
+    letter-spacing: 0.045em;
   }
 
   html[data-theme="dark"] .form-boc-subtitle {
