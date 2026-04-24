@@ -1379,17 +1379,9 @@ button.form-flow-back:hover {
   flex-shrink: 0;
 }
 
-/* Teclado virtual: CTAs al flujo del documento, sin sticky sobre el teclado */
-.form-step5-footer.form-mid-footer-row.form-step5-footer--keyboard-open {
-  position: relative;
-  bottom: auto;
-  z-index: 1;
-  margin-top: 0.35rem;
-  padding-top: 0.85rem;
-  padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.55rem));
-  background: var(--color-bg, #f5f3ee);
-  border-top: 1px solid color-mix(in srgb, var(--color-border-subtle, #d6d3cc) 72%, transparent);
-  backdrop-filter: none;
+/* Foco en nota personal: sin barra Atrás/Guardar (vuelve al salir del campo) */
+.form-step5-footer.form-mid-footer-row.form-step5-footer--nota-focus {
+  display: none;
 }
 
 .form-step5-scroll-hint {
@@ -1593,11 +1585,6 @@ button.form-flow-back:hover {
       color-mix(in srgb, var(--color-bg, #1e1d1a) 94%, transparent) 38%,
       var(--color-bg, #1e1d1a) 100%
     );
-    border-top-color: color-mix(in srgb, var(--app-border, #4a4843) 72%, transparent);
-  }
-
-  html[data-theme="dark"] .form-step5-footer.form-mid-footer-row.form-step5-footer--keyboard-open {
-    background: var(--color-bg, #1f1e1b);
     border-top-color: color-mix(in srgb, var(--app-border, #4a4843) 72%, transparent);
   }
 
