@@ -109,6 +109,14 @@
   padding-right: 2.9rem;
 }
 
+.form-step1-bar-example {
+  margin: -0.55rem 0 0.9rem;
+  padding-left: 0.3rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--app-text-muted, #8a8478);
+}
+
 .form-step1-search-clear {
   position: absolute;
   right: 0.35rem;
