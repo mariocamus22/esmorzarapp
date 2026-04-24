@@ -1002,59 +1002,59 @@ button.form-flow-back:hover {
   word-break: break-word;
 }
 
-/* Resumen paso 5: segmentado Breve/Completo + vista compacta o detallada */
-.form-summary-toolbar {
+/* Resumen paso 5: enlace + chevron; región detalle con hidden para aria-controls */
+.form-summary-toggle-wrap {
   display: flex;
+  justify-content: center;
   width: 100%;
-  margin-top: 0.65rem;
-  padding: 0.2rem;
-  box-sizing: border-box;
-  gap: 0.12rem;
-  border-radius: var(--radius-full);
-  background: var(--app-fill, #eceae4);
-  border: 1px solid color-mix(in srgb, var(--color-fg) 8%, transparent);
+  margin-top: 0.45rem;
 }
 
-.form-summary-seg {
-  flex: 1 1 0;
-  min-width: 0;
+.form-summary-togglelink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
   margin: 0;
-  padding: 0.55rem 0.65rem;
+  padding: 0.55rem 0.5rem;
+  min-height: 2.75rem;
   box-sizing: border-box;
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   background: transparent;
-  color: var(--color-fg-muted);
+  color: var(--color-primary);
   font: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    background 0.18s ease,
-    color 0.18s ease,
-    box-shadow 0.18s ease;
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  transition: color 0.15s ease;
 }
 
-.form-summary-seg:hover:not(.is-selected) {
-  color: var(--color-fg);
+.form-summary-togglelink:hover {
+  color: color-mix(in srgb, var(--color-primary) 78%, var(--color-fg) 22%);
 }
 
-.form-summary-seg:focus-visible {
+.form-summary-togglelink:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-primary-soft);
 }
 
-.form-summary-seg.is-selected {
-  background: var(--color-surface);
-  color: var(--color-fg);
-  box-shadow:
-    0 1px 2px rgba(44, 36, 25, 0.06),
-    0 0 0 1px color-mix(in srgb, var(--color-fg) 7%, transparent);
+.form-summary-togglelink-chevron {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  transition: transform 0.2s ease;
+}
+
+.form-summary-togglelink-chevron.is-open {
+  transform: rotate(180deg);
 }
 
 .form-summary-compact {
@@ -1093,7 +1093,7 @@ button.form-flow-back:hover {
 }
 
 .form-summary-details {
-  padding-top: 0.45rem;
+  padding-top: 0.35rem;
 }
 
 .form-summary-drink-chip {
@@ -1441,6 +1441,10 @@ button.form-flow-back:hover {
   .form-step5-scroll-hint {
     animation: none;
   }
+
+  .form-summary-togglelink-chevron {
+    transition: none;
+  }
 }
 
 
@@ -1469,25 +1473,16 @@ button.form-flow-back:hover {
     color: var(--color-muted, #b8b3ab);
   }
 
-  html[data-theme="dark"] .form-summary-toolbar {
-    background: var(--app-fill, #3d3b36);
-    border-color: color-mix(in srgb, #fff 10%, transparent);
+  html[data-theme="dark"] .form-summary-togglelink {
+    color: color-mix(in srgb, var(--color-primary) 70%, #f5f3ee 30%);
   }
 
-  html[data-theme="dark"] .form-summary-seg {
-    color: var(--color-muted, #b8b3ab);
+  html[data-theme="dark"] .form-summary-togglelink:hover {
+    color: color-mix(in srgb, var(--color-primary) 55%, #f5f3ee 45%);
   }
 
-  html[data-theme="dark"] .form-summary-seg:hover:not(.is-selected) {
-    color: var(--app-text, #f5f3ee);
-  }
-
-  html[data-theme="dark"] .form-summary-seg.is-selected {
-    background: var(--app-surface, #2a2926);
-    color: var(--app-text, #f5f3ee);
-    box-shadow:
-      0 1px 3px rgba(0, 0, 0, 0.35),
-      0 0 0 1px color-mix(in srgb, #fff 12%, transparent);
+  html[data-theme="dark"] .form-summary-togglelink-chevron {
+    color: inherit;
   }
 
   html[data-theme="dark"] .form-mid-head-loc-text {

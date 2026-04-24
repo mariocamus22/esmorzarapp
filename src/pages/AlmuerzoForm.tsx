@@ -379,6 +379,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const cafeSectionTitleId = useId()
   const cafeInlineErrorId = useId()
   const notaPersonalHintId = useId()
+  const summaryToggleId = useId()
   const summaryDetailsRegionId = useId()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
@@ -452,7 +453,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const [barFieldKey, setBarFieldKey] = useState(0)
   const [showStep5ScrollHint, setShowStep5ScrollHint] = useState(false)
   const [step5ScrollHintDismissed, setStep5ScrollHintDismissed] = useState(false)
-  /** Paso resumen: vista breve (menos scroll) o completa (chips y secciones). */
+  /** Paso resumen: ampliar o reducir el bloque con chips (enlace + región con hidden para accesibilidad). */
   const [summaryDetailsExpanded, setSummaryDetailsExpanded] = useState(true)
 
   const newPreviewUrls = useMemo(
@@ -1341,27 +1342,6 @@ export function AlmuerzoForm({ mode }: Props) {
                   </div>
                 </div>
 
-                <div className="form-summary-toolbar" role="radiogroup" aria-label="Vista del resumen">
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={!summaryDetailsExpanded}
-                    className={`form-summary-seg${!summaryDetailsExpanded ? ' is-selected' : ''}`}
-                    onClick={() => setSummaryDetailsExpanded(false)}
-                  >
-                    Breve
-                  </button>
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={summaryDetailsExpanded}
-                    className={`form-summary-seg${summaryDetailsExpanded ? ' is-selected' : ''}`}
-                    onClick={() => setSummaryDetailsExpanded(true)}
-                  >
-                    Completo
-                  </button>
-                </div>
-
                 {!summaryDetailsExpanded && (
                   <div className="form-summary-compact">
                     <p className="form-summary-compact-boc">{bocNameSummary}</p>
@@ -1375,52 +1355,67 @@ export function AlmuerzoForm({ mode }: Props) {
                   </div>
                 )}
 
-                {summaryDetailsExpanded && (
-                  <div
-                    id={summaryDetailsRegionId}
-                    role="region"
-                    aria-label="Resumen detallado"
-                    className="form-summary-details"
+                <div className="form-summary-toggle-wrap">
+                  <button
+                    id={summaryToggleId}
+                    type="button"
+                    className="form-summary-togglelink"
+                    aria-expanded={summaryDetailsExpanded}
+                    aria-controls={summaryDetailsRegionId}
+                    onClick={() => setSummaryDetailsExpanded((v) => !v)}
                   >
-                    <div className="form-summary-divider-wrap" aria-hidden>
-                      <span className="form-summary-divider" />
-                    </div>
-                    <div className="form-summary-section">
-                      <h3 className="detail-static-label detail-static-label--accent">Bocadillo y Gasto</h3>
-                      <p className="form-summary-boc-name">{bocNameSummary}</p>
-                      {gastoSummaryLabels.length > 0 ? (
-                        <div className="detail-static-chip-row form-summary-gasto-chips">
-                          {gastoSummaryLabels.map((label, i) => (
-                            <span key={`${label}-${i}`} className="detail-static-chip">
-                              {label}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="detail-empty-val form-summary-gasto-empty">Sin indicar</p>
-                      )}
-                    </div>
-                    <div className="form-summary-drink-coffee">
-                      <div className="form-summary-drink-coffee-col">
-                        <h3 className="detail-static-label detail-static-label--accent">Bebida</h3>
-                        <span className="detail-static-chip form-summary-drink-chip">
-                          {drinkRawLabel ? (
-                            <>
-                              <DrinkOptionEmoji label={drinkRawLabel} className="form-summary-drink-chip-emoji" />
-                              <span>{drinkChipPlain}</span>
-                            </>
-                          ) : (
-                            drinkChipPlain
-                          )}
-                        </span>
+                    <span>{summaryDetailsExpanded ? 'Reducir resumen' : 'Ampliar resumen'}</span>
+                    <IconChevronDown
+                      className={`form-summary-togglelink-chevron${summaryDetailsExpanded ? ' is-open' : ''}`}
+                    />
+                  </button>
+                </div>
+
+                <div
+                  id={summaryDetailsRegionId}
+                  role="region"
+                  aria-labelledby={summaryToggleId}
+                  hidden={!summaryDetailsExpanded}
+                  className="form-summary-details"
+                >
+                  <div className="form-summary-divider-wrap" aria-hidden>
+                    <span className="form-summary-divider" />
+                  </div>
+                  <div className="form-summary-section">
+                    <h3 className="detail-static-label detail-static-label--accent">Bocadillo y Gasto</h3>
+                    <p className="form-summary-boc-name">{bocNameSummary}</p>
+                    {gastoSummaryLabels.length > 0 ? (
+                      <div className="detail-static-chip-row form-summary-gasto-chips">
+                        {gastoSummaryLabels.map((label, i) => (
+                          <span key={`${label}-${i}`} className="detail-static-chip">
+                            {label}
+                          </span>
+                        ))}
                       </div>
-                      <div className="form-summary-drink-coffee-col">
-                        <h3 className="detail-static-label detail-static-label--accent">Café</h3>
-                        <span className="detail-static-chip">{coffeeChipText}</span>
-                      </div>
+                    ) : (
+                      <p className="detail-empty-val form-summary-gasto-empty">Sin indicar</p>
+                    )}
+                  </div>
+                  <div className="form-summary-drink-coffee">
+                    <div className="form-summary-drink-coffee-col">
+                      <h3 className="detail-static-label detail-static-label--accent">Bebida</h3>
+                      <span className="detail-static-chip form-summary-drink-chip">
+                        {drinkRawLabel ? (
+                          <>
+                            <DrinkOptionEmoji label={drinkRawLabel} className="form-summary-drink-chip-emoji" />
+                            <span>{drinkChipPlain}</span>
+                          </>
+                        ) : (
+                          drinkChipPlain
+                        )}
+                      </span>
+                    </div>
+                    <div className="form-summary-drink-coffee-col">
+                      <h3 className="detail-static-label detail-static-label--accent">Café</h3>
+                      <span className="detail-static-chip">{coffeeChipText}</span>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
 
               <div className="form-step5-review-block">
