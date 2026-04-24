@@ -971,7 +971,7 @@ export function AlmuerzoForm({ mode }: Props) {
                   <button
                     key={opt.id}
                     type="button"
-                    className={`form-gasto-chip ${selected ? 'is-selected' : ''}`}
+                    className={`form-gasto-chip form-option ${selected ? 'is-selected' : ''}`}
                     onClick={() => toggleGastoOption(opt.id)}
                   >
                     <span className="form-gasto-chip-label">{opt.label}</span>
@@ -1004,7 +1004,7 @@ export function AlmuerzoForm({ mode }: Props) {
                   <button
                     key={opt.id}
                     type="button"
-                    className={`form-drink-card ${selected ? 'is-selected' : ''}`}
+                    className={`form-drink-card form-option ${selected ? 'is-selected' : ''}`}
                     aria-pressed={selected}
                     onClick={() =>
                       setBebidaOptionId((prev) => (prev === opt.id ? '' : opt.id))
@@ -1052,7 +1052,7 @@ export function AlmuerzoForm({ mode }: Props) {
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    className={`form-cafe-row ${selected ? 'is-selected' : ''}`}
+                    className={`form-cafe-row form-option ${selected ? 'is-selected' : ''}`}
                     onClick={() =>
                       setCafeOptionId((prev) => (prev === opt.id ? '' : opt.id))
                     }

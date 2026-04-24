@@ -505,6 +505,38 @@ button.form-flow-back:hover {
   background: rgba(245, 243, 238, 0.62);
 }
 
+/* Base compartida para opciones de gasto/bebida/café */
+.form-option {
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface);
+  color: var(--app-text, #1a1a1a);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.08s ease;
+}
+
+.form-option:hover {
+  border-color: var(--color-primary);
+}
+
+.form-option:active {
+  transform: scale(0.98);
+}
+
+.form-option.is-selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.form-option:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .form-gasto-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -517,18 +549,10 @@ button.form-flow-back:hover {
   gap: 0.4rem;
   padding: 0.55rem 0.65rem;
   border-radius: 999px;
-  border: 1px solid var(--app-border, #d6d3cc);
-  background: var(--app-fill, #eceae4);
-  color: var(--app-text, #1a1a1a);
   font: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
   text-align: left;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
 .form-gasto-chip-emoji {
@@ -540,17 +564,6 @@ button.form-flow-back:hover {
 .form-gasto-chip-label {
   min-width: 0;
   line-height: 1.25;
-}
-
-.form-gasto-chip.is-selected {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-  box-shadow: 0 0 0 1px var(--color-primary);
-}
-
-.form-gasto-chip:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
 }
 
 .form-mid-footer-row {
@@ -654,16 +667,8 @@ button.form-flow-back:hover {
   min-height: 0;
   padding: 1.125rem 0.75rem;
   border-radius: var(--radius-card);
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-surface);
-  color: var(--app-text, #1a1a1a);
   font: inherit;
-  cursor: pointer;
   text-align: center;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
 .form-drink-card-emoji {
@@ -690,18 +695,6 @@ button.form-flow-back:hover {
   hyphens: auto;
   width: 100%;
 }
-
-.form-drink-card.is-selected {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-  box-shadow: 0 0 0 1px var(--color-primary);
-}
-
-.form-drink-card:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
 
   html[data-theme="dark"] .form-drink-card {
     background: var(--app-surface, #2a2926);
@@ -754,16 +747,8 @@ button.form-flow-back:hover {
   min-height: 4rem;
   padding: 0 1rem;
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-surface);
-  color: var(--app-text, #1a1a1a);
   font: inherit;
   text-align: center;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
 .form-cafe-row-icon {
@@ -779,18 +764,6 @@ button.form-flow-back:hover {
   line-height: 1.25;
   color: var(--app-text, #1a1a1a);
 }
-
-.form-cafe-row.is-selected {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-  box-shadow: 0 0 0 1px var(--color-primary);
-}
-
-.form-cafe-row:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
 
   html[data-theme="dark"] .form-cafe-row {
     background: var(--app-surface, #2a2926);
