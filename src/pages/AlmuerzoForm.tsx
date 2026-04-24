@@ -52,15 +52,9 @@ const BOCADILLO_NAME_PLACEHOLDER = 'Escribe el bocadillo'
 /** Placeholder sin €: el sufijo fijo completa la lectura “0,00€”. */
 const PRECIO_PLACEHOLDER = '0,00'
 
-/** Preguntas guía para la nota personal (paso resumen); multilínea en el placeholder. */
-const NOTA_PERSONAL_PROMPTS = [
-  '¿Cómo estaba el pan?',
-  '¿La cantidad era suficiente?',
-  '¿Qué tal el cremaet?',
-  '¿Quieres comentar algo de la atención al cliente?',
-] as const
-
-const NOTA_PERSONAL_PLACEHOLDER = NOTA_PERSONAL_PROMPTS.join('\n')
+/** Texto guía en el campo de nota personal (paso resumen). */
+const NOTA_PERSONAL_PLACEHOLDER =
+  '¿Cómo estaba el pan?, ¿la cantidad era suficiente?, ¿qué tal el cremaet?, etc.'
 
 const ES_MONTHS = [
   'enero',
@@ -1430,8 +1424,7 @@ export function AlmuerzoForm({ mode }: Props) {
                   Nota personal <span className="muted">(opcional)</span>
                 </label>
                 <p id={notaPersonalHintId} className="form-step5-review-hint">
-                  Este comentario es privado y solo lo podrás ver tú. Las líneas en gris del recuadro
-                  son solo ideas de qué anotar; se ocultan cuando empiezas a escribir.
+                  Este comentario es privado y solo lo podrás ver tú.
                 </p>
                 <textarea
                   id="form-step5-review"
@@ -1443,7 +1436,7 @@ export function AlmuerzoForm({ mode }: Props) {
                       raw.length > 0 ? raw.charAt(0).toLocaleUpperCase('es') + raw.slice(1) : raw
                     setReview(next)
                   }}
-                  rows={5}
+                  rows={4}
                   placeholder={NOTA_PERSONAL_PLACEHOLDER}
                   aria-describedby={notaPersonalHintId}
                 />

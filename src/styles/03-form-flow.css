@@ -520,13 +520,24 @@ button.form-flow-back:hover {
 
 /* Placeholders y estado “sin rellenar” unificados (formulario almuerzo) */
 .form-step1-search-input::placeholder,
-.form-step5-review-textarea::placeholder,
 .form-step5-price-input::placeholder,
 .form-drink-other-input::placeholder {
   color: color-mix(in srgb, var(--app-text-muted, #8a8478) 82%, transparent);
   opacity: 0.82;
   font-weight: 500;
   font-style: normal;
+}
+
+/*
+ * Nota personal: el placeholder no debe parecer texto ya escrito.
+ * Cursiva + peso 400 + color con contraste ≥4.5:1 sobre app-fill (WCAG AA texto).
+ */
+.form-step5-review-textarea::placeholder {
+  color: #6b6559;
+  opacity: 1;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.02em;
 }
 
 .form-step1-search-input:placeholder-shown:not(:focus) {
@@ -1173,7 +1184,7 @@ button.form-flow-back:hover {
 .form-step5-review-textarea {
   width: 100%;
   box-sizing: border-box;
-  min-height: 132px;
+  min-height: 120px;
   max-height: min(42vh, 16rem);
   resize: none;
   overflow-y: auto;
@@ -1515,10 +1526,17 @@ button.form-flow-back:hover {
   }
 
   html[data-theme="dark"] .form-step1-search-input::placeholder,
-  html[data-theme="dark"] .form-step5-review-textarea::placeholder,
   html[data-theme="dark"] .form-step5-price-input::placeholder {
     color: color-mix(in srgb, var(--app-text, #f5f3ee) 72%, transparent);
     opacity: 0.86;
+  }
+
+  html[data-theme="dark"] .form-step5-review-textarea::placeholder {
+    color: #aea69c;
+    opacity: 1;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
   }
 
   html[data-theme="dark"] .form-boc-subtitle {
