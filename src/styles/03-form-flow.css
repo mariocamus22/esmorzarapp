@@ -1002,9 +1002,63 @@ button.form-flow-back:hover {
   word-break: break-word;
 }
 
-/* Resumen paso 5: vista compacta + disclosure para ver más o menos detalle */
+/* Resumen paso 5: segmentado Breve/Completo + vista compacta o detallada */
+.form-summary-toolbar {
+  display: flex;
+  width: 100%;
+  margin-top: 0.65rem;
+  padding: 0.2rem;
+  box-sizing: border-box;
+  gap: 0.12rem;
+  border-radius: var(--radius-full);
+  background: var(--app-fill, #eceae4);
+  border: 1px solid color-mix(in srgb, var(--color-fg) 8%, transparent);
+}
+
+.form-summary-seg {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  box-sizing: border-box;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-fg-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.form-summary-seg:hover:not(.is-selected) {
+  color: var(--color-fg);
+}
+
+.form-summary-seg:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-soft);
+}
+
+.form-summary-seg.is-selected {
+  background: var(--color-surface);
+  color: var(--color-fg);
+  box-shadow:
+    0 1px 2px rgba(44, 36, 25, 0.06),
+    0 0 0 1px color-mix(in srgb, var(--color-fg) 7%, transparent);
+}
+
 .form-summary-compact {
-  margin-top: 0.6rem;
+  margin-top: 0.55rem;
   padding: 0.35rem 0.25rem 0.05rem;
   text-align: center;
 }
@@ -1038,58 +1092,8 @@ button.form-flow-back:hover {
   overflow: hidden;
 }
 
-.form-summary-disclosure {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  width: 100%;
-  margin-top: 0.55rem;
-  padding: 0.6rem 0.85rem;
-  box-sizing: border-box;
-  border: none;
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface) 88%);
-  color: color-mix(in srgb, var(--color-primary) 92%, var(--color-fg) 8%);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.25;
-  cursor: pointer;
-  user-select: none;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.form-summary-disclosure:hover {
-  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-surface) 82%);
-}
-
-.form-summary-disclosure:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--color-primary-soft);
-}
-
-.form-summary-disclosure-label {
-  text-align: center;
-}
-
-.form-summary-disclosure-chevron {
-  flex-shrink: 0;
-  color: var(--color-primary);
-  transition: transform 0.2s ease;
-}
-
-.form-summary-disclosure-chevron.is-open {
-  transform: rotate(180deg);
-}
-
 .form-summary-details {
-  padding-top: 0.05rem;
+  padding-top: 0.45rem;
 }
 
 .form-summary-drink-chip {
@@ -1437,10 +1441,6 @@ button.form-flow-back:hover {
   .form-step5-scroll-hint {
     animation: none;
   }
-
-  .form-summary-disclosure-chevron {
-    transition: none;
-  }
 }
 
 
@@ -1469,17 +1469,25 @@ button.form-flow-back:hover {
     color: var(--color-muted, #b8b3ab);
   }
 
-  html[data-theme="dark"] .form-summary-disclosure {
-    background: color-mix(in srgb, var(--color-primary) 22%, var(--app-surface, #2a2926) 78%);
-    color: color-mix(in srgb, var(--color-primary) 55%, #f5f3ee 45%);
+  html[data-theme="dark"] .form-summary-toolbar {
+    background: var(--app-fill, #3d3b36);
+    border-color: color-mix(in srgb, #fff 10%, transparent);
   }
 
-  html[data-theme="dark"] .form-summary-disclosure:hover {
-    background: color-mix(in srgb, var(--color-primary) 30%, var(--app-surface, #2a2926) 70%);
+  html[data-theme="dark"] .form-summary-seg {
+    color: var(--color-muted, #b8b3ab);
   }
 
-  html[data-theme="dark"] .form-summary-disclosure-chevron {
-    color: var(--color-primary);
+  html[data-theme="dark"] .form-summary-seg:hover:not(.is-selected) {
+    color: var(--app-text, #f5f3ee);
+  }
+
+  html[data-theme="dark"] .form-summary-seg.is-selected {
+    background: var(--app-surface, #2a2926);
+    color: var(--app-text, #f5f3ee);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.35),
+      0 0 0 1px color-mix(in srgb, #fff 12%, transparent);
   }
 
   html[data-theme="dark"] .form-mid-head-loc-text {

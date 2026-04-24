@@ -379,7 +379,6 @@ export function AlmuerzoForm({ mode }: Props) {
   const cafeSectionTitleId = useId()
   const cafeInlineErrorId = useId()
   const notaPersonalHintId = useId()
-  const summaryDisclosureBtnId = useId()
   const summaryDetailsRegionId = useId()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
@@ -453,7 +452,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const [barFieldKey, setBarFieldKey] = useState(0)
   const [showStep5ScrollHint, setShowStep5ScrollHint] = useState(false)
   const [step5ScrollHintDismissed, setStep5ScrollHintDismissed] = useState(false)
-  /** Paso resumen: el usuario puede colapsar la tarjeta para ver menos texto y centrarse en nota/precio/fotos. */
+  /** Paso resumen: vista breve (menos scroll) o completa (chips y secciones). */
   const [summaryDetailsExpanded, setSummaryDetailsExpanded] = useState(true)
 
   const newPreviewUrls = useMemo(
@@ -1342,6 +1341,27 @@ export function AlmuerzoForm({ mode }: Props) {
                   </div>
                 </div>
 
+                <div className="form-summary-toolbar" role="radiogroup" aria-label="Vista del resumen">
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={!summaryDetailsExpanded}
+                    className={`form-summary-seg${!summaryDetailsExpanded ? ' is-selected' : ''}`}
+                    onClick={() => setSummaryDetailsExpanded(false)}
+                  >
+                    Breve
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={summaryDetailsExpanded}
+                    className={`form-summary-seg${summaryDetailsExpanded ? ' is-selected' : ''}`}
+                    onClick={() => setSummaryDetailsExpanded(true)}
+                  >
+                    Completo
+                  </button>
+                </div>
+
                 {!summaryDetailsExpanded && (
                   <div className="form-summary-compact">
                     <p className="form-summary-compact-boc">{bocNameSummary}</p>
@@ -1355,27 +1375,11 @@ export function AlmuerzoForm({ mode }: Props) {
                   </div>
                 )}
 
-                <button
-                  id={summaryDisclosureBtnId}
-                  type="button"
-                  className="form-summary-disclosure"
-                  aria-expanded={summaryDetailsExpanded}
-                  aria-controls={summaryDetailsRegionId}
-                  onClick={() => setSummaryDetailsExpanded((v) => !v)}
-                >
-                  <span className="form-summary-disclosure-label">
-                    {summaryDetailsExpanded ? 'Ocultar detalles del resumen' : 'Ver detalles del resumen'}
-                  </span>
-                  <IconChevronDown
-                    className={`form-summary-disclosure-chevron${summaryDetailsExpanded ? ' is-open' : ''}`}
-                  />
-                </button>
-
                 {summaryDetailsExpanded && (
                   <div
                     id={summaryDetailsRegionId}
                     role="region"
-                    aria-labelledby={summaryDisclosureBtnId}
+                    aria-label="Resumen detallado"
                     className="form-summary-details"
                   >
                     <div className="form-summary-divider-wrap" aria-hidden>
