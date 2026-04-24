@@ -331,6 +331,7 @@ function FormSteps234Shell({
 
 export function AlmuerzoForm({ mode }: Props) {
   const bocSectionTitleId = useId()
+  const bocNameInlineErrorId = useId()
   const cafeSectionTitleId = useId()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
@@ -340,6 +341,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const { refreshProfile, profile, user, isImpersonating } = useAuth()
   const dateInputRef = useRef<HTMLInputElement>(null)
   const barSearchInputRef = useRef<HTMLInputElement>(null)
+  const bocNameInputRef = useRef<HTMLInputElement>(null)
   const step1BlurTimerRef = useRef<number | null>(null)
   const focusBarAfterClearRef = useRef(false)
 
@@ -374,6 +376,7 @@ export function AlmuerzoForm({ mode }: Props) {
   /** Remonta la splash de guardado para reiniciar mensajes y animaciones en cada envío. */
   const [saveSplashKey, setSaveSplashKey] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [showBocNameInlineError, setShowBocNameInlineError] = useState(false)
   /** Remonta el input con Places (uncontrolled) al limpiar el bar para vaciar el DOM. */
   const [barFieldKey, setBarFieldKey] = useState(0)
 
@@ -474,6 +477,12 @@ export function AlmuerzoForm({ mode }: Props) {
         step1BlurTimerRef.current = null
       }
       setStep1BarDocked(false)
+    }
+  }, [step])
+
+  useEffect(() => {
+    if (step !== 2) {
+      setShowBocNameInlineError(false)
     }
   }, [step])
 
@@ -659,6 +668,17 @@ export function AlmuerzoForm({ mode }: Props) {
     setStep(2)
   }
 
+  function focusBocNameForCompletion() {
+    setShowBocNameInlineError(true)
+    const input = bocNameInputRef.current
+    if (!input) return
+    const focusInput = () => {
+      input.focus()
+      input.click()
+    }
+    window.requestAnimationFrame(focusInput)
+  }
+
   const step2Complete = useCallback(() => bocName.trim() !== '', [bocName])
 
   const step3Complete = useCallback(() => bebidaOptionId.trim() !== '', [bebidaOptionId])
@@ -673,7 +693,7 @@ export function AlmuerzoForm({ mode }: Props) {
     if (s === step) return
     if (s === 3) {
       if (!step2Complete()) {
-        setError('Completa el nombre del bocadillo antes de continuar.')
+        focusBocNameForCompletion()
         return
       }
       pushFormHistory(3)
@@ -682,7 +702,7 @@ export function AlmuerzoForm({ mode }: Props) {
     }
     if (s === 4) {
       if (!step2Complete()) {
-        setError('Completa el nombre del bocadillo antes de continuar.')
+        focusBocNameForCompletion()
         return
       }
       if (!step3Complete()) {
@@ -703,7 +723,7 @@ export function AlmuerzoForm({ mode }: Props) {
     setError(null)
     if (step === 2) {
       if (!step2Complete()) {
-        setError('Completa el nombre del bocadillo antes de continuar.')
+        focusBocNameForCompletion()
         return
       }
       pushFormHistory(3)
@@ -942,16 +962,20 @@ export function AlmuerzoForm({ mode }: Props) {
             <div className="form-boc-pill-wrap">
               <IconEsmorzar className="form-boc-pill-icon" />
               <input
+                ref={bocNameInputRef}
                 id="form-step2-boc"
                 className="form-boc-pill-input"
                 type="text"
                 aria-labelledby={bocSectionTitleId}
+                aria-invalid={showBocNameInlineError}
+                aria-describedby={showBocNameInlineError ? bocNameInlineErrorId : undefined}
                 value={bocName}
                 onChange={(e) => {
                   const raw = e.target.value
                   const next =
                     raw.length > 0 ? raw.charAt(0).toLocaleUpperCase('es') + raw.slice(1) : raw
                   setBocName(next)
+                  if (next.trim() !== '') setShowBocNameInlineError(false)
                 }}
                 autoComplete="off"
                 autoCapitalize="sentences"
@@ -959,6 +983,11 @@ export function AlmuerzoForm({ mode }: Props) {
               />
             </div>
             <p className="form-boc-subtitle">Ej: Chivito, Tortilla francesa con longanizas...</p>
+            {showBocNameInlineError && (
+              <p id={bocNameInlineErrorId} className="form-boc-inline-error" role="alert">
+                Añade el nombre del bocadillo para continuar.
+              </p>
+            )}
           </section>
 
           <section className="form-mid-section">

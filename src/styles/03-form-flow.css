@@ -471,10 +471,10 @@ button.form-flow-back:hover {
 }
 
 .form-boc-pill-input::placeholder {
-  color: color-mix(in srgb, var(--app-text-muted, #8a8478) 42%, transparent);
-  opacity: 0.55;
+  color: color-mix(in srgb, var(--app-text-muted, #8a8478) 82%, transparent);
+  opacity: 0.82;
   font-weight: 500;
-  font-style: italic;
+  font-style: normal;
 }
 
 .form-boc-subtitle {
@@ -482,6 +482,14 @@ button.form-flow-back:hover {
   font-size: 0.8125rem;
   line-height: 1.35;
   color: var(--app-text-muted, #8a8478);
+}
+
+.form-boc-inline-error {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: #d14343;
+  font-weight: 600;
 }
 
 /* Placeholders y estado “sin rellenar” unificados (formulario almuerzo) */
@@ -1196,12 +1204,16 @@ button.form-flow-back:hover {
   }
 
   html[data-theme="dark"] .form-boc-pill-input::placeholder {
-    color: color-mix(in srgb, var(--app-text, #f5f3ee) 26%, transparent);
-    opacity: 0.6;
+    color: color-mix(in srgb, var(--app-text, #f5f3ee) 72%, transparent);
+    opacity: 0.86;
   }
 
   html[data-theme="dark"] .form-boc-subtitle {
     color: color-mix(in srgb, var(--app-text, #f5f3ee) 58%, transparent);
+  }
+
+  html[data-theme="dark"] .form-boc-inline-error {
+    color: #ff8a8a;
   }
 
   html[data-theme="dark"] .form-boc-pill-input:placeholder-shown:not(:focus) {
