@@ -846,7 +846,10 @@ export function HomeList() {
                     </div>
                     <div className="home-history-summary">
                       <IconEsmorzar className="home-history-burger-icon" width={16} height={16} />
-                      <p className="home-history-summary-text">{nomBocadilloResum(a)}</p>
+                      <p className="home-history-summary-text">
+                        <span className="home-history-summary-label">Bocadillo:</span>{' '}
+                        <span className="home-history-summary-name">{nomBocadilloResum(a)}</span>
+                      </p>
                     </div>
                   </Link>
                 </li>

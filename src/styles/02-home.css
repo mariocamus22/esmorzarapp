@@ -1144,6 +1144,15 @@ a.home-meal-cal-cell:active {
   word-break: break-word;
 }
 
+.home-history-summary-label {
+  font-weight: 700;
+  color: var(--color-fg, #2f2c27);
+}
+
+.home-history-summary-name {
+  color: inherit;
+}
+
 
   html[data-theme="dark"] .home-history-card {
     background: var(--color-surface, #2a2926);
@@ -1160,6 +1169,10 @@ a.home-meal-cal-cell:active {
 
   html[data-theme="dark"] .home-history-date-text, html[data-theme="dark"] .home-history-summary-text {
     color: var(--color-muted, #c9c4bc);
+  }
+
+  html[data-theme="dark"] .home-history-summary-label {
+    color: #f1eee7;
   }
 
   html[data-theme="dark"] .home-history-avatar-placeholder {
