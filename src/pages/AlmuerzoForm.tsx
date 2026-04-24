@@ -459,8 +459,6 @@ export function AlmuerzoForm({ mode }: Props) {
   const [step5ScrollHintDismissed, setStep5ScrollHintDismissed] = useState(false)
   /** Paso resumen: por defecto cerrado; enlace + región con hidden para accesibilidad. */
   const [summaryDetailsExpanded, setSummaryDetailsExpanded] = useState(false)
-  /** Paso 5: ocultar CTAs mientras el foco está en la nota personal (el usuario sale del campo para guardar). */
-  const [step5HideFooterForNota, setStep5HideFooterForNota] = useState(false)
 
   const newPreviewUrls = useMemo(
     () => newFiles.map((f) => URL.createObjectURL(f)),
@@ -672,10 +670,6 @@ export function AlmuerzoForm({ mode }: Props) {
     }
   }, [step, keepPaths.length, newFiles.length, step5ScrollHintDismissed])
 
-  useEffect(() => {
-    if (step !== 5) setStep5HideFooterForNota(false)
-  }, [step])
-
   const scrollNotaPersonalIntoView = useCallback(() => {
     const scrollRoot = step5BodyRef.current
     const block = step5ReviewBlockRef.current
@@ -705,15 +699,17 @@ export function AlmuerzoForm({ mode }: Props) {
   }, [])
 
   useEffect(() => {
-    if (!step5HideFooterForNota) return
+    if (step !== 5) return
     const vv = window.visualViewport
     if (!vv) return
     const onVv = () => {
-      scrollNotaPersonalIntoView()
+      if (document.activeElement === step5ReviewTextareaRef.current) {
+        scrollNotaPersonalIntoView()
+      }
     }
     vv.addEventListener('resize', onVv)
     return () => vv.removeEventListener('resize', onVv)
-  }, [step5HideFooterForNota, scrollNotaPersonalIntoView])
+  }, [step, scrollNotaPersonalIntoView])
 
   useEffect(() => {
     if (!focusBarAfterClearRef.current) return
@@ -1482,11 +1478,7 @@ export function AlmuerzoForm({ mode }: Props) {
                       raw.length > 0 ? raw.charAt(0).toLocaleUpperCase('es') + raw.slice(1) : raw
                     setReview(next)
                   }}
-                  onFocus={() => {
-                    setStep5HideFooterForNota(true)
-                    scrollNotaPersonalIntoView()
-                  }}
-                  onBlur={() => setStep5HideFooterForNota(false)}
+                  onFocus={scrollNotaPersonalIntoView}
                   rows={4}
                   placeholder={NOTA_PERSONAL_PLACEHOLDER}
                   aria-describedby={notaPersonalHintId}
@@ -1583,6 +1575,20 @@ export function AlmuerzoForm({ mode }: Props) {
                   </div>
                 </div>
               )}
+
+              <footer className="form-mid-footer-row form-mid-footer-row--scroll form-step5-footer">
+                <button type="button" className="form-step5-btn-atras" onClick={() => window.history.back()}>
+                  Atrás
+                </button>
+                <button type="submit" className="form-mid-btn-siguiente" disabled={saving}>
+                  {saving ? 'Guardando…' : 'Guardar almuerzo'}
+                  {!saving && (
+                    <span className="form-mid-btn-arrow" aria-hidden>
+                      →
+                    </span>
+                  )}
+                </button>
+              </footer>
             </div>
 
             {showStep5ScrollHint && (
@@ -1601,23 +1607,6 @@ export function AlmuerzoForm({ mode }: Props) {
                 <IconScrollDown className="form-step5-scroll-hint-icon" />
               </button>
             )}
-
-            <footer
-              className={`form-mid-footer-row form-step5-footer${step5HideFooterForNota ? ' form-step5-footer--nota-focus' : ''}`}
-              aria-hidden={step5HideFooterForNota}
-            >
-              <button type="button" className="form-step5-btn-atras" onClick={() => window.history.back()}>
-                Atrás
-              </button>
-              <button type="submit" className="form-mid-btn-siguiente" disabled={saving}>
-                {saving ? 'Guardando…' : 'Guardar almuerzo'}
-                {!saving && (
-                  <span className="form-mid-btn-arrow" aria-hidden>
-                    →
-                  </span>
-                )}
-              </button>
-            </footer>
           </form>
         </>
       )}

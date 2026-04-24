@@ -932,7 +932,8 @@ button.form-flow-back:hover {
   flex-direction: column;
   gap: 1.5rem;
   padding-top: 0.35rem;
-  padding-bottom: calc(6.8rem + env(safe-area-inset-bottom));
+  /* CTAs dentro del scroll (como paso bocadillo): el footer lleva el padding inferior */
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 .form-summary-card {
@@ -1377,11 +1378,6 @@ button.form-flow-back:hover {
 
 .form-step5-footer.form-mid-footer-row {
   flex-shrink: 0;
-}
-
-/* Foco en nota personal: sin barra Atrás/Guardar (vuelve al salir del campo) */
-.form-step5-footer.form-mid-footer-row.form-step5-footer--nota-focus {
-  display: none;
 }
 
 .form-step5-scroll-hint {
