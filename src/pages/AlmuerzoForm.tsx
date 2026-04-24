@@ -959,6 +959,11 @@ export function AlmuerzoForm({ mode }: Props) {
             <h3 id={bocSectionTitleId} className="form-mid-section-title">
               Bocadillo
             </h3>
+            {showBocNameInlineError && (
+              <p id={bocNameInlineErrorId} className="form-boc-inline-error" role="alert">
+                Añade el nombre del bocadillo para continuar.
+              </p>
+            )}
             <div className="form-boc-pill-wrap">
               <IconEsmorzar className="form-boc-pill-icon" />
               <input
@@ -983,11 +988,6 @@ export function AlmuerzoForm({ mode }: Props) {
               />
             </div>
             <p className="form-boc-subtitle">Ej: Chivito, Tortilla francesa con longanizas...</p>
-            {showBocNameInlineError && (
-              <p id={bocNameInlineErrorId} className="form-boc-inline-error" role="alert">
-                Añade el nombre del bocadillo para continuar.
-              </p>
-            )}
           </section>
 
           <section className="form-mid-section">
