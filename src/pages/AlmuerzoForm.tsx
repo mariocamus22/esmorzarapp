@@ -52,6 +52,16 @@ const BOCADILLO_NAME_PLACEHOLDER = 'Escribe el bocadillo'
 /** Placeholder sin €: el sufijo fijo completa la lectura “0,00€”. */
 const PRECIO_PLACEHOLDER = '0,00'
 
+/** Preguntas guía para la nota personal (paso resumen); multilínea en el placeholder. */
+const NOTA_PERSONAL_PROMPTS = [
+  '¿Cómo estaba el pan?',
+  '¿La cantidad era suficiente?',
+  '¿Qué tal el cremaet?',
+  '¿Quieres comentar algo de la atención al cliente?',
+] as const
+
+const NOTA_PERSONAL_PLACEHOLDER = NOTA_PERSONAL_PROMPTS.join('\n')
+
 const ES_MONTHS = [
   'enero',
   'febrero',
@@ -366,6 +376,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const bebidaInlineErrorId = useId()
   const cafeSectionTitleId = useId()
   const cafeInlineErrorId = useId()
+  const notaPersonalHintId = useId()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const mapsDebug = searchParams.get('mapsDebug') === '1'
@@ -1364,7 +1375,10 @@ export function AlmuerzoForm({ mode }: Props) {
                 <label className="form-step5-review-label" htmlFor="form-step5-review">
                   Nota personal <span className="muted">(opcional)</span>
                 </label>
-                <p className="form-step5-review-hint">Este comentario es privado y solo lo podrás ver tú.</p>
+                <p id={notaPersonalHintId} className="form-step5-review-hint">
+                  Este comentario es privado y solo lo podrás ver tú. Las líneas en gris del recuadro
+                  son solo ideas de qué anotar; se ocultan cuando empiezas a escribir.
+                </p>
                 <textarea
                   id="form-step5-review"
                   className="form-step5-review-textarea"
@@ -1375,8 +1389,9 @@ export function AlmuerzoForm({ mode }: Props) {
                       raw.length > 0 ? raw.charAt(0).toLocaleUpperCase('es') + raw.slice(1) : raw
                     setReview(next)
                   }}
-                  rows={4}
-                  placeholder="¿Qué te ha parecido el almuerzo?"
+                  rows={5}
+                  placeholder={NOTA_PERSONAL_PLACEHOLDER}
+                  aria-describedby={notaPersonalHintId}
                 />
               </div>
 

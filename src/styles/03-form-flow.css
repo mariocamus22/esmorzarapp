@@ -1068,7 +1068,7 @@ button.form-flow-back:hover {
 .form-step5-review-textarea {
   width: 100%;
   box-sizing: border-box;
-  min-height: 120px;
+  min-height: 132px;
   max-height: min(42vh, 16rem);
   resize: none;
   overflow-y: auto;
