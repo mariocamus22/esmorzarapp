@@ -665,16 +665,7 @@ button.form-flow-back:hover {
   backdrop-filter: blur(6px);
 }
 
-/* Pasos 2–4: CTAs dentro del scroll para que no queden pegados al teclado al editar texto */
-.form-mid-footer-row--scroll {
-  position: relative;
-  bottom: auto;
-  z-index: 1;
-  flex-shrink: 0;
-  margin-top: auto;
-}
-
-/* Paso Café: espacio para que la última opción no quede tapada al hacer scroll con CTA sticky */
+/* Paso Café: espacio al final del scroll (footer sticky va fuera del scroll) */
 .form-mid-content--sticky-mid-cta > .form-mid-section:last-of-type {
   margin-bottom: 0.35rem;
   padding-bottom: max(4.75rem, calc(env(safe-area-inset-bottom) + 3.5rem));
@@ -932,8 +923,7 @@ button.form-flow-back:hover {
   flex-direction: column;
   gap: 1.5rem;
   padding-top: 0.35rem;
-  /* CTAs dentro del scroll (como paso bocadillo): el footer lleva el padding inferior */
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-bottom: calc(6.8rem + env(safe-area-inset-bottom));
 }
 
 .form-summary-card {

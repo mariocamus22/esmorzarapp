@@ -278,7 +278,7 @@ function FormSteps234Shell({
   onAtras,
   onSiguiente,
   accionPrincipalLabel = 'Siguiente',
-  /** Sin teclado de texto: CTAs sticky al pie del área de scroll (p. ej. paso Café). */
+  /** Paso Café: padding extra al final del scroll para no tapar la última opción con el footer sticky. */
   ctaStickyBottom = false,
   children,
 }: {
@@ -292,6 +292,7 @@ function FormSteps234Shell({
   onAtras: () => void
   onSiguiente: () => void
   accionPrincipalLabel?: string
+  /** Solo afecta al contenedor con scroll; el footer siempre va sticky fuera del scroll. */
   ctaStickyBottom?: boolean
   children: ReactNode
 }) {
@@ -355,20 +356,18 @@ function FormSteps234Shell({
         className={`form-mid-content${ctaStickyBottom ? ' form-mid-content--sticky-mid-cta' : ''}`}
       >
         {children}
-        <footer
-          className={`form-mid-footer-row${ctaStickyBottom ? '' : ' form-mid-footer-row--scroll'}`}
-        >
-          <button type="button" className="form-mid-btn-atras" onClick={onAtras}>
-            Atrás
-          </button>
-          <button type="button" className="form-mid-btn-siguiente" onClick={onSiguiente}>
-            {accionPrincipalLabel}
-            <span className="form-mid-btn-arrow" aria-hidden>
-              →
-            </span>
-          </button>
-        </footer>
       </div>
+      <footer className="form-mid-footer-row">
+        <button type="button" className="form-mid-btn-atras" onClick={onAtras}>
+          Atrás
+        </button>
+        <button type="button" className="form-mid-btn-siguiente" onClick={onSiguiente}>
+          {accionPrincipalLabel}
+          <span className="form-mid-btn-arrow" aria-hidden>
+            →
+          </span>
+        </button>
+      </footer>
     </>
   )
 }
@@ -581,46 +580,6 @@ export function AlmuerzoForm({ mode }: Props) {
   useLayoutEffect(() => {
     scrollAppViewportToTop()
   }, [step])
-
-  /** Con teclado virtual, 100dvh no coincide con el área visible: acotamos <main> al visualViewport para poder hacer scroll hasta el resumen. */
-  useEffect(() => {
-    const mainEl = mainFormRef.current
-    if (step !== 5 || loadingEdit || optionsLoading) {
-      if (mainEl) {
-        mainEl.style.maxHeight = ''
-        mainEl.style.minHeight = ''
-      }
-      return
-    }
-    const vv = window.visualViewport
-    if (!vv || !mainEl) return
-
-    const apply = () => {
-      const m = mainFormRef.current
-      if (!m) return
-      const rect = m.getBoundingClientRect()
-      const bottomVisible = vv.offsetTop + vv.height
-      const h = Math.floor(bottomVisible - rect.top - 2)
-      const capped = Math.max(260, h)
-      m.style.maxHeight = `${capped}px`
-      m.style.minHeight = `${capped}px`
-    }
-
-    apply()
-    vv.addEventListener('resize', apply)
-    vv.addEventListener('scroll', apply)
-    window.addEventListener('resize', apply)
-    return () => {
-      vv.removeEventListener('resize', apply)
-      vv.removeEventListener('scroll', apply)
-      window.removeEventListener('resize', apply)
-      const left = mainFormRef.current
-      if (left) {
-        left.style.maxHeight = ''
-        left.style.minHeight = ''
-      }
-    }
-  }, [step, loadingEdit, optionsLoading])
 
   useEffect(() => {
     return () => {
@@ -1576,19 +1535,6 @@ export function AlmuerzoForm({ mode }: Props) {
                 </div>
               )}
 
-              <footer className="form-mid-footer-row form-mid-footer-row--scroll form-step5-footer">
-                <button type="button" className="form-step5-btn-atras" onClick={() => window.history.back()}>
-                  Atrás
-                </button>
-                <button type="submit" className="form-mid-btn-siguiente" disabled={saving}>
-                  {saving ? 'Guardando…' : 'Guardar almuerzo'}
-                  {!saving && (
-                    <span className="form-mid-btn-arrow" aria-hidden>
-                      →
-                    </span>
-                  )}
-                </button>
-              </footer>
             </div>
 
             {showStep5ScrollHint && (
@@ -1607,6 +1553,20 @@ export function AlmuerzoForm({ mode }: Props) {
                 <IconScrollDown className="form-step5-scroll-hint-icon" />
               </button>
             )}
+
+            <footer className="form-mid-footer-row form-step5-footer">
+              <button type="button" className="form-step5-btn-atras" onClick={() => window.history.back()}>
+                Atrás
+              </button>
+              <button type="submit" className="form-mid-btn-siguiente" disabled={saving}>
+                {saving ? 'Guardando…' : 'Guardar almuerzo'}
+                {!saving && (
+                  <span className="form-mid-btn-arrow" aria-hidden>
+                    →
+                  </span>
+                )}
+              </button>
+            </footer>
           </form>
         </>
       )}
