@@ -1007,7 +1007,7 @@ button.form-flow-back:hover {
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: 0.45rem;
+  margin-top: 0.65rem;
 }
 
 .form-summary-togglelink {
@@ -1055,41 +1055,6 @@ button.form-flow-back:hover {
 
 .form-summary-togglelink-chevron.is-open {
   transform: rotate(180deg);
-}
-
-.form-summary-compact {
-  margin-top: 0.55rem;
-  padding: 0.35rem 0.25rem 0.05rem;
-  text-align: center;
-}
-
-.form-summary-compact-boc {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.28;
-  letter-spacing: -0.02em;
-  color: var(--color-fg);
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-}
-
-.form-summary-compact-meta {
-  margin: 0.4rem 0 0;
-  font-size: 0.8125rem;
-  font-weight: 400;
-  line-height: 1.38;
-  color: var(--color-fg-muted);
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
 }
 
 .form-summary-details {
@@ -1463,14 +1428,6 @@ button.form-flow-back:hover {
 
   html[data-theme="dark"] .form-summary-boc-name {
     color: var(--app-text, #f5f3ee);
-  }
-
-  html[data-theme="dark"] .form-summary-compact-boc {
-    color: var(--app-text, #f5f3ee);
-  }
-
-  html[data-theme="dark"] .form-summary-compact-meta {
-    color: var(--color-muted, #b8b3ab);
   }
 
   html[data-theme="dark"] .form-summary-togglelink {

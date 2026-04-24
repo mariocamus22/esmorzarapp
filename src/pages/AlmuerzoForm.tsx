@@ -1036,8 +1036,6 @@ export function AlmuerzoForm({ mode }: Props) {
   const drinkRawLabel = bebidaRowSummary?.label ?? ''
   const drinkChipPlain = drinkRawLabel ? beverageSelectLabel(drinkRawLabel) : '—'
   const coffeeChipText = labelByOptionId(mealOptions, cafeOptionId) || '—'
-  const summaryGastoPeek =
-    gastoSummaryLabels.length > 0 ? gastoSummaryLabels.join(' · ') : 'Sin indicar'
 
   return (
     <main ref={mainFormRef} id={MAIN_CONTENT_ID} className={mainClass}>
@@ -1342,19 +1340,6 @@ export function AlmuerzoForm({ mode }: Props) {
                   </div>
                 </div>
 
-                {!summaryDetailsExpanded && (
-                  <div className="form-summary-compact">
-                    <p className="form-summary-compact-boc">{bocNameSummary}</p>
-                    <p className="form-summary-compact-meta">
-                      <span>{drinkChipPlain}</span>
-                      <span aria-hidden="true"> · </span>
-                      <span>{coffeeChipText}</span>
-                      <span aria-hidden="true"> · </span>
-                      <span>{summaryGastoPeek}</span>
-                    </p>
-                  </div>
-                )}
-
                 <div className="form-summary-toggle-wrap">
                   <button
                     id={summaryToggleId}
@@ -1364,7 +1349,9 @@ export function AlmuerzoForm({ mode }: Props) {
                     aria-controls={summaryDetailsRegionId}
                     onClick={() => setSummaryDetailsExpanded((v) => !v)}
                   >
-                    <span>{summaryDetailsExpanded ? 'Reducir resumen' : 'Ampliar resumen'}</span>
+                    <span>
+                      {summaryDetailsExpanded ? 'Ocultar resumen del almuerzo' : 'Ver resumen almuerzo'}
+                    </span>
                     <IconChevronDown
                       className={`form-summary-togglelink-chevron${summaryDetailsExpanded ? ' is-open' : ''}`}
                     />
