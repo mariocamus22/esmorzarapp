@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 import { useAuth } from '../hooks/useAuth'
@@ -9,6 +10,7 @@ import { barLocationLine } from '../lib/barLocation'
 import { hasSupabaseConfig } from '../lib/env'
 import type { Almuerzo, LevelRow, UserProfile } from '../types/almuerzo'
 import { FirstAlmuerzoCelebrationModal } from '../components/FirstAlmuerzoCelebrationModal'
+import { MAIN_CONTENT_ID } from '../components/SkipToMainContent'
 import { IconEsmorzar } from '../components/IconEsmorzar'
 
 function formatFechaLarga(isoDate: string): string {
@@ -149,19 +151,20 @@ function FeedbackModal({ open, onClose }: FeedbackModalProps) {
   const titleId = useId()
   const descId = useId()
   const fieldId = useId()
+  const dialogRef = useRef<HTMLDivElement>(null)
   const taRef = useRef<HTMLTextAreaElement>(null)
   const [text, setText] = useState('')
   const [shake, setShake] = useState(false)
+
+  useFocusTrap(dialogRef, { active: open, initialFocusRef: taRef })
 
   useEffect(() => {
     if (!open) return
     const t1 = window.setTimeout(() => {
       setText('')
     }, 0)
-    const t2 = window.setTimeout(() => taRef.current?.focus(), 50)
     return () => {
       window.clearTimeout(t1)
-      window.clearTimeout(t2)
     }
   }, [open])
 
@@ -205,9 +208,11 @@ function FeedbackModal({ open, onClose }: FeedbackModalProps) {
         type="button"
         className="feedback-modal-backdrop"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
       />
       <div
+        ref={dialogRef}
         className="feedback-modal-dialog"
         role="dialog"
         aria-modal="true"
@@ -651,7 +656,7 @@ export function HomeList() {
   }, [sinConfig, levelProgress])
 
   return (
-    <main className="page home-page">
+    <main id={MAIN_CONTENT_ID} className="page home-page">
       <FirstAlmuerzoCelebrationModal
         open={celebrateFirstAlmuerzo}
         onClose={dismissFirstAlmuerzoCelebration}

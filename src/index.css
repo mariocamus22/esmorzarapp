@@ -12,7 +12,8 @@
   --app-accent-hover: #e09820;
   --app-accent-soft: rgba(245, 166, 35, 0.18);
   --app-text: #1a1a1a;
-  --app-text-muted: #9e9e9e;
+  /* Contraste ≥ ~4.5:1 sobre fons clar per text secundari */
+  --app-text-muted: #6a6560;
   --app-border: #d6d3cc;
 
   /* Compatibilitat amb estils existents */
@@ -22,10 +23,10 @@
   --color-surface: var(--app-surface);
   --color-border: var(--app-border);
   --color-accent: var(--app-accent);
-  --color-link: #c2410c;
+  --color-link: #9a3412;
   --home-orange: var(--app-accent);
   --home-orange-soft: var(--app-accent-soft);
-  --home-label: #6b6560;
+  --home-label: #524d48;
   --home-card-shadow: 0 2px 14px rgba(26, 26, 26, 0.06);
 
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -71,4 +72,20 @@ body {
 
 #root {
   min-height: 100dvh;
+}
+
+#main-content {
+  scroll-margin-top: 1rem;
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --app-border: #7a756d;
+    --app-text-muted: #4a4540;
+  }
+
+  html[data-theme='dark'] {
+    --app-border: #8a8680;
+    --app-text-muted: #d8d3ca;
+  }
 }

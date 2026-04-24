@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 import { getFotoPublicUrl } from '../lib/almuerzosApi'
 
 const PHOTO_LIGHTBOX_HISTORY_KEY = 'esmorzarPhotoLightbox' as const
@@ -101,6 +102,8 @@ export function DetailPhotoLightbox({ paths, startIndex, onClose }: DetailPhotoL
   const [i, setI] = useState(() => Math.min(Math.max(0, startIndex), Math.max(0, n - 1)))
   const [zoomed, setZoomed] = useState(false)
   const iRef = useRef(i)
+
+  useFocusTrap(rootRef, { active: true, initialFocusRef: closeRef })
 
   useEffect(() => {
     iRef.current = i
@@ -217,7 +220,6 @@ export function DetailPhotoLightbox({ paths, startIndex, onClose }: DetailPhotoL
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    queueMicrotask(() => closeRef.current?.focus())
     return () => {
       document.body.style.overflow = prev
     }

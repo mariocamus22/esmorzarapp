@@ -3,6 +3,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -22,6 +23,7 @@ import { BarPlaceSearch, type BarPlaceResolved } from '../components/BarPlaceSea
 import { DrinkOptionEmoji } from '../components/DrinkOptionEmoji'
 import { IconEsmorzar } from '../components/IconEsmorzar'
 import { AlmuerzoSaveSplash } from '../components/AlmuerzoSaveSplash'
+import { MAIN_CONTENT_ID } from '../components/SkipToMainContent'
 import { MapsStepDiagnostics } from '../components/MapsStepDiagnostics'
 import { useAuth } from '../hooks/useAuth'
 import { formatSupabaseError } from '../lib/errors'
@@ -230,6 +232,7 @@ const FORM_EXIT_CONFIRM_MSG =
   '¿Seguro que quieres salir? Los cambios que has hecho en el formulario no se guardarán.'
 
 function FormSteps234Shell({
+  formMode,
   step,
   mealDate,
   barName,
@@ -241,6 +244,7 @@ function FormSteps234Shell({
   accionPrincipalLabel = 'Siguiente',
   children,
 }: {
+  formMode: 'create' | 'edit'
   step: MidStep
   mealDate: string
   barName: string
@@ -252,8 +256,10 @@ function FormSteps234Shell({
   accionPrincipalLabel?: string
   children: ReactNode
 }) {
+  const pageTitle = formMode === 'edit' ? 'Editar almuerzo' : 'Registrar almuerzo'
   return (
     <>
+      <h1 className="visually-hidden">{pageTitle}</h1>
       <header className="form-mid-shell-header">
         <span className="form-mid-header-spacer" aria-hidden />
         <div className="form-mid-head-center">
@@ -281,6 +287,7 @@ function FormSteps234Shell({
           type="button"
           className={`form-mid-tab ${step === 2 ? 'is-active' : ''}`}
           onClick={() => onTab(2)}
+          aria-current={step === 2 ? 'step' : undefined}
         >
           <IconEsmorzar className="form-mid-tab-icon" />
           <span className="form-mid-tab-text">Bocadillo y Gasto</span>
@@ -289,6 +296,7 @@ function FormSteps234Shell({
           type="button"
           className={`form-mid-tab ${step === 3 ? 'is-active' : ''}`}
           onClick={() => onTab(3)}
+          aria-current={step === 3 ? 'step' : undefined}
         >
           <IconDrinkTab className="form-mid-tab-icon" />
           <span className="form-mid-tab-text">Bebida</span>
@@ -297,6 +305,7 @@ function FormSteps234Shell({
           type="button"
           className={`form-mid-tab ${step === 4 ? 'is-active' : ''}`}
           onClick={() => onTab(4)}
+          aria-current={step === 4 ? 'step' : undefined}
         >
           <IconCoffeeTab className="form-mid-tab-icon" />
           <span className="form-mid-tab-text">Café</span>
@@ -321,6 +330,8 @@ function FormSteps234Shell({
 }
 
 export function AlmuerzoForm({ mode }: Props) {
+  const bocSectionTitleId = useId()
+  const cafeSectionTitleId = useId()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const mapsDebug = searchParams.get('mapsDebug') === '1'
@@ -774,7 +785,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
   if (!hasSupabaseConfig()) {
     return (
-      <main className="page">
+      <main id={MAIN_CONTENT_ID} className="page">
         <p className="banner banner-warn">Configura primero el archivo .env con Supabase.</p>
         <Link to="/" className="back-link">
           ← Volver
@@ -785,7 +796,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
   if (loadingEdit || optionsLoading) {
     return (
-      <main className="page">
+      <main id={MAIN_CONTENT_ID} className="page">
         <div className="loading-block" aria-busy="true">
           <span className="spinner" aria-hidden />
           <span className="muted">Cargando formulario…</span>
@@ -815,7 +826,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const coffeeChipText = labelByOptionId(mealOptions, cafeOptionId) || '—'
 
   return (
-    <main className={mainClass}>
+    <main id={MAIN_CONTENT_ID} className={mainClass}>
       <AlmuerzoSaveSplash key={saveSplashKey} visible={saving} />
       {error && (
         <p className="banner banner-error" role="alert">
@@ -914,6 +925,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
       {step === 2 && (
         <FormSteps234Shell
+          formMode={mode}
           step={2}
           mealDate={mealDate}
           barName={barName}
@@ -924,13 +936,16 @@ export function AlmuerzoForm({ mode }: Props) {
           onSiguiente={handleMidSiguiente}
         >
           <section className="form-mid-section">
-            <h3 className="form-mid-section-title">Bocadillo</h3>
+            <h3 id={bocSectionTitleId} className="form-mid-section-title">
+              Bocadillo
+            </h3>
             <div className="form-boc-pill-wrap">
               <IconEsmorzar className="form-boc-pill-icon" />
               <input
                 id="form-step2-boc"
                 className="form-boc-pill-input"
                 type="text"
+                aria-labelledby={bocSectionTitleId}
                 value={bocName}
                 onChange={(e) => {
                   const raw = e.target.value
@@ -970,6 +985,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
       {step === 3 && (
         <FormSteps234Shell
+          formMode={mode}
           step={3}
           mealDate={mealDate}
           barName={barName}
@@ -989,6 +1005,7 @@ export function AlmuerzoForm({ mode }: Props) {
                     key={opt.id}
                     type="button"
                     className={`form-drink-card ${selected ? 'is-selected' : ''}`}
+                    aria-pressed={selected}
                     onClick={() =>
                       setBebidaOptionId((prev) => (prev === opt.id ? '' : opt.id))
                     }
@@ -1007,6 +1024,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
       {step === 4 && (
         <FormSteps234Shell
+          formMode={mode}
           step={4}
           mealDate={mealDate}
           barName={barName}
@@ -1018,16 +1036,22 @@ export function AlmuerzoForm({ mode }: Props) {
           accionPrincipalLabel="Finalizar"
         >
           <section className="form-mid-section">
-            <h3 className="form-mid-section-title">Café</h3>
-            <div className="form-cafe-row-list" role="listbox" aria-label="Elige el café">
+            <h3 id={cafeSectionTitleId} className="form-mid-section-title">
+              Café
+            </h3>
+            <div
+              className="form-cafe-row-list"
+              role="radiogroup"
+              aria-labelledby={cafeSectionTitleId}
+            >
               {cafeOpts.map((opt) => {
                 const selected = cafeOptionId === opt.id
                 return (
                   <button
                     key={opt.id}
                     type="button"
-                    role="option"
-                    aria-selected={selected}
+                    role="radio"
+                    aria-checked={selected}
                     className={`form-cafe-row ${selected ? 'is-selected' : ''}`}
                     onClick={() =>
                       setCafeOptionId((prev) => (prev === opt.id ? '' : opt.id))

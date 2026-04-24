@@ -5,6 +5,7 @@ import { formatSupabaseError } from '../lib/errors'
 import { autoLoginSharedPassword, isAutoLoginEmail } from '../lib/autoLogin'
 import { hasSupabaseConfig, passwordLoginEnabled } from '../lib/env'
 import { supabase } from '../lib/supabaseClient'
+import { MAIN_CONTENT_ID } from '../components/SkipToMainContent'
 
 /**
  * Acceso por enlace mágico al correo (Supabase Auth).
@@ -20,7 +21,7 @@ export function LoginPage() {
 
   if (!hasSupabaseConfig()) {
     return (
-      <main className="page">
+      <main id={MAIN_CONTENT_ID} className="page">
         <p className="banner banner-warn">Falta el archivo .env con VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY.</p>
         <Link to="/">Volver</Link>
       </main>
@@ -29,7 +30,7 @@ export function LoginPage() {
 
   if (loading) {
     return (
-      <main className="page">
+      <main id={MAIN_CONTENT_ID} className="page">
         <p className="muted">Cargando…</p>
       </main>
     )
@@ -93,7 +94,7 @@ export function LoginPage() {
   }
 
   return (
-    <main className="page">
+    <main id={MAIN_CONTENT_ID} className="page">
       <header className="page-header">
         <h1>Iniciar sesión</h1>
         <p className="muted">

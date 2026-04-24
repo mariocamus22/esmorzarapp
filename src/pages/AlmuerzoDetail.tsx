@@ -12,6 +12,7 @@ import { barLocationLine } from '../lib/barLocation'
 import { formatSupabaseError } from '../lib/errors'
 import { deleteAlmuerzo, getAlmuerzo, getFotoPublicUrl } from '../lib/almuerzosApi'
 import { hasSupabaseConfig } from '../lib/env'
+import { MAIN_CONTENT_ID } from '../components/SkipToMainContent'
 import type { Almuerzo } from '../types/almuerzo'
 
 function formatFechaLarga(isoDate: string): string {
@@ -282,7 +283,7 @@ export function AlmuerzoDetail() {
 
   if (!hasSupabaseConfig()) {
     return (
-      <main className="page">
+      <main id={MAIN_CONTENT_ID} className="page">
         <p className="banner banner-warn">Falta configurar el archivo .env con Supabase.</p>
         <Link to="/">← Volver</Link>
       </main>
@@ -291,7 +292,7 @@ export function AlmuerzoDetail() {
 
   if (loading) {
     return (
-      <main className="page detail-page">
+      <main id={MAIN_CONTENT_ID} className="page detail-page">
         <div className="loading-block" aria-busy="true">
           <span className="spinner" aria-hidden />
           <span className="muted">Cargando…</span>
@@ -302,7 +303,7 @@ export function AlmuerzoDetail() {
 
   if (error || !row) {
     return (
-      <main className="page">
+      <main id={MAIN_CONTENT_ID} className="page">
         <p className="banner banner-error">{error ?? 'No encontrado'}</p>
         <Link to="/" className="back-link">
           ← Volver al listado
@@ -328,7 +329,7 @@ export function AlmuerzoDetail() {
   const dualCols = (hasDrink && hasCoffee) || (!hasDrink && !hasCoffee)
 
   return (
-    <main className="page detail-page">
+    <main id={MAIN_CONTENT_ID} className="page detail-page">
       <div className="detail-layout">
         <div className="detail-scroll">
           <div className="detail-pad">

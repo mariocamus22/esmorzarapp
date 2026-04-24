@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AdminImpersonationBar } from './components/AdminImpersonationBar'
+import { SkipToMainContent } from './components/SkipToMainContent'
 import { RequireAuth } from './components/RequireAuth'
 import { ScrollToTopOnRoute } from './components/ScrollToTopOnRoute'
 import { AuthProvider } from './contexts/AuthProvider'
@@ -19,6 +20,7 @@ function App() {
         <ScrollToTopOnRoute />
         <AdminImpersonationBar />
         <div className="app-shell">
+          <SkipToMainContent />
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route element={<RequireAuth />}>

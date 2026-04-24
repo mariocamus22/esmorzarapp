@@ -6,6 +6,35 @@
   padding: 1.25rem 1.25rem 2rem;
 }
 
+/* WCAG 2.4.1 — visible solo al recibir foco por teclado */
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 100001;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--app-text, #1a1a1a);
+  background: var(--app-surface, #fff);
+  border: 2px solid var(--app-accent, #f5a623);
+  box-shadow: 0 4px 16px rgba(26, 26, 26, 0.12);
+}
+
+.skip-to-main:focus {
+  left: max(0.75rem, env(safe-area-inset-left));
+  top: max(0.75rem, env(safe-area-inset-top));
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+}
+
 .page-header {
   margin-bottom: 1.5rem;
 }
@@ -32,6 +61,12 @@
 
 .back-link:hover {
   text-decoration: underline;
+}
+
+.back-link:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .empty-state {
@@ -69,6 +104,27 @@
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 2px;
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--app-text, #1a1a1a);
+  outline-offset: 2px;
+}
+
+.btn-secondary:focus-visible,
+.btn-danger:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 2px;
+}
+
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 2px;
 }
 
 .btn-primary {
@@ -257,6 +313,14 @@
   min-height: 3rem;
 }
 
+.field input[type='text']:focus-visible,
+.field input[type='date']:focus-visible,
+.field input[type='email']:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--app-accent, #f5a623);
+  outline-offset: 2px;
+}
+
 .field fieldset {
   margin: 0;
   padding: 0.75rem 0 0;
@@ -304,8 +368,13 @@
   position: absolute;
   top: -6px;
   right: -6px;
-  width: 28px;
-  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
   border: none;
   background: var(--color-surface);
@@ -588,10 +657,10 @@ html[data-theme='dark'] .home-theme-toggle-thumb {
   flex-shrink: 0;
   margin-top: auto;
   padding-top: 0.28rem;
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   color: var(--home-label);
 }
 
@@ -1106,8 +1175,8 @@ html[data-theme='dark'] .home-theme-toggle-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   border-radius: 8px;
@@ -1164,8 +1233,8 @@ html[data-theme='dark'] .home-theme-toggle-thumb {
 }
 
 .home-meal-cal-nav-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   border-radius: 10px;
@@ -1321,6 +1390,12 @@ a.home-meal-cal-cell:active {
 
 .home-link-all:hover {
   text-decoration: underline;
+}
+
+.home-link-all:focus-visible {
+  outline: 2px solid var(--home-orange, #f5a623);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .home-empty-card {
@@ -1591,6 +1666,12 @@ a.home-meal-cal-cell:active {
 
 .home-sign-out:hover {
   color: var(--color-text);
+}
+
+.home-sign-out:focus-visible {
+  outline: 2px solid var(--home-orange, #f5a623);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .home-loading-inline {
@@ -3118,14 +3199,27 @@ button.form-flow-back:hover {
 
 .detail-hero-dot {
   flex-shrink: 0;
-  width: 6px;
-  height: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.detail-hero-dot::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
   background: #ffffff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
   transition:
     width 0.28s ease,
     height 0.28s ease,
@@ -3133,7 +3227,7 @@ button.form-flow-back:hover {
     box-shadow 0.2s ease;
 }
 
-.detail-hero-dot.is-active {
+.detail-hero-dot.is-active::after {
   width: 18px;
   height: 6px;
   border-radius: 999px;
@@ -3390,20 +3484,32 @@ button.form-flow-back:hover {
 
 .detail-photo-lightbox-dot {
   flex-shrink: 0;
-  width: 6px;
-  height: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.35);
+  background: transparent;
   cursor: pointer;
+}
+
+.detail-photo-lightbox-dot::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
   transition:
     width 0.28s ease,
     height 0.28s ease,
     background 0.2s ease;
 }
 
-.detail-photo-lightbox-dot.is-active {
+.detail-photo-lightbox-dot.is-active::after {
   width: 18px;
   height: 6px;
   border-radius: 999px;
@@ -3660,7 +3766,7 @@ button.form-flow-back:hover {
     color: var(--app-text, #e8e4dc);
   }
 
-  html[data-theme="dark"] .detail-hero-dots-row .detail-hero-dot {
+  html[data-theme="dark"] .detail-hero-dots-row .detail-hero-dot::after {
     background: #ffffff;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
   }

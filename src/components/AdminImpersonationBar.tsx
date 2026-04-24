@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { startTransition, useCallback, useEffect, useId, useRef, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { adminSearchUsers, type AdminUserSearchRow } from '../lib/adminUsersApi'
 import { formatSupabaseError } from '../lib/errors'
@@ -33,25 +33,30 @@ export function AdminImpersonationBar() {
 
   useEffect(() => {
     if (!open || !isSupportAdmin || !hasSupabaseConfig()) {
-      setRows([])
-      setError(null)
-      setLoading(false)
+      startTransition(() => {
+        setRows([])
+        setError(null)
+        setLoading(false)
+      })
       return
     }
 
     let cancelled = false
-    setLoading(true)
-    setError(null)
-    void adminSearchUsers(debounced)
-      .then((list) => {
-        if (!cancelled) setRows(list)
-      })
-      .catch((e) => {
-        if (!cancelled) setError(formatSupabaseError(e))
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
+    void Promise.resolve().then(() => {
+      if (cancelled) return
+      setLoading(true)
+      setError(null)
+      void adminSearchUsers(debounced)
+        .then((list) => {
+          if (!cancelled) setRows(list)
+        })
+        .catch((e) => {
+          if (!cancelled) setError(formatSupabaseError(e))
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false)
+        })
+    })
 
     return () => {
       cancelled = true
@@ -78,7 +83,7 @@ export function AdminImpersonationBar() {
       setOpen(false)
       setQuery('')
     },
-    [setImpersonation, user?.id],
+    [setImpersonation, user],
   )
 
   if (!isSupportAdmin) return null

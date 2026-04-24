@@ -6,9 +6,12 @@ import {
   useCallback,
   useEffect,
   useId,
+  useRef,
   useState,
   useSyncExternalStore,
 } from 'react'
+
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 import confettiAnimation from '../assets/lottie/confetti.json'
 
@@ -87,8 +90,12 @@ type Props = {
 export function FirstAlmuerzoCelebrationModal({ open, onClose, levelLabel }: Props) {
   const titleId = useId()
   const descId = useId()
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const primaryRef = useRef<HTMLButtonElement>(null)
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, reducedMotionSnapshot, () => false)
   const playLottie = !reducedMotion
+
+  useFocusTrap(dialogRef, { active: open, initialFocusRef: primaryRef })
 
   useEffect(() => {
     if (!open) return
@@ -123,9 +130,11 @@ export function FirstAlmuerzoCelebrationModal({ open, onClose, levelLabel }: Pro
         type="button"
         className="first-almuerzo-celebration-backdrop"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
       />
       <div
+        ref={dialogRef}
         className="first-almuerzo-celebration-dialog"
         role="dialog"
         aria-modal="true"
@@ -148,7 +157,12 @@ export function FirstAlmuerzoCelebrationModal({ open, onClose, levelLabel }: Pro
           </button>
         </div>
         <div className="first-almuerzo-celebration-actions">
-          <button type="button" className="btn btn-primary first-almuerzo-celebration-btn" onClick={onClose}>
+          <button
+            ref={primaryRef}
+            type="button"
+            className="btn btn-primary first-almuerzo-celebration-btn"
+            onClick={onClose}
+          >
             Genial
           </button>
         </div>
