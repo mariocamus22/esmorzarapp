@@ -443,42 +443,42 @@ button.form-flow-back:hover {
 .form-boc-pill-icon {
   position: absolute;
   left: 1.05rem;
-  color: var(--app-text-muted, #9e9e9e);
+  color: var(--app-text-muted, var(--color-muted));
   pointer-events: none;
 }
 
 .form-boc-pill-input {
   width: 100%;
-  padding: 0.55rem 0.65rem 0.55rem 2.55rem;
+  padding: 0.95rem 1.1rem 0.95rem 2.85rem;
   border-radius: 999px;
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-surface);
-  color: var(--app-text, #1a1a1a);
+  border: 1px solid transparent;
+  background: var(--app-fill, #eceae4);
+  color: var(--app-text, var(--color-text));
   font: inherit;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.25;
+  font-size: 0.9375rem;
+  font-weight: 400;
 }
 
 .form-boc-pill-input:focus {
   outline: none;
   border-style: solid;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 1px var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-soft);
 }
 
 .form-boc-pill-input:hover {
-  border-color: var(--color-primary);
+  border-color: transparent;
 }
 
 .form-boc-pill-input::placeholder {
+  color: var(--app-text-muted, #8a8478);
   opacity: 1;
-  font-style: normal;
+  font-weight: 500;
+  font-style: italic;
 }
 
 /* Placeholders y estado “sin rellenar” unificados (formulario almuerzo) */
 .form-step1-search-input::placeholder,
-.form-boc-pill-input::placeholder,
 .form-step5-review-textarea::placeholder,
 .form-step5-price-input::placeholder,
 .form-drink-other-input::placeholder {
@@ -498,8 +498,8 @@ button.form-flow-back:hover {
 .form-boc-pill-input:placeholder-shown:not(:focus) {
   border-style: solid;
   border-width: 1px;
-  border-color: var(--color-border-subtle);
-  background: var(--color-surface);
+  border-color: transparent;
+  background: var(--app-fill, #eceae4);
 }
 
 .form-step5-review-textarea:placeholder-shown:not(:focus) {
@@ -1184,13 +1184,13 @@ button.form-flow-back:hover {
   }
 
   html[data-theme="dark"] .form-boc-pill-input {
-    background: var(--app-surface, #2a2926);
-    border-color: var(--app-border, #5c5a54);
+    background: var(--app-fill, #3d3b36);
+    border-color: transparent;
   }
 
   html[data-theme="dark"] .form-boc-pill-input:placeholder-shown:not(:focus) {
-    background: var(--app-surface, #2a2926);
-    border-color: var(--app-border, #5c5a54);
+    background: var(--app-fill, #3d3b36);
+    border-color: transparent;
   }
 
   html[data-theme="dark"] .form-step5-review-textarea:placeholder-shown:not(:focus), html[data-theme="dark"] .form-step5-price-input:placeholder-shown:not(:focus) {
