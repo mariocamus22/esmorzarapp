@@ -1121,11 +1121,6 @@ button.form-flow-back:hover {
     box-shadow 0.15s ease;
 }
 
-/* Con placeholder "0,00€" ocultamos el sufijo duplicado hasta que haya foco o valor */
-.form-step5-price-field:not(:focus-within) .form-step5-price-input:placeholder-shown ~ .form-step5-price-suffix {
-  display: none;
-}
-
 .form-step5-price-field:focus-within {
   outline: none;
   border-style: solid;
@@ -1166,6 +1161,7 @@ button.form-flow-back:hover {
   line-height: 1.45;
   color: inherit;
   user-select: none;
+  cursor: text;
 }
 
 .form-step5-price-input::placeholder {

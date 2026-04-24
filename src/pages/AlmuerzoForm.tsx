@@ -1,5 +1,7 @@
 import {
+  type FocusEvent,
   type FormEvent,
+  type MouseEvent,
   type ReactNode,
   useCallback,
   useEffect,
@@ -46,6 +48,9 @@ type Props = {
 const BAR_SEARCH_PLACEHOLDER = 'Escribe el nombre del bar'
 
 const BOCADILLO_NAME_PLACEHOLDER = 'Escribe el bocadillo'
+
+/** Placeholder sin €: el sufijo fijo completa la lectura “0,00€”. */
+const PRECIO_PLACEHOLDER = '0,00'
 
 const ES_MONTHS = [
   'enero',
@@ -132,6 +137,17 @@ function buildInput(
 /** Solo dígitos y coma decimal; el símbolo € se muestra fijo fuera del input. */
 function formatPriceInputNumeric(rawValue: string): string {
   return rawValue.replace(/\./g, ',').replace(/[^\d,]/g, '')
+}
+
+function placeCaretAtEnd(el: HTMLInputElement) {
+  const len = el.value.length
+  requestAnimationFrame(() => {
+    try {
+      el.setSelectionRange(len, len)
+    } catch {
+      /* ignore */
+    }
+  })
 }
 
 function IconSearch(props: { className?: string }) {
@@ -365,6 +381,23 @@ export function AlmuerzoForm({ mode }: Props) {
   const focusBarAfterClearRef = useRef(false)
   const step5BodyRef = useRef<HTMLDivElement>(null)
   const step5PriceRowRef = useRef<HTMLDivElement>(null)
+  const step5PriceInputRef = useRef<HTMLInputElement>(null)
+
+  const onPriceInputFocus = useCallback((e: FocusEvent<HTMLInputElement>) => {
+    placeCaretAtEnd(e.currentTarget)
+  }, [])
+
+  const onPriceInputClick = useCallback((e: MouseEvent<HTMLInputElement>) => {
+    placeCaretAtEnd(e.currentTarget)
+  }, [])
+
+  const onPriceSuffixMouseDown = useCallback((e: MouseEvent<HTMLSpanElement>) => {
+    const input = step5PriceInputRef.current
+    if (!input) return
+    e.preventDefault()
+    input.focus()
+    placeCaretAtEnd(input)
+  }, [])
 
   const [step, setStep] = useState(1)
   const [step1BarDocked, setStep1BarDocked] = useState(false)
@@ -1313,6 +1346,7 @@ export function AlmuerzoForm({ mode }: Props) {
                 <div ref={step5PriceRowRef} className="form-step5-price-row">
                   <div className="form-step5-price-field">
                     <input
+                      ref={step5PriceInputRef}
                       id="form-step5-price"
                       className="form-step5-price-input"
                       type="text"
@@ -1320,9 +1354,15 @@ export function AlmuerzoForm({ mode }: Props) {
                       autoComplete="off"
                       value={priceStr}
                       onChange={(e) => setPriceStr(formatPriceInputNumeric(e.target.value))}
-                      placeholder="0,00€"
+                      onFocus={onPriceInputFocus}
+                      onClick={onPriceInputClick}
+                      placeholder={PRECIO_PLACEHOLDER}
                     />
-                    <span className="form-step5-price-suffix" aria-hidden="true">
+                    <span
+                      className="form-step5-price-suffix"
+                      aria-hidden="true"
+                      onMouseDown={onPriceSuffixMouseDown}
+                    >
                       €
                     </span>
                   </div>
