@@ -340,7 +340,6 @@ export function AlmuerzoForm({ mode }: Props) {
   const { refreshProfile, profile, user, isImpersonating } = useAuth()
   const dateInputRef = useRef<HTMLInputElement>(null)
   const barSearchInputRef = useRef<HTMLInputElement>(null)
-  const bocInputRef = useRef<HTMLInputElement>(null)
   const step1BlurTimerRef = useRef<number | null>(null)
   const focusBarAfterClearRef = useRef(false)
 
@@ -476,14 +475,6 @@ export function AlmuerzoForm({ mode }: Props) {
       }
       setStep1BarDocked(false)
     }
-  }, [step])
-
-  useEffect(() => {
-    if (step !== 2) return
-    const id = window.setTimeout(() => {
-      bocInputRef.current?.focus()
-    }, 0)
-    return () => window.clearTimeout(id)
   }, [step])
 
   useLayoutEffect(() => {
@@ -669,7 +660,6 @@ export function AlmuerzoForm({ mode }: Props) {
   }
 
   const step2Complete = useCallback(() => bocName.trim() !== '', [bocName])
-  const isBocNameFilled = step2Complete()
 
   const step3Complete = useCallback(() => bebidaOptionId.trim() !== '', [bebidaOptionId])
   const step4Complete = useCallback(() => cafeOptionId.trim() !== '', [cafeOptionId])
@@ -947,12 +937,11 @@ export function AlmuerzoForm({ mode }: Props) {
         >
           <section className="form-mid-section">
             <h3 id={bocSectionTitleId} className="form-mid-section-title">
-              Bocadillo <span className="form-required-tag">Obligatorio</span>
+              Bocadillo
             </h3>
-            <div className="form-boc-pill-wrap form-boc-pill-wrap--primary">
+            <div className="form-boc-pill-wrap">
               <IconEsmorzar className="form-boc-pill-icon" />
               <input
-                ref={bocInputRef}
                 id="form-step2-boc"
                 className="form-boc-pill-input"
                 type="text"
@@ -969,23 +958,13 @@ export function AlmuerzoForm({ mode }: Props) {
                 placeholder={BOCADILLO_NAME_PLACEHOLDER}
               />
             </div>
-            <p className="form-boc-helper" role="note">
-              Escribe primero el nombre del bocadillo para continuar con el resto del paso.
-            </p>
           </section>
 
           <section className="form-mid-section">
             <h3 className="form-mid-section-title">
               Gasto <span className="muted">(opcional)</span>
             </h3>
-            {!isBocNameFilled && (
-              <p className="form-gasto-lock-hint">Primero indica el bocadillo para activar estas opciones.</p>
-            )}
-            <div
-              className={`form-gasto-grid${!isBocNameFilled ? ' form-gasto-grid--locked' : ''}`}
-              role="group"
-              aria-label="Gasto en el bar (opcional)"
-            >
+            <div className="form-gasto-grid" role="group" aria-label="Gasto en el bar (opcional)">
               {gastoOpts.map((opt) => {
                 const selected = gastoOptionIds.includes(opt.id)
                 return (
@@ -993,8 +972,6 @@ export function AlmuerzoForm({ mode }: Props) {
                     key={opt.id}
                     type="button"
                     className={`form-gasto-chip form-option ${selected ? 'is-selected' : ''}`}
-                    disabled={!isBocNameFilled}
-                    aria-disabled={!isBocNameFilled}
                     onClick={() => toggleGastoOption(opt.id)}
                   >
                     <span className="form-gasto-chip-label">{opt.label}</span>

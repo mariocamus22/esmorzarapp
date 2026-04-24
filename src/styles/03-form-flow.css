@@ -434,30 +434,10 @@ button.form-flow-back:hover {
   color: var(--app-text, #1a1a1a);
 }
 
-.form-required-tag {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 0.35rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 999px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  font-size: 0.7rem;
-  font-weight: 700;
-  line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
 .form-boc-pill-wrap {
   position: relative;
   display: flex;
   align-items: center;
-}
-
-.form-boc-pill-wrap--primary {
-  border-radius: 999px;
-  box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.18);
 }
 
 .form-boc-pill-icon {
@@ -469,14 +449,16 @@ button.form-flow-back:hover {
 
 .form-boc-pill-input {
   width: 100%;
-  padding: 0.95rem 1.1rem 0.95rem 2.85rem;
+  padding: 1.1rem 1.1rem 1.1rem 2.85rem;
   border-radius: 999px;
-  border: 1px solid transparent;
-  background: var(--app-fill, #eceae4);
+  border: 1.5px solid rgba(245, 166, 35, 0.42);
+  background: color-mix(in srgb, var(--app-fill, #eceae4) 76%, #fff 24%);
   color: var(--app-text, #1a1a1a);
   font: inherit;
-  font-size: 0.9375rem;
-  font-weight: 400;
+  font-size: 1.04rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
 }
 
 .form-boc-pill-input:focus {
@@ -484,13 +466,6 @@ button.form-flow-back:hover {
   border-style: solid;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-soft);
-}
-
-.form-boc-helper {
-  margin: 0.5rem 0 0;
-  font-size: 0.8125rem;
-  line-height: 1.35;
-  color: var(--app-text-muted, #8a8478);
 }
 
 /* Placeholders y estado “sin rellenar” unificados (formulario almuerzo) */
@@ -578,17 +553,6 @@ button.form-flow-back:hover {
   gap: 0.625rem;
 }
 
-.form-gasto-lock-hint {
-  margin: -0.1rem 0 0.55rem;
-  font-size: 0.8125rem;
-  line-height: 1.35;
-  color: var(--app-text-muted, #8a8478);
-}
-
-.form-gasto-grid--locked {
-  opacity: 0.58;
-}
-
 .form-gasto-chip {
   display: flex;
   align-items: center;
@@ -599,10 +563,6 @@ button.form-flow-back:hover {
   font-size: 0.8125rem;
   font-weight: 600;
   text-align: left;
-}
-
-.form-gasto-chip:disabled {
-  cursor: not-allowed;
 }
 
 .form-gasto-chip-emoji {
