@@ -1072,6 +1072,8 @@ button.form-flow-back:hover {
   padding: 0.85rem 1rem;
   font: inherit;
   font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.45;
   color: var(--app-text, #1a1a1a);
   transition:
     border-color 0.15s ease,
@@ -1107,8 +1109,10 @@ button.form-flow-back:hover {
   min-width: 0;
   box-sizing: border-box;
   text-align: center;
+  font: inherit;
   font-size: 0.9375rem;
-  font-weight: 500;
+  font-weight: 400;
+  line-height: 1.45;
   padding: 0.8rem 0.45rem;
   border-radius: var(--radius-full);
   border: 1px solid transparent;
@@ -1127,7 +1131,7 @@ button.form-flow-back:hover {
 }
 
 .form-step5-price-input:focus:placeholder-shown {
-  background: var(--color-surface);
+  background: var(--app-fill, #eceae4);
 }
 
 .form-step5-photo-add {
@@ -1140,16 +1144,18 @@ button.form-flow-back:hover {
   gap: 0.35rem;
   padding: 0.7rem 0.5rem;
   border-radius: 999px;
-  border: 2px dashed #d6d3cc;
-  background: #eceae4;
+  border: 1px solid transparent;
+  background: var(--app-fill, #eceae4);
+  color: var(--app-text-muted, var(--color-fg-muted));
   cursor: pointer;
   transition:
     border-color 0.15s ease,
+    box-shadow 0.15s ease,
     opacity 0.15s ease;
 }
 
 .form-step5-photo-add:hover:not(.is-disabled) {
-  border-color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--app-text-muted, #8a8478) 38%, transparent);
 }
 
 .form-step5-photo-add:focus-within {
@@ -1157,20 +1163,23 @@ button.form-flow-back:hover {
 }
 
 .form-step5-photo-add:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-style: solid;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-soft);
 }
 
 .form-step5-photo-add-icon {
-  color: var(--color-primary);
+  color: var(--color-fg-subtle, var(--app-text-muted));
 }
 
 .form-step5-photo-add-label {
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.45;
   text-align: center;
-  line-height: 1.2;
-  color: var(--color-primary);
+  color: var(--app-text-muted, var(--color-fg-muted));
 }
 
 .form-step5-photo-add.is-disabled {
@@ -1329,7 +1338,7 @@ button.form-flow-back:hover {
   }
 
   html[data-theme="dark"] .form-step5-price-input:focus:placeholder-shown {
-    background: var(--app-surface, #2a2926);
+    background: var(--app-fill, #3d3b36);
   }
 
   html[data-theme="dark"] .form-drink-other-input:placeholder-shown:not(:focus) {
@@ -1337,9 +1346,23 @@ button.form-flow-back:hover {
     border-color: var(--app-border, #5c5a54);
   }
 
+  /* Mateix família que app-fill, una mica més enfonsat (terciari) sense cridar l’atenció */
   html[data-theme="dark"] .form-step5-photo-add {
-    background: var(--app-fill, #3d3b36);
-    border-color: var(--app-border, #5c5a54);
+    background: color-mix(in srgb, var(--app-fill, #3d3b36) 78%, var(--color-bg, #1f1e1b) 22%);
+    border-color: transparent;
+    color: var(--color-fg-subtle, #9a948a);
+  }
+
+  html[data-theme="dark"] .form-step5-photo-add:hover:not(.is-disabled) {
+    border-color: color-mix(in srgb, var(--app-text-muted, #b8b3a8) 32%, transparent);
+  }
+
+  html[data-theme="dark"] .form-step5-photo-add-icon {
+    color: var(--color-fg-subtle, #9a948a);
+  }
+
+  html[data-theme="dark"] .form-step5-photo-add-label {
+    color: var(--app-text-muted, #b8b3a8);
   }
 
   html[data-theme="dark"] .form-step1-cta,
