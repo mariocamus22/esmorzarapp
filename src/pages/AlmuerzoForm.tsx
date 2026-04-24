@@ -43,7 +43,7 @@ type Props = {
   mode: FormMode
 }
 
-const BAR_SEARCH_PLACEHOLDER = 'Busca un bar… (ej. La Mesedora, Algemesí)'
+const BAR_SEARCH_PLACEHOLDER = 'Escribe el nombre del bar'
 
 const BOCADILLO_NAME_PLACEHOLDER = 'Escribe el bocadillo'
 
@@ -1178,7 +1178,7 @@ export function AlmuerzoForm({ mode }: Props) {
                     setReview(next)
                   }}
                   rows={4}
-                  placeholder="El pan estaba un poco duro y de cantidad más bien pobre"
+                  placeholder="¿Qué te ha parecido el almuerzo?"
                 />
               </div>
 
@@ -1194,7 +1194,7 @@ export function AlmuerzoForm({ mode }: Props) {
                     inputMode="decimal"
                     value={priceStr}
                     onChange={(e) => setPriceStr(e.target.value)}
-                    placeholder="Ej. 7,50"
+                    placeholder="Ej: 7,50"
                   />
                   <input
                     id="form-step5-files"

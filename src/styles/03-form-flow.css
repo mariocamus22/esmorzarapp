@@ -497,17 +497,17 @@ button.form-flow-back:hover {
 .form-step5-review-textarea::placeholder,
 .form-step5-price-input::placeholder,
 .form-drink-other-input::placeholder {
-  color: var(--app-text-muted, #8a8478);
-  opacity: 0.55;
+  color: color-mix(in srgb, var(--app-text-muted, #8a8478) 82%, transparent);
+  opacity: 0.82;
   font-weight: 500;
-  font-style: italic;
+  font-style: normal;
 }
 
 .form-step1-search-input:placeholder-shown:not(:focus) {
-  border-style: dashed;
+  border-style: solid;
   border-width: 1px;
-  border-color: rgba(138, 132, 120, 0.38);
-  background: rgba(245, 243, 238, 0.62);
+  border-color: transparent;
+  background: var(--app-fill, #eceae4);
 }
 
 .form-boc-pill-input:placeholder-shown:not(:focus) {
@@ -518,15 +518,15 @@ button.form-flow-back:hover {
 }
 
 .form-step5-review-textarea:placeholder-shown:not(:focus) {
-  border-style: dashed;
-  border-color: rgba(138, 132, 120, 0.42);
-  background: rgba(245, 243, 238, 0.65);
+  border-style: solid;
+  border-color: transparent;
+  background: var(--app-fill, #eceae4);
 }
 
 .form-step5-price-input:placeholder-shown:not(:focus) {
-  border-style: dashed;
-  border-color: rgba(138, 132, 120, 0.42);
-  background: rgba(245, 243, 238, 0.65);
+  border-style: solid;
+  border-color: transparent;
+  background: var(--app-fill, #eceae4);
 }
 
 .form-drink-other-input:placeholder-shown:not(:focus) {
@@ -1025,8 +1025,8 @@ button.form-flow-back:hover {
   min-height: 120px;
   resize: none;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-surface);
+  border: 1px solid transparent;
+  background: var(--app-fill, #eceae4);
   padding: 0.85rem 1rem;
   font: inherit;
   font-size: 0.9375rem;
@@ -1065,12 +1065,12 @@ button.form-flow-back:hover {
   min-width: 0;
   box-sizing: border-box;
   text-align: center;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 500;
   padding: 0.8rem 0.45rem;
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-surface);
+  border: 1px solid transparent;
+  background: var(--app-fill, #eceae4);
   color: var(--app-text, #1a1a1a);
   transition:
     border-color 0.15s ease,
@@ -1188,14 +1188,14 @@ button.form-flow-back:hover {
   }
 
   html[data-theme="dark"] .form-step5-review-textarea, html[data-theme="dark"] .form-step5-price-input {
-    background: var(--app-surface, #2a2926);
-    border-color: var(--app-border, #4a4843);
+    background: var(--app-fill, #3d3b36);
+    border-color: transparent;
     color: var(--app-text, #f5f3ee);
   }
 
   html[data-theme="dark"] .form-step1-search-input:placeholder-shown:not(:focus) {
-    background: rgba(0, 0, 0, 0.18);
-    border-color: var(--app-border, #5c5a54);
+    background: var(--app-fill, #3d3b36);
+    border-color: transparent;
   }
 
   html[data-theme="dark"] .form-boc-pill-input {
@@ -1204,6 +1204,13 @@ button.form-flow-back:hover {
   }
 
   html[data-theme="dark"] .form-boc-pill-input::placeholder {
+    color: color-mix(in srgb, var(--app-text, #f5f3ee) 72%, transparent);
+    opacity: 0.86;
+  }
+
+  html[data-theme="dark"] .form-step1-search-input::placeholder,
+  html[data-theme="dark"] .form-step5-review-textarea::placeholder,
+  html[data-theme="dark"] .form-step5-price-input::placeholder {
     color: color-mix(in srgb, var(--app-text, #f5f3ee) 72%, transparent);
     opacity: 0.86;
   }
@@ -1222,8 +1229,8 @@ button.form-flow-back:hover {
   }
 
   html[data-theme="dark"] .form-step5-review-textarea:placeholder-shown:not(:focus), html[data-theme="dark"] .form-step5-price-input:placeholder-shown:not(:focus) {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: var(--app-border, #5c5a54);
+    background: var(--app-fill, #3d3b36);
+    border-color: transparent;
   }
 
   html[data-theme="dark"] .form-step5-price-input:focus:placeholder-shown {
