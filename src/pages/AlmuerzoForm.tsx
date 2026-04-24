@@ -453,8 +453,8 @@ export function AlmuerzoForm({ mode }: Props) {
   const [barFieldKey, setBarFieldKey] = useState(0)
   const [showStep5ScrollHint, setShowStep5ScrollHint] = useState(false)
   const [step5ScrollHintDismissed, setStep5ScrollHintDismissed] = useState(false)
-  /** Paso resumen: ampliar o reducir el bloque con chips (enlace + región con hidden para accesibilidad). */
-  const [summaryDetailsExpanded, setSummaryDetailsExpanded] = useState(true)
+  /** Paso resumen: por defecto cerrado; enlace + región con hidden para accesibilidad. */
+  const [summaryDetailsExpanded, setSummaryDetailsExpanded] = useState(false)
 
   const newPreviewUrls = useMemo(
     () => newFiles.map((f) => URL.createObjectURL(f)),
@@ -1350,7 +1350,7 @@ export function AlmuerzoForm({ mode }: Props) {
                     onClick={() => setSummaryDetailsExpanded((v) => !v)}
                   >
                     <span>
-                      {summaryDetailsExpanded ? 'Ocultar resumen del almuerzo' : 'Ver resumen almuerzo'}
+                      {summaryDetailsExpanded ? 'Ocultar resumen almuerzo' : 'Ver resumen almuerzo'}
                     </span>
                     <IconChevronDown
                       className={`form-summary-togglelink-chevron${summaryDetailsExpanded ? ' is-open' : ''}`}
@@ -1369,7 +1369,7 @@ export function AlmuerzoForm({ mode }: Props) {
                     <span className="form-summary-divider" />
                   </div>
                   <div className="form-summary-section">
-                    <h3 className="detail-static-label detail-static-label--accent">Bocadillo y Gasto</h3>
+                    <h3 className="detail-static-label">Bocadillo y Gasto</h3>
                     <p className="form-summary-boc-name">{bocNameSummary}</p>
                     {gastoSummaryLabels.length > 0 ? (
                       <div className="detail-static-chip-row form-summary-gasto-chips">
@@ -1385,7 +1385,7 @@ export function AlmuerzoForm({ mode }: Props) {
                   </div>
                   <div className="form-summary-drink-coffee">
                     <div className="form-summary-drink-coffee-col">
-                      <h3 className="detail-static-label detail-static-label--accent">Bebida</h3>
+                      <h3 className="detail-static-label">Bebida</h3>
                       <span className="detail-static-chip form-summary-drink-chip">
                         {drinkRawLabel ? (
                           <>
@@ -1398,7 +1398,7 @@ export function AlmuerzoForm({ mode }: Props) {
                       </span>
                     </div>
                     <div className="form-summary-drink-coffee-col">
-                      <h3 className="detail-static-label detail-static-label--accent">Café</h3>
+                      <h3 className="detail-static-label">Café</h3>
                       <span className="detail-static-chip">{coffeeChipText}</span>
                     </div>
                   </div>
