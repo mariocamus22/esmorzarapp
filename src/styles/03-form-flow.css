@@ -1022,7 +1022,7 @@ button.form-flow-back:hover {
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
-  /* Marca cítrica del design system (index.css —color-primary) */
+  /* Siempre el naranja marca (#f5a623); sin aclarar en :active / hover táctil */
   color: var(--color-primary);
   font: inherit;
   font-size: 0.8125rem;
@@ -1036,13 +1036,21 @@ button.form-flow-back:hover {
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
-  -webkit-tap-highlight-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
-  transition: color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 1;
 }
 
 .form-summary-togglelink:hover {
-  color: var(--color-primary-hover);
-  text-decoration-color: var(--color-primary-hover);
+  color: var(--color-primary);
+  text-decoration-color: var(--color-primary);
+}
+
+.form-summary-togglelink:active,
+.form-summary-togglelink:focus,
+.form-summary-togglelink:focus-visible {
+  color: var(--color-primary);
+  text-decoration-color: var(--color-primary);
+  opacity: 1;
 }
 
 .form-summary-togglelink:focus-visible {
@@ -1053,13 +1061,14 @@ button.form-flow-back:hover {
 .form-summary-togglelink-chevron {
   flex-shrink: 0;
   color: var(--color-primary);
-  transition:
-    transform 0.2s ease,
-    color 0.15s ease;
+  transition: transform 0.2s ease;
 }
 
-.form-summary-togglelink:hover .form-summary-togglelink-chevron {
-  color: var(--color-primary-hover);
+.form-summary-togglelink:hover .form-summary-togglelink-chevron,
+.form-summary-togglelink:active .form-summary-togglelink-chevron,
+.form-summary-togglelink:focus .form-summary-togglelink-chevron,
+.form-summary-togglelink:focus-visible .form-summary-togglelink-chevron {
+  color: var(--color-primary);
 }
 
 .form-summary-togglelink-chevron.is-open {
@@ -1370,6 +1379,19 @@ button.form-flow-back:hover {
   flex-shrink: 0;
 }
 
+/* Teclado virtual: CTAs al flujo del documento, sin sticky sobre el teclado */
+.form-step5-footer.form-mid-footer-row.form-step5-footer--keyboard-open {
+  position: relative;
+  bottom: auto;
+  z-index: 1;
+  margin-top: 0.35rem;
+  padding-top: 0.85rem;
+  padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.55rem));
+  background: var(--color-bg, #f5f3ee);
+  border-top: 1px solid color-mix(in srgb, var(--color-border-subtle, #d6d3cc) 72%, transparent);
+  backdrop-filter: none;
+}
+
 .form-step5-scroll-hint {
   position: fixed;
   left: max(1rem, calc(env(safe-area-inset-left) + 0.5rem));
@@ -1571,6 +1593,11 @@ button.form-flow-back:hover {
       color-mix(in srgb, var(--color-bg, #1e1d1a) 94%, transparent) 38%,
       var(--color-bg, #1e1d1a) 100%
     );
+    border-top-color: color-mix(in srgb, var(--app-border, #4a4843) 72%, transparent);
+  }
+
+  html[data-theme="dark"] .form-step5-footer.form-mid-footer-row.form-step5-footer--keyboard-open {
+    background: var(--color-bg, #1f1e1b);
     border-top-color: color-mix(in srgb, var(--app-border, #4a4843) 72%, transparent);
   }
 

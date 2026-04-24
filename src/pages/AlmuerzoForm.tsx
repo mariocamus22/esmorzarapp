@@ -398,6 +398,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const step5BodyRef = useRef<HTMLDivElement>(null)
   const step5PriceRowRef = useRef<HTMLDivElement>(null)
   const step5PriceInputRef = useRef<HTMLInputElement>(null)
+  const step5ReviewTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   const onPriceInputFocus = useCallback((e: FocusEvent<HTMLInputElement>) => {
     placeCaretAtEnd(e.currentTarget)
@@ -455,6 +456,8 @@ export function AlmuerzoForm({ mode }: Props) {
   const [step5ScrollHintDismissed, setStep5ScrollHintDismissed] = useState(false)
   /** Paso resumen: por defecto cerrado; enlace + región con hidden para accesibilidad. */
   const [summaryDetailsExpanded, setSummaryDetailsExpanded] = useState(false)
+  /** Paso 5: teclado virtual (visualViewport) — quita sticky de los CTAs. */
+  const [step5VisualKeyboardOpen, setStep5VisualKeyboardOpen] = useState(false)
 
   const newPreviewUrls = useMemo(
     () => newFiles.map((f) => URL.createObjectURL(f)),
@@ -665,6 +668,46 @@ export function AlmuerzoForm({ mode }: Props) {
       ro.disconnect()
     }
   }, [step, keepPaths.length, newFiles.length, step5ScrollHintDismissed])
+
+  useEffect(() => {
+    if (step !== 5) {
+      setStep5VisualKeyboardOpen(false)
+      return
+    }
+    const vv = window.visualViewport
+    if (!vv) return
+    const KEYBOARD_HEIGHT_THRESHOLD = 80
+    const syncKeyboard = () => {
+      setStep5VisualKeyboardOpen(window.innerHeight - vv.height > KEYBOARD_HEIGHT_THRESHOLD)
+    }
+    syncKeyboard()
+    vv.addEventListener('resize', syncKeyboard)
+    vv.addEventListener('scroll', syncKeyboard)
+    return () => {
+      vv.removeEventListener('resize', syncKeyboard)
+      vv.removeEventListener('scroll', syncKeyboard)
+    }
+  }, [step])
+
+  const scrollNotaPersonalIntoView = useCallback(() => {
+    const scrollRoot = step5BodyRef.current
+    const el = step5ReviewTextareaRef.current
+    if (!scrollRoot || !el) return
+    const nudge = () => {
+      const vv = window.visualViewport
+      const overlayTop = vv?.offsetTop ?? 0
+      const targetFromViewportTop = overlayTop + 56
+      const rect = el.getBoundingClientRect()
+      const delta = rect.top - targetFromViewportTop
+      if (Math.abs(delta) > 5) {
+        scrollRoot.scrollBy({ top: delta, behavior: 'smooth' })
+      }
+    }
+    requestAnimationFrame(nudge)
+    window.setTimeout(nudge, 100)
+    window.setTimeout(nudge, 320)
+    window.setTimeout(nudge, 520)
+  }, [])
 
   useEffect(() => {
     if (!focusBarAfterClearRef.current) return
@@ -1413,6 +1456,7 @@ export function AlmuerzoForm({ mode }: Props) {
                   Este comentario es privado y solo lo podrás ver tú.
                 </p>
                 <textarea
+                  ref={step5ReviewTextareaRef}
                   id="form-step5-review"
                   className="form-step5-review-textarea"
                   value={review}
@@ -1422,6 +1466,7 @@ export function AlmuerzoForm({ mode }: Props) {
                       raw.length > 0 ? raw.charAt(0).toLocaleUpperCase('es') + raw.slice(1) : raw
                     setReview(next)
                   }}
+                  onFocus={scrollNotaPersonalIntoView}
                   rows={4}
                   placeholder={NOTA_PERSONAL_PLACEHOLDER}
                   aria-describedby={notaPersonalHintId}
@@ -1537,7 +1582,9 @@ export function AlmuerzoForm({ mode }: Props) {
               </button>
             )}
 
-            <footer className="form-mid-footer-row form-step5-footer">
+            <footer
+              className={`form-mid-footer-row form-step5-footer${step5VisualKeyboardOpen ? ' form-step5-footer--keyboard-open' : ''}`}
+            >
               <button type="button" className="form-step5-btn-atras" onClick={() => window.history.back()}>
                 Atrás
               </button>
