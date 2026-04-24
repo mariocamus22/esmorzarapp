@@ -662,6 +662,7 @@ button.form-flow-back:hover {
     var(--color-bg, #f5f3ee) 100%
   );
   border-top: 1px solid color-mix(in srgb, var(--color-border-subtle, #d6d3cc) 72%, transparent);
+  backdrop-filter: blur(6px);
 }
 
 /* Pasos 2–4: CTAs dentro del scroll para que no queden pegados al teclado al editar texto */
