@@ -1196,18 +1196,31 @@ button.form-flow-back:hover {
   gap: 0.35rem;
   padding: 0.7rem 0.5rem;
   border-radius: 999px;
-  border: 1px solid transparent;
-  background: var(--app-fill, #eceae4);
-  color: var(--app-text-muted, var(--color-fg-muted));
+  /* Terciario: se distingue del campo de precio (relleno + borde sólido) sin competir con CTAs */
+  border: 1px dashed color-mix(in srgb, var(--app-text-muted, #8a8478) 42%, transparent);
+  background: color-mix(in srgb, var(--app-fill, #eceae4) 88%, var(--color-bg, #f5f3ee) 12%);
+  color: color-mix(in srgb, var(--app-text, #1a1a1a) 52%, var(--app-text-muted, #8a8478) 48%);
   cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--app-text-muted, #8a8478) 18%, transparent);
   transition:
     border-color 0.15s ease,
+    border-style 0.15s ease,
+    background-color 0.15s ease,
     box-shadow 0.15s ease,
-    opacity 0.15s ease;
+    opacity 0.15s ease,
+    transform 0.12s ease;
 }
 
 .form-step5-photo-add:hover:not(.is-disabled) {
-  border-color: color-mix(in srgb, var(--app-text-muted, #8a8478) 38%, transparent);
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--app-text-muted, #8a8478) 48%, transparent);
+  background: color-mix(in srgb, var(--app-fill, #eceae4) 94%, var(--color-bg, #f5f3ee) 6%);
+}
+
+.form-step5-photo-add:active:not(.is-disabled) {
+  transform: scale(0.985);
 }
 
 .form-step5-photo-add:focus-within {
@@ -1221,23 +1234,32 @@ button.form-flow-back:hover {
   box-shadow: 0 0 0 2px var(--color-primary-soft);
 }
 
+.form-step5-photo-add:hover:not(.is-disabled) .form-step5-photo-add-label {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, var(--app-text-muted, #8a8478) 55%, transparent);
+}
+
 .form-step5-photo-add-icon {
-  color: var(--color-fg-subtle, var(--app-text-muted));
+  color: color-mix(in srgb, var(--app-text, #1a1a1a) 38%, var(--app-text-muted, #8a8478) 62%);
 }
 
 .form-step5-photo-add-label {
   font: inherit;
   font-size: 0.9375rem;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.45;
   text-align: center;
-  color: var(--app-text-muted, var(--color-fg-muted));
+  color: color-mix(in srgb, var(--app-text, #1a1a1a) 48%, var(--app-text-muted, #8a8478) 52%);
 }
 
 .form-step5-photo-add.is-disabled {
-  opacity: 0.45;
+  opacity: 0.42;
   cursor: not-allowed;
   pointer-events: none;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--app-text-muted, #8a8478) 22%, transparent);
 }
 
 .form-step5-photos-meta {
@@ -1406,23 +1428,32 @@ button.form-flow-back:hover {
     border-color: var(--app-border, #5c5a54);
   }
 
-  /* Mateix família que app-fill, una mica més enfonsat (terciari) sense cridar l’atenció */
   html[data-theme="dark"] .form-step5-photo-add {
-    background: color-mix(in srgb, var(--app-fill, #3d3b36) 78%, var(--color-bg, #1f1e1b) 22%);
-    border-color: transparent;
-    color: var(--color-fg-subtle, #9a948a);
+    border: 1px dashed color-mix(in srgb, var(--app-text-muted, #b8b3a8) 38%, transparent);
+    background: color-mix(in srgb, var(--app-fill, #3d3b36) 82%, var(--color-bg, #1f1e1b) 18%);
+    color: color-mix(in srgb, var(--app-text, #f5f3ee) 58%, var(--app-text-muted, #b8b3a8) 42%);
   }
 
   html[data-theme="dark"] .form-step5-photo-add:hover:not(.is-disabled) {
-    border-color: color-mix(in srgb, var(--app-text-muted, #b8b3a8) 32%, transparent);
+    border-style: solid;
+    border-color: color-mix(in srgb, var(--app-text-muted, #b8b3a8) 44%, transparent);
+    background: color-mix(in srgb, var(--app-fill, #3d3b36) 90%, var(--color-bg, #1f1e1b) 10%);
+  }
+
+  html[data-theme="dark"] .form-step5-photo-add:hover:not(.is-disabled) .form-step5-photo-add-label {
+    text-decoration-color: color-mix(in srgb, var(--app-text-muted, #b8b3a8) 50%, transparent);
   }
 
   html[data-theme="dark"] .form-step5-photo-add-icon {
-    color: var(--color-fg-subtle, #9a948a);
+    color: color-mix(in srgb, var(--app-text, #f5f3ee) 45%, var(--color-fg-subtle, #9a948a) 55%);
   }
 
   html[data-theme="dark"] .form-step5-photo-add-label {
-    color: var(--app-text-muted, #b8b3a8);
+    color: color-mix(in srgb, var(--app-text, #f5f3ee) 52%, var(--app-text-muted, #b8b3a8) 48%);
+  }
+
+  html[data-theme="dark"] .form-step5-photo-add.is-disabled {
+    border-color: color-mix(in srgb, var(--app-text-muted, #b8b3a8) 18%, transparent);
   }
 
   html[data-theme="dark"] .form-step1-cta,

@@ -1438,6 +1438,12 @@ export function AlmuerzoForm({ mode }: Props) {
                   <label
                     htmlFor="form-step5-files"
                     className={`form-step5-photo-add ${!puedeMasFotos ? 'is-disabled' : ''}`}
+                    aria-disabled={!puedeMasFotos}
+                    aria-label={
+                      puedeMasFotos
+                        ? 'Añadir fotos desde la galería'
+                        : `Límite de ${MAX_FOTOS_ALMUERZO} fotos alcanzado`
+                    }
                   >
                     <IconCameraPlus className="form-step5-photo-add-icon" />
                     <span className="form-step5-photo-add-label">Añadir fotos</span>
