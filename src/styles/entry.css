@@ -1,0 +1,6 @@
+/* Estils d’aplicació (l’ordre importa: abast creixent) */
+@import url('./01-shell.css');
+@import url('./02-home.css');
+@import url('./03-form-flow.css');
+@import url('./04-detail.css');
+@import url('./05-overlays.css');

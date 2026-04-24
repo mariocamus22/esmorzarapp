@@ -8,7 +8,7 @@ import { HomeList } from './pages/HomeList'
 import { AlmuerzoForm } from './pages/AlmuerzoForm'
 import { AlmuerzoDetail } from './pages/AlmuerzoDetail'
 import { LoginPage } from './pages/LoginPage'
-import './App.css'
+import './styles/entry.css'
 
 /**
  * Raíz de la app: rutas públicas (login) y rutas protegidas (CRUD almuerzos).
