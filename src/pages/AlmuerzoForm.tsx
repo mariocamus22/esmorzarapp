@@ -379,6 +379,8 @@ export function AlmuerzoForm({ mode }: Props) {
   const bebidaInlineErrorId = useId()
   const cafeSectionTitleId = useId()
   const cafeInlineErrorId = useId()
+  const barSectionTitleId = useId()
+  const barNameInlineErrorId = useId()
   const notaPersonalHintId = useId()
   const summaryToggleId = useId()
   const summaryDetailsRegionId = useId()
@@ -452,6 +454,7 @@ export function AlmuerzoForm({ mode }: Props) {
   const [showBocNameInlineError, setShowBocNameInlineError] = useState(false)
   const [showBebidaInlineError, setShowBebidaInlineError] = useState(false)
   const [showCafeInlineError, setShowCafeInlineError] = useState(false)
+  const [showBarNameInlineError, setShowBarNameInlineError] = useState(false)
   /** Remonta el input con Places (uncontrolled) al limpiar el bar para vaciar el DOM. */
   const [barFieldKey, setBarFieldKey] = useState(0)
   const [showStep5ScrollHint, setShowStep5ScrollHint] = useState(false)
@@ -577,6 +580,12 @@ export function AlmuerzoForm({ mode }: Props) {
     }
   }, [step])
 
+  useEffect(() => {
+    if (step !== 1) {
+      setShowBarNameInlineError(false)
+    }
+  }, [step])
+
   useLayoutEffect(() => {
     scrollAppViewportToTop()
   }, [step])
@@ -697,6 +706,7 @@ export function AlmuerzoForm({ mode }: Props) {
 
   const handleBarInputChange = useCallback((v: string) => {
     setBarName(v)
+    if (v.trim() !== '') setShowBarNameInlineError(false)
     const prev = barNameFromPlaceRef.current
     if (prev !== null && v.trim() !== prev.trim()) {
       setGooglePlaceId(null)
@@ -708,6 +718,7 @@ export function AlmuerzoForm({ mode }: Props) {
   }, [])
 
   const handlePlaceResolved = useCallback((p: BarPlaceResolved) => {
+    setShowBarNameInlineError(false)
     setBarName(p.name)
     setGooglePlaceId(p.googlePlaceId)
     setBarFormattedAddress(p.formattedAddress)
@@ -832,10 +843,21 @@ export function AlmuerzoForm({ mode }: Props) {
     setKeepPaths((prev) => prev.filter((p) => p !== path))
   }
 
+  function focusBarForCompletion() {
+    setShowBarNameInlineError(true)
+    const input = barSearchInputRef.current
+    if (!input) return
+    const focusInput = () => {
+      input.focus()
+      input.click()
+    }
+    window.requestAnimationFrame(focusInput)
+  }
+
   function handleStep1Next() {
     setError(null)
     if (!barName.trim()) {
-      setError('El nombre del bar es obligatorio.')
+      focusBarForCompletion()
       return
     }
     pushFormHistory(2)
@@ -946,7 +968,16 @@ export function AlmuerzoForm({ mode }: Props) {
     setError(null)
 
     if (!barName.trim()) {
-      setError('El nombre del bar es obligatorio.')
+      setStep(1)
+      setShowBarNameInlineError(true)
+      queueMicrotask(() => {
+        window.requestAnimationFrame(() => {
+          const input = barSearchInputRef.current
+          if (!input) return
+          input.focus()
+          input.click()
+        })
+      })
       return
     }
     if (!step2Complete() || !step3Complete() || !step4Complete()) {
@@ -1075,9 +1106,14 @@ export function AlmuerzoForm({ mode }: Props) {
             {mapsDebug && <MapsStepDiagnostics apiKey={mapsApiKey} />}
 
             <div className="form-step1-body">
-              <label className="form-step1-label" htmlFor="form-step1-bar">
+              <label className="form-step1-label" id={barSectionTitleId} htmlFor="form-step1-bar">
                 Bar
               </label>
+              {showBarNameInlineError && (
+                <p id={barNameInlineErrorId} className="form-boc-inline-error" role="alert">
+                  Añade el nombre del bar para continuar.
+                </p>
+              )}
               <div
                 className={`form-step1-search-wrap${barName.trim() ? ' form-step1-search-wrap--has-value' : ''}`}
               >
@@ -1094,6 +1130,9 @@ export function AlmuerzoForm({ mode }: Props) {
                   placeholder={BAR_SEARCH_PLACEHOLDER}
                   onSearchFocus={onBarSearchFocus}
                   onSearchBlur={onBarSearchBlur}
+                  aria-labelledby={barSectionTitleId}
+                  aria-invalid={showBarNameInlineError}
+                  aria-describedby={showBarNameInlineError ? barNameInlineErrorId : undefined}
                 />
                 {barName.trim() !== '' && (
                   <button

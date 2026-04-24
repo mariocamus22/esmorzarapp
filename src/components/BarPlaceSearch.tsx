@@ -29,6 +29,9 @@ type Props = {
   disabled?: boolean
   onSearchFocus?: () => void
   onSearchBlur?: () => void
+  'aria-labelledby'?: string
+  'aria-invalid'?: boolean
+  'aria-describedby'?: string
 }
 
 function assignRef<T>(ref: Ref<T> | undefined, el: T | null) {
@@ -53,6 +56,9 @@ export const BarPlaceSearch = forwardRef<HTMLInputElement, Props>(function BarPl
     disabled = false,
     onSearchFocus,
     onSearchBlur,
+    'aria-labelledby': ariaLabelledby,
+    'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedby,
   },
   ref,
 ) {
@@ -159,6 +165,9 @@ export const BarPlaceSearch = forwardRef<HTMLInputElement, Props>(function BarPl
     disabled,
     onFocus: onSearchFocus,
     onBlur: onSearchBlur,
+    'aria-labelledby': ariaLabelledby,
+    'aria-invalid': ariaInvalid,
+    'aria-describedby': ariaDescribedby,
   }
 
   /**
