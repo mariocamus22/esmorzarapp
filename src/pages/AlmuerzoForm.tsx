@@ -129,10 +129,9 @@ function buildInput(
   }
 }
 
-function formatPriceInputDisplay(rawValue: string): string {
-  const numeric = rawValue.replace(/\./g, ',').replace(/[^\d,]/g, '')
-  if (numeric.trim() === '') return ''
-  return `${numeric} €`
+/** Solo dígitos y coma decimal; el símbolo € se muestra fijo fuera del input. */
+function formatPriceInputNumeric(rawValue: string): string {
+  return rawValue.replace(/\./g, ',').replace(/[^\d,]/g, '')
 }
 
 function IconSearch(props: { className?: string }) {
@@ -480,7 +479,7 @@ export function AlmuerzoForm({ mode }: Props) {
         setCafeOptionId(row.cafe_option_id ?? '')
         setBocName(row.bocadillo_name ?? '')
         setBocIng(row.bocadillo_ingredients ?? '')
-        setPriceStr(row.price != null ? formatPriceInputDisplay(String(row.price).replace('.', ',')) : '')
+        setPriceStr(row.price != null ? formatPriceInputNumeric(String(row.price).replace('.', ',')) : '')
         setReview(row.review ?? '')
         setKeepPaths([...row.photo_paths])
         setError(null)
@@ -1312,15 +1311,21 @@ export function AlmuerzoForm({ mode }: Props) {
                   Precio <span className="muted">(opcional)</span>
                 </label>
                 <div ref={step5PriceRowRef} className="form-step5-price-row">
-                  <input
-                    id="form-step5-price"
-                    className="form-step5-price-input"
-                    type="text"
-                    inputMode="decimal"
-                    value={priceStr}
-                    onChange={(e) => setPriceStr(formatPriceInputDisplay(e.target.value))}
-                    placeholder="Ej: 7,50 €"
-                  />
+                  <div className="form-step5-price-field">
+                    <input
+                      id="form-step5-price"
+                      className="form-step5-price-input"
+                      type="text"
+                      inputMode="decimal"
+                      autoComplete="off"
+                      value={priceStr}
+                      onChange={(e) => setPriceStr(formatPriceInputNumeric(e.target.value))}
+                      placeholder="0,00€"
+                    />
+                    <span className="form-step5-price-suffix" aria-hidden="true">
+                      €
+                    </span>
+                  </div>
                   <input
                     id="form-step5-files"
                     type="file"

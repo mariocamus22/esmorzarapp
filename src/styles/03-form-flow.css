@@ -549,7 +549,7 @@ button.form-flow-back:hover {
   background: var(--app-fill, #eceae4);
 }
 
-.form-step5-price-input:placeholder-shown:not(:focus) {
+.form-step5-price-field:not(:focus-within):has(.form-step5-price-input:placeholder-shown) {
   border-style: solid;
   border-color: transparent;
   background: var(--app-fill, #eceae4);
@@ -1103,17 +1103,15 @@ button.form-flow-back:hover {
   gap: var(--space-3);
 }
 
-.form-step5-price-input {
+.form-step5-price-field {
   flex: 0 0 35%;
   width: 35%;
   min-width: 0;
   box-sizing: border-box;
-  text-align: center;
-  font: inherit;
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.45;
-  padding: 0.8rem 0.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.12rem;
+  padding: 0 0.65rem 0 0.5rem;
   border-radius: var(--radius-full);
   border: 1px solid transparent;
   background: var(--app-fill, #eceae4);
@@ -1123,15 +1121,51 @@ button.form-flow-back:hover {
     box-shadow 0.15s ease;
 }
 
-.form-step5-price-input:focus {
+/* Con placeholder "0,00€" ocultamos el sufijo duplicado hasta que haya foco o valor */
+.form-step5-price-field:not(:focus-within) .form-step5-price-input:placeholder-shown ~ .form-step5-price-suffix {
+  display: none;
+}
+
+.form-step5-price-field:focus-within {
   outline: none;
   border-style: solid;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-soft);
 }
 
+.form-step5-price-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: right;
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.45;
+  padding: 0.8rem 0.2rem 0.8rem 0.35rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  transition: none;
+}
+
+.form-step5-price-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 .form-step5-price-input:focus:placeholder-shown {
-  background: var(--app-fill, #eceae4);
+  background: transparent;
+}
+
+.form-step5-price-suffix {
+  flex-shrink: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: inherit;
+  user-select: none;
 }
 
 .form-step5-price-input::placeholder {
@@ -1296,8 +1330,15 @@ button.form-flow-back:hover {
     );
   }
 
-  html[data-theme="dark"] .form-step5-review-textarea, html[data-theme="dark"] .form-step5-price-input {
+  html[data-theme="dark"] .form-step5-review-textarea,
+  html[data-theme="dark"] .form-step5-price-field {
     background: var(--app-fill, #3d3b36);
+    border-color: transparent;
+    color: var(--app-text, #f5f3ee);
+  }
+
+  html[data-theme="dark"] .form-step5-price-input {
+    background: transparent;
     border-color: transparent;
     color: var(--app-text, #f5f3ee);
   }
@@ -1337,12 +1378,13 @@ button.form-flow-back:hover {
     border-color: transparent;
   }
 
-  html[data-theme="dark"] .form-step5-review-textarea:placeholder-shown:not(:focus), html[data-theme="dark"] .form-step5-price-input:placeholder-shown:not(:focus) {
+  html[data-theme="dark"] .form-step5-review-textarea:placeholder-shown:not(:focus),
+  html[data-theme="dark"] .form-step5-price-field:not(:focus-within):has(.form-step5-price-input:placeholder-shown) {
     background: var(--app-fill, #3d3b36);
     border-color: transparent;
   }
 
-  html[data-theme="dark"] .form-step5-price-input:focus:placeholder-shown {
+  html[data-theme="dark"] .form-step5-price-field:focus-within:has(.form-step5-price-input:placeholder-shown) {
     background: var(--app-fill, #3d3b36);
   }
 
