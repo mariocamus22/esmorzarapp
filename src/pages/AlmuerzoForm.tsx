@@ -391,6 +391,7 @@ export function AlmuerzoForm({ mode }: Props) {
   /** Remonta el input con Places (uncontrolled) al limpiar el bar para vaciar el DOM. */
   const [barFieldKey, setBarFieldKey] = useState(0)
   const [showStep5ScrollHint, setShowStep5ScrollHint] = useState(false)
+  const [step5ScrollHintDismissed, setStep5ScrollHintDismissed] = useState(false)
 
   const newPreviewUrls = useMemo(
     () => newFiles.map((f) => URL.createObjectURL(f)),
@@ -521,13 +522,20 @@ export function AlmuerzoForm({ mode }: Props) {
     }
 
     const computeHintVisibility = () => {
+      if (step5ScrollHintDismissed) {
+        setShowStep5ScrollHint(false)
+        return
+      }
       const containerRect = container.getBoundingClientRect()
       const priceRect = priceRow.getBoundingClientRect()
-      const priceFullyVisible =
-        priceRect.top >= containerRect.top + 2 && priceRect.bottom <= containerRect.bottom - 2
-      const firstFoldHidden = priceRect.top > containerRect.bottom
+      const firstFoldHidden = priceRect.top > containerRect.bottom - 2
+      if (!firstFoldHidden) {
+        setShowStep5ScrollHint(false)
+        setStep5ScrollHintDismissed(true)
+        return
+      }
       const canScrollMore = container.scrollHeight > container.clientHeight + 4
-      setShowStep5ScrollHint(canScrollMore && firstFoldHidden && !priceFullyVisible)
+      setShowStep5ScrollHint(canScrollMore)
     }
 
     computeHintVisibility()
@@ -541,7 +549,7 @@ export function AlmuerzoForm({ mode }: Props) {
       window.removeEventListener('resize', computeHintVisibility)
       ro.disconnect()
     }
-  }, [step, keepPaths.length, newFiles.length])
+  }, [step, keepPaths.length, newFiles.length, step5ScrollHintDismissed])
 
   useEffect(() => {
     if (!focusBarAfterClearRef.current) return
@@ -1313,6 +1321,8 @@ export function AlmuerzoForm({ mode }: Props) {
                 onClick={() => {
                   const bodyEl = step5BodyRef.current
                   if (!bodyEl) return
+                  setStep5ScrollHintDismissed(true)
+                  setShowStep5ScrollHint(false)
                   bodyEl.scrollBy({ top: Math.max(220, bodyEl.clientHeight * 0.62), behavior: 'smooth' })
                 }}
                 aria-label="Bajar para ver precio y fotos"
