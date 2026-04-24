@@ -384,7 +384,7 @@ export function AlmuerzoDetail() {
               </div>
 
               <div className="detail-static-section">
-                <h3 className="detail-static-label">Gasto</h3>
+                <h3 className="detail-static-label detail-static-label--accent">Gasto</h3>
                 {gastoItems.length > 0 ? (
                   <div className="detail-static-chip-row">
                     {gastoItems.map((label, i) => (
